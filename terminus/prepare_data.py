@@ -18,7 +18,7 @@ from .tokenizer import encode_text, load_tokenizer, normalize_text, records, tok
 
 
 def prepare_data(corpus, tokenizer_path, output_dir, *, source_mix, total_train_tokens,
-                 seq_len=4096, batch_size=1, shard_tokens=10_000_000):
+                 seq_len=4096, batch_size=1, shard_tokens=10_000_000, scope=None):
     if shard_tokens <= 0:
         raise ValueError("shard token budget must be positive")
     output_dir = Path(output_dir)
@@ -26,7 +26,8 @@ def prepare_data(corpus, tokenizer_path, output_dir, *, source_mix, total_train_
         raise FileExistsError("data preparation requires an empty output directory")
     output_dir.mkdir(parents=True, exist_ok=True)
     tokenizer = load_tokenizer(tokenizer_path)
-    tokenizer_name = "tokenizer.txt" if Path(tokenizer_path).suffix == ".txt" else "tokenizer.model"
+    suffix = Path(tokenizer_path).suffix
+    tokenizer_name = {".txt": "tokenizer.txt", ".json": "tokenizer.json"}.get(suffix, "tokenizer.model")
     shutil.copyfile(tokenizer_path, output_dir / tokenizer_name)
     with (output_dir / tokenizer_name).open("rb") as handle:
         os.fsync(handle.fileno())
@@ -102,7 +103,12 @@ def prepare_data(corpus, tokenizer_path, output_dir, *, source_mix, total_train_
         contract["path"] = tokenizer_name
         provenance = {"normalization": "NFC", "packing": "continuous_eos", "document_dedup": "sha256_nfc",
                       "licenses": licenses, "corpus_sha256": file_sha256(corpus), "duplicate_documents_removed": duplicate_documents,
+                      "document_separator_id": tokenizer.eos_id(),
                       "documents": {f"{language}/{split}": count for (language, split), count in documents.items()}}
+        if scope is not None:
+            if not isinstance(scope, dict) or not scope.get("name"):
+                raise ValueError("a declared scope needs a versioned name")
+            provenance["scope"] = scope
         manifest = TokenManifest(config, sorted(shards, key=lambda spec: spec.path), contract, provenance)
         TrainingTokenRouter(manifest, root=output_dir)
         write_json_atomic(output_dir / "manifest.json", asdict(manifest))

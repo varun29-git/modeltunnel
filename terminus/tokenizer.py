@@ -104,8 +104,12 @@ def normalize_text(text):
 
 
 def load_tokenizer(path):
-    if Path(path).suffix == ".txt":
+    suffix = Path(path).suffix
+    if suffix == ".txt":
         return RWKVWorldTokenizer(path)
+    if suffix == ".json":
+        from .tokenizer65k import Frozen65kTokenizer
+        return Frozen65kTokenizer(path)
     import sentencepiece as sentencepiece
     from sentencepiece import sentencepiece_model_pb2
 

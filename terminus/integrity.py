@@ -14,6 +14,35 @@ from .data import DTYPE_BY_NAME, TokenManifest, TokenShard, TrainingTokenRouter
 
 LANGUAGES = ("en", "hi", "ta", "te", "bn", "mr", "gu", "kn", "ml", "or", "pa")
 
+# Versioned campaign scope for ModelTunnelv2. The legacy eleven-language set
+# above stays the default for archived manifests; a manifest may declare a
+# scope in provenance["scope"] = {"name", "languages", "domains"}, which makes
+# the production coverage and mixture checks below use the declared languages
+# plus the named domain sources (e.g. "math", "code" with language "en")
+# instead of the legacy set. Scope names are versioned; never reuse a name for
+# a different language/domain set.
+CAMPAIGN_LANGUAGES = ("en", "hi", "mr", "kn", "te", "ta", "gu", "bn")
+CAMPAIGN_DOMAINS = ("math", "code")
+CAMPAIGN_SCOPE_V1 = "modeltunnelv2-8lang-math-code-v1"
+
+
+def manifest_scope(manifest):
+    """Return the manifest's declared scope as {"name", "languages", "domains"}."""
+    scope = manifest.provenance.get("scope")
+    if scope is None:
+        return {"name": "legacy-eleven-language-v0", "languages": list(LANGUAGES), "domains": []}
+    if not isinstance(scope, dict) or not isinstance(scope.get("name"), str) or not scope["name"]:
+        raise ValueError("a declared scope needs a versioned name")
+    languages, domains = scope.get("languages"), scope.get("domains", [])
+    if (not isinstance(languages, list) or not languages
+            or any(language not in LANGUAGES for language in languages)):
+        raise ValueError("scope languages must be a non-empty subset of the supported languages")
+    if not isinstance(domains, list) or any(not isinstance(domain, str) or not domain for domain in domains):
+        raise ValueError("scope domains must be source names")
+    if set(domains) & set(LANGUAGES):
+        raise ValueError("scope domains must not collide with language codes")
+    return {"name": scope["name"], "languages": list(languages), "domains": list(domains)}
+
 
 def file_sha256(path, chunk_size=8 * 1024 * 1024):
     digest = hashlib.sha256()
@@ -112,19 +141,29 @@ def validate_manifest(manifest: TokenManifest, root, model_config, *, developmen
         if actual["vocab_size"] != model_config.vocab_size or actual["pad_token_id"] != model_config.pad_token_id:
             raise ValueError("tokenizer and model vocabulary/padding identities differ")
     if not development_mode:
+        scope = manifest_scope(manifest)
+        domains = set(scope["domains"])
+        required = set(scope["languages"]) | domains
+        coverage = {split: {} for split in (manifest.config.train_split, manifest.config.val_split)}
+        for spec in manifest.shards:
+            key = spec.source if spec.source in domains else spec.language
+            if spec.split in coverage:
+                coverage[spec.split][key] = coverage[spec.split].get(key, 0) + spec.num_tokens
         for split in (manifest.config.train_split, manifest.config.val_split):
-            missing = set(LANGUAGES) - set(totals[split])
+            missing = required - set(coverage[split])
             if missing:
-                raise ValueError(f"missing language coverage in {split}: {sorted(missing)}")
-            if any(count < model_config.max_seq_len + 1 for count in totals[split].values()):
-                raise ValueError("every language needs a full validation/training sequence")
+                raise ValueError(f"missing language/domain coverage in {split}: {sorted(missing)}")
+            if any(count < model_config.max_seq_len + 1 for count in coverage[split].values()):
+                raise ValueError("every language and domain needs a full validation/training sequence")
+        source_keys = {source: (source if source in domains else language)
+                       for source, language in sources.items()}
         mixes = ([manifest.config.source_mix] if manifest.config.source_mix else
                  [phase["source_mix"] for phase in manifest.config.phase_source_mixes])
         if not mixes:
             raise ValueError("production needs explicit language/source mixing, not a sequential language curriculum")
         for mix in mixes:
-            if {sources.get(source) for source in mix} != set(LANGUAGES):
-                raise ValueError("every curriculum phase must cover English and all ten Indic languages")
+            if {source_keys.get(source) for source in mix} != required:
+                raise ValueError(f"every curriculum phase must cover the declared scope {scope['name']!r}")
         if (manifest.provenance.get("normalization") != "NFC"
                 or manifest.provenance.get("packing") != "continuous_eos"
                 or manifest.provenance.get("document_dedup") != "sha256_nfc"
@@ -132,14 +171,18 @@ def validate_manifest(manifest: TokenManifest, root, model_config, *, developmen
             raise ValueError("production needs preprocessing, document deduplication and source-license provenance")
     router = TrainingTokenRouter(manifest, root=root)
     if not development_mode:
+        scope = manifest_scope(manifest)
+        domains = set(scope["domains"])
+        source_keys = {source: (source if source in domains else language)
+                       for source, language in sources.items()}
         phases = router.phase_specs or [{"schedule": router.mix_schedule, "start_example": 0,
                                          "end_example": manifest.config.total_examples}]
         for phase in phases:
-            exposure = {language: 0 for language in LANGUAGES}
+            exposure = {key: 0 for key in set(scope["languages"]) | domains}
             examples = phase["end_example"] - phase["start_example"]
             for source in set(phase["schedule"]):
-                exposure[sources[source]] += router._source_count_before(source, examples, phase["schedule"])
+                exposure[source_keys[source]] += router._source_count_before(source, examples, phase["schedule"])
             if any(count == 0 for count in exposure.values()):
-                raise ValueError("every phase must actually allocate full training examples to every language")
+                raise ValueError("every phase must actually allocate full training examples to every language and domain")
     return {"manifest_sha256": fingerprint(asdict(manifest)), "tokens_by_language": totals,
             "validated_shards": len(manifest.shards), "tokenizer": contract}
