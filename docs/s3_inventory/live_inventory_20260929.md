@@ -1,4 +1,4 @@
-# Live S3 inventory — 2026-09-29T13:37:10.649261+00:00
+# Live S3 inventory — 2026-09-29T15:44:48.960834+00:00
 
 Bucket: `s3://nemotron-training-data-us-east-1` (read-only ListObjects + one Parquet footer/row sample per family).
 Sizes are ListObjects byte sums; document/token counts are estimates labeled by basis.
@@ -22,14 +22,14 @@ Token estimate basis: measured on the bounded S3 sample (13,717 docs) with the f
 
 | tier/lang | objects | GiB | est. tokens (B) |
 | --- | ---: | ---: | ---: |
-| synthetic/ben (bn) | 0 | 0.0 | 0.0 |
-| synthetic/eng (en) | 0 | 0.0 | 0.0 |
-| synthetic/guj (gu) | 0 | 0.0 | 0.0 |
-| synthetic/hin (hi) | 0 | 0.0 | 0.0 |
-| synthetic/kan (kn) | 0 | 0.0 | 0.0 |
-| synthetic/mar (mr) | 0 | 0.0 | 0.0 |
-| synthetic/tam (ta) | 0 | 0.0 | 0.0 |
-| synthetic/tel (te) | 0 | 0.0 | 0.0 |
+| synthetic/ben_Beng (bn) | 64 | 16.3 | 2.0 |
+| synthetic/eng_Latn (en) | 0 | 0.0 | 0.0 |
+| synthetic/guj_Gujr (gu) | 64 | 16.1 | 2.0 |
+| synthetic/hin_Deva (hi) | 64 | 16.0 | 2.0 |
+| synthetic/kan_Knda (kn) | 64 | 17.3 | 2.1 |
+| synthetic/mar_Deva (mr) | 64 | 16.5 | 2.0 |
+| synthetic/tam_Taml (ta) | 64 | 17.9 | 2.2 |
+| synthetic/tel_Telu (te) | 64 | 16.9 | 2.1 |
 | unverified/ben (bn) | 36 | 12.7 | 1.6 |
 | unverified/eng (en) | 0 | 0.0 | 0.0 |
 | unverified/guj (gu) | 4 | 1.3 | 0.2 |

@@ -18,9 +18,6 @@ import json
 from pathlib import Path
 
 GIB = 2 ** 30
-# Freeze-note Gate 3 (measured on the frozen tokenizer's own held-out files):
-GATE3_BYTES_PER_TOKEN = {"en": 2430216382 / 1060557 / (117091 / 82147),  # derived below
-                         }
 FALLBACK_TOKENS_PER_BYTE = {"en": 1 / 3.55, "code": 1 / 3.44, "math": 1 / 3.42,
                             "indic": 1 / 1.9}  # Indic: ASSUMPTION (see report)
 

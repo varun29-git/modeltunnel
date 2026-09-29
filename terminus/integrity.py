@@ -185,5 +185,15 @@ def validate_manifest(manifest: TokenManifest, root, model_config, *, developmen
                 exposure[source_keys[source]] += router._source_count_before(source, examples, phase["schedule"])
             if any(count == 0 for count in exposure.values()):
                 raise ValueError("every phase must actually allocate full training examples to every language and domain")
-    return {"manifest_sha256": fingerprint(asdict(manifest)), "tokens_by_language": totals,
-            "validated_shards": len(manifest.shards), "tokenizer": contract}
+    report = {"manifest_sha256": fingerprint(asdict(manifest)), "tokens_by_language": totals,
+              "validated_shards": len(manifest.shards), "tokenizer": contract}
+    scope = manifest_scope(manifest)
+    domains = set(scope["domains"])
+    by_key = {}
+    for spec in manifest.shards:
+        key = spec.source if spec.source in domains else spec.language
+        by_key.setdefault(spec.split, {}).setdefault(key, 0)
+        by_key[spec.split][key] += spec.num_tokens
+    report["tokens_by_key"] = by_key
+    report["scope"] = scope["name"]
+    return report
