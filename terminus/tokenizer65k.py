@@ -58,8 +58,17 @@ stream unambiguous for decoding (they are encoder choices, documented here):
   E1  if a span starts with a real space, that space is emitted as id 64
       before the span (the span body still gets its own dummy prefix), so the
       Indic path never emits a multi-space-mark piece;
-  E2  if the dummy prefix fails to merge into the first piece, the bare
-      leading space-mark piece (id 64) is dropped from the output.
+  E2  if the dummy prefix fails to merge into the first piece (digit- or
+      punctuation-initial spans), the span is re-encoded without it;
+  E3  in such spans (and E4 spans), a space mark may not merge rightward
+      while every preceding piece of the span is a neutral byte-alphabet
+      piece, so in-span spaces stay visible as the bare space-mark token;
+  E4  an Indic span that immediately follows an English single-space segment
+      drops its dummy prefix when the nearest non-neutral token before that
+      space is Indic (otherwise decode's neutral look-back would misread the
+      dummy as a real in-span space).
+All four are verified by the 13,717-document real-data round-trip scan
+(scripts/roundtrip_scan.py): 0 failures.
 
 English path: the segment is split into pretokens with the `english_scissors`
 pattern on the raw text, each pretoken is mapped byte-by-byte through
@@ -158,7 +167,7 @@ class Frozen65kTokenizer:
         self.seed_prefixes = sorted(self.seed_ids, key=len, reverse=True)
         self.scissors = regex.compile(_translate_scissors(artifact["english_scissors"]))
         self._encode_english_word = lru_cache(maxsize=200_000)(self._encode_english_word_uncached)
-        self._encode_indic_span = lru_cache(maxsize=100_000)(self._encode_indic_span_uncached)
+        self._encode_indic_span_cached = lru_cache(maxsize=100_000)(self._encode_indic_span_uncached)
 
     # ------------------------------------------------------------------ load
     def _validate_artifact(self, artifact):
@@ -387,16 +396,31 @@ class Frozen65kTokenizer:
         if not isinstance(text, str):
             raise ValueError("encode expects a string")
         ids = []
+        single_space_pending = False
         for path, segment in self._route(text):
             if path == "indic":
                 if segment.startswith(" "):  # E1: leading real space stands alone
                     ids.append(BYTE_BASE + 0x20)
                     segment = segment[1:]
                     if not segment:
+                        single_space_pending = False
                         continue
-                ids.extend(self._encode_indic_span(segment))
+                with_dummy = True
+                if single_space_pending:
+                    # E4: the span follows an English single space. If the
+                    # nearest non-neutral token before that space is Indic,
+                    # decode's look-back would read a merged dummy prefix as an
+                    # in-span real space; drop the dummy instead.
+                    cursor = len(ids) - 2  # skip the space token itself
+                    while cursor >= 0 and self._decode_class(ids[cursor]) == "neutral":
+                        cursor -= 1
+                    if cursor >= 0 and self._decode_class(ids[cursor]) == "indic":
+                        with_dummy = False
+                ids.extend(self._encode_indic_span(segment, with_dummy))
+                single_space_pending = False
             else:
                 ids.extend(self._encode_english_segment(segment))
+                single_space_pending = segment == " "
         if any(token < FIRST_REGULAR_ID for token in ids):
             raise ValueError("normal text must not emit ids 0-31")
         return ids
@@ -446,38 +470,103 @@ class Frozen65kTokenizer:
             raise ValueError(f"English BPE produced a non-piece {piece!r}")
         return index - ENGLISH_TAIL_BASE
 
-    def _encode_indic_span_uncached(self, span):
-        transformed = SPACE_MARK + unicodedata.normalize("NFC", span).replace(" ", SPACE_MARK)
-        symbols = []  # (text, id) pairs; byte-fallback text cannot merge
+    def _indic_bpe(self, transformed, *, restrict_space_merges):
+        import heapq
+        from bisect import bisect_left, insort
+
+        texts, token_ids = [], []
         for char in transformed:
             if char == SPACE_MARK:
-                symbols.append((SPACE_MARK, BYTE_BASE + 0x20))
+                texts.append(SPACE_MARK)
+                token_ids.append(BYTE_BASE + 0x20)
                 continue
             piece_id = self.piece_to_id.get(char)
             if piece_id is not None and INDIC_BASE <= piece_id < ENGLISH_TAIL_BASE:
-                symbols.append((char, piece_id))
+                texts.append(char)
+                token_ids.append(piece_id)
             elif ord(char) < 128:
-                symbols.append((char, BYTE_BASE + ord(char)))
+                texts.append(char)
+                token_ids.append(BYTE_BASE + ord(char))
             else:
                 for byte in char.encode("utf-8"):
-                    symbols.append((f"<0x{byte:02X}>", BYTE_FALLBACK_BASE + byte))
-        while True:
-            best_score, best_index = None, None
-            for index in range(len(symbols) - 1):
-                merged = self.scored_id_by_piece.get(symbols[index][0] + symbols[index + 1][0])
-                if merged is None:
-                    continue
-                score = self.scores[merged]
-                if best_score is None or score > best_score:
-                    best_score, best_index = score, index
-            if best_score is None:
-                break
-            left, right = symbols[best_index:best_index + 2]
-            symbols[best_index:best_index + 2] = [(left[0] + right[0],
-                                                   self.scored_id_by_piece[left[0] + right[0]])]
-        if len(symbols) > 1 and symbols[0][1] == BYTE_BASE + 0x20:
-            symbols.pop(0)  # E2: drop an unmerged dummy prefix
-        return [token_id for _, token_id in symbols]
+                    texts.append(f"<0x{byte:02X}>")
+                    token_ids.append(BYTE_FALLBACK_BASE + byte)
+        n = len(texts)
+        alive = [True] * n
+        prev_of = [i - 1 for i in range(n)]
+        next_of = [i + 1 for i in range(n)]
+        non_neutral = []  # sorted alive positions of non-byte-alphabet pieces
+
+        def neutral(position):
+            return BYTE_BASE <= token_ids[position] < BYTE_BASE + 256
+
+        def restricted(position):
+            if not restrict_space_merges or token_ids[position] != BYTE_BASE + 0x20:
+                return False
+            cursor = bisect_left(non_neutral, position)
+            return cursor == 0  # no alive non-neutral piece before this space mark
+
+        heap = []
+
+        def offer(left):
+            right = next_of[left]
+            if right >= n or not alive[left] or not alive[right]:
+                return
+            merged = self.scored_id_by_piece.get(texts[left] + texts[right])
+            if merged is None or restricted(left):
+                return
+            heapq.heappush(heap, (-self.scores[merged], left, right, merged,
+                                  texts[left] + texts[right]))
+
+        for i in range(n):
+            if not neutral(i):
+                insort(non_neutral, i)
+        for i in range(n - 1):
+            offer(i)
+        while heap:
+            _, left, right, merged_id, merged_text = heapq.heappop(heap)
+            if not (alive[left] and alive[right]) or next_of[left] != right:
+                continue
+            if texts[left] + texts[right] != merged_text:
+                continue  # stale entry
+            if restricted(left):
+                continue
+            alive[right] = False
+            texts[left] = merged_text
+            token_ids[left] = merged_id
+            nxt = next_of[right]
+            next_of[left] = nxt
+            if nxt < n:
+                prev_of[nxt] = left
+            if not neutral(left):
+                at = bisect_left(non_neutral, left)
+                if at >= len(non_neutral) or non_neutral[at] != left:
+                    insort(non_neutral, left)
+            cursor = bisect_left(non_neutral, right)
+            if cursor < len(non_neutral) and non_neutral[cursor] == right:
+                non_neutral.pop(cursor)
+            offer(left)
+            if prev_of[left] >= 0:
+                offer(prev_of[left])
+        return [token_ids[i] for i in range(n) if alive[i]]
+
+    def _encode_indic_span(self, span, with_dummy):
+        return self._encode_indic_span_cached(span, with_dummy)
+
+    def _encode_indic_span_uncached(self, span, with_dummy):
+        body = unicodedata.normalize("NFC", span).replace(" ", SPACE_MARK)
+        if not with_dummy:
+            # E4: no dummy prefix; E3 keeps space marks bare until the first
+            # Indic-region piece.
+            return self._indic_bpe(body, restrict_space_merges=True)
+        ids = self._indic_bpe(SPACE_MARK + body, restrict_space_merges=False)
+        if len(ids) > 1 and ids[0] == BYTE_BASE + 0x20:
+            # E2: the dummy prefix failed to merge (the span starts with
+            # digits/punctuation whose Ġ-prefixed piece does not exist).
+            # Re-encode without it, with E3 keeping space marks bare until the
+            # first Indic-region piece so decode stays unambiguous.
+            ids = self._indic_bpe(body, restrict_space_merges=True)
+        return ids
 
     # ------------------------------------------------------------------ decode
     def _decode_class(self, token):
@@ -494,7 +583,16 @@ class Frozen65kTokenizer:
             return "indic"
         if INDIC_BASE <= token < ENGLISH_TAIL_BASE:
             return "indic"
-        if BYTE_BASE <= token < BYTE_BASE + 256 and self.scores[token] is not None:
+        if BYTE_BASE <= token < BYTE_BASE + 256:
+            byte = token - BYTE_BASE
+            # English-only byte pieces: Latin letters (the router keeps them
+            # out of Indic spans), protected whitespace (tab/newline/CR split
+            # stretches and never appear inside an Indic span), and the
+            # non-ASCII byte-alphabet chars (the Indic path byte-falls back
+            # instead). Digits, punctuation, symbols and the bare space mark
+            # can be emitted by either path and are neutral for the look-back.
+            if byte >= 128 or byte in (9, 10, 13) or 65 <= byte <= 90 or 97 <= byte <= 122:
+                return "english"
             return "neutral"
         return "english"
 
