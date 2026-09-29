@@ -1,0 +1,233 @@
+{
+ "bucket": "nemotron-training-data-us-east-1",
+ "excluded_prefixes": [
+  "translation-staging/",
+  "translation-benchmark/",
+  "quark-research-repository-storage TinyLlama packs"
+ ],
+ "fineweb2_indic": {},
+ "generated_at": "2026-09-29T12:47:10.359035+00:00",
+ "method": "ListObjectsV2 sums; one Parquet footer + first batch per family",
+ "presence_checks": {},
+ "sangraha": {},
+ "sources": {
+  "climbmix-400b-shuffle": {
+   "bytes": 599760237992,
+   "etags_sampled": [
+    "f1eea9935365897f8da672cffe541c45",
+    "79930a96d3ca2f16543d1e3a7dd9c286",
+    "ade61670bf8e06bec38a3a9a97c9d719"
+   ],
+   "first_key": "datasets/nemotron-climbmix/karpathy-400b-shuffle/SOURCE.json",
+   "last_key": "datasets/nemotron-climbmix/karpathy-400b-shuffle/shard_06542.parquet.sha256",
+   "objects": 13089,
+   "parquet_sample": {
+    "num_rows_in_sampled_object": 86016,
+    "sample_rows": [
+     {
+      "text": "Protect your business and employee's during flu seaon\n\nStarting in 2005, the Center for Disease Control (CDC) established the National Influenza Vaccination week \"to highlight the importance of continuing flu vaccination through the holiday season and beyond.\" In 2017, by the end of November only about 41% of the recommended US population had been vaccinated.\n\nIf you've already gotten the flu, you can still get vaccinated to protect you against other strands of the flu, according to the CDC. People with high risk of complications from the flu include young children, pregnant women, people with...[+451 chars]"
+     },
+     {
+      "text": "Relatively new techniques have been developed to improve wool’s washability by making the fiber more resistant to felting and shrinkage. One process takes place before the yarn is spun. The loose fleece or combed top is chlorinated to remove the tips of the “scales” and then coated with an extremely fine resin. The resin masks the fiber’s scales and keeps them from interlocking, which is the cause of felting and shrinkage.\nTextile Links (http://www.textilelinks.com)"
+     }
+    ],
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/nemotron-climbmix/karpathy-400b-shuffle/shard_00000.parquet",
+    "schema": {
+     "text": "string"
+    }
+   },
+   "prefix": "datasets/nemotron-climbmix/karpathy-400b-shuffle/",
+   "role": "english_web"
+  },
+  "nemotron-cc-hq": {
+   "bytes": 1110302262436,
+   "etags_sampled": [
+    "5a29e277153dd20a3f5a4b924209b3ba-147",
+    "f1046428cc9d2d237c312bbd7d1de1f2-147",
+    "db53c01ffae06433685a150bb356f481-148"
+   ],
+   "first_key": "datasets/nemotron-cc-hq/part_000000.parquet",
+   "last_key": "datasets/nemotron-cc-hq/part_000842.parquet",
+   "objects": 843,
+   "parquet_sample": {
+    "num_rows_in_sampled_object": 976959,
+    "sample_rows": [
+     {
+      "id": "380a8476-8e0c-488c-a510-5bc0d30bceef",
+      "metadata": {
+       "category": "crawl-hq",
+       "models_used": ""
+      },
+      "text": "umbo Ice Ball Silicone Molds - Pack of 4\n\nWith this fantastic set of ice molds you get all of the benefits of an ice ball maker, four times over.\n\nOverview\n\nWith this fantastic set of ice molds you get all of the benefits of an ice ball maker, four times over.\n\nIf you're wondering what's so great about giant ice balls, just think back to science class. The sizable frozen spheres have less surface area than a glass of smaller cubes, so they melt slower. That means they're able to chill your drink and delay the evil diluting effects of melting long enough for you to enjoy your cocktail.\n\nNo one ...[+733 chars]"
+     },
+     {
+      "id": "9dd51988-9b91-40ee-8cfb-84d6f737004e",
+      "metadata": {
+       "category": "crawl-hq",
+       "models_used": ""
+      },
+      "text": "The blue bar does seem to annoy people, and I'll try your method using AdBlock, although I don't use Google as often as I used to do. One thing I did notice though. I use Opera most of the time and the blue bar doesn't show at all. Why that is, I'm not sure. I thought maybe Opera AdBlock could be blocking it but disabling the extension makes no difference, still no blue bar. Strange, but there you have it.\n\nBut I have to say it would be better if Google just stopped adding irritating things to their homepage. All it appears to succeed in doing is drive more people away from it."
+     }
+    ],
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/nemotron-cc-hq/part_000000.parquet",
+    "schema": {
+     "id": "large_string",
+     "metadata": "struct<category: large_string, models_used: large_string>",
+     "text": "large_string"
+    }
+   },
+   "prefix": "datasets/nemotron-cc-hq/",
+   "role": "english_web"
+  },
+  "nemotron-cc-math-4plus": {
+   "bytes": 62189080483,
+   "etags_sampled": [
+    "4f65365ee6bf914a188fe0384ce6e3ef-136",
+    "80227e6cc2e7f44a5ffeaf0a16fe0fe2-172",
+    "a7a29d1a5f75fd5700e4b028c23d934d-159"
+   ],
+   "first_key": "datasets/nemotron-cc-math-v1/4plus/part_000000.parquet",
+   "last_key": "datasets/nemotron-cc-math-v1/4plus/part_000045.parquet",
+   "objects": 46,
+   "parquet_sample": {
+    "num_rows_in_sampled_object": 983993,
+    "sample_rows": [
+     {
+      "id": "fb5913e0-9097-41ef-be69-728a148079f5",
+      "metadata": {
+       "category": "math",
+       "finemath_int_scores": 4,
+       "finemath_scores": 4.1875,
+       "models_used": "Phi-4",
+       "nemocurator_int_scores": 1,
+       "nemocurator_scores": 1.5,
+       "warc_filename": "crawl-data/CC-MAIN-2014-49/segments/1416400373050.63/warc/CC-MAIN-20141119123253-00239-ip-10-235-23-156.ec2.internal.warc.gz",
+       "warc_id": "<urn:uuid:a83502ed-ed83-40d3-8029-1d206256ce4a>"
+      },
+      "text": "# Jane Street\n\nThis employer has taken extra steps to respond to reviews and provide job seekers with accurate company information, photos, and reviews. Interested for your company? Learn More.\n\n- Overview\n- Reviews\n- Salaries\n- Interviews\n- Jobs\n- Photos\n- Benefits\n\n18 Reviews | 54 Salaries | 465 Interviews\n\n## Interview Question\n\n### Trader Intern Interview, New York, NY\n\n**Jane Street**\n\nWhat is the smallest number divisible by 225 that consists of all 1s and 0s?\n\n**Tags:**\n\n## Answer\n\n6 Answers\n\n### Interview Answer\n\nTwo facts to note are:\n1. Multiples of 225 end in 00, 25, 50, 75.\n2. A nu...[+1730 chars]"
+     },
+     {
+      "id": "4c9a7ee0-abf6-48cd-95c2-afea1999a6c4",
+      "metadata": {
+       "category": "math",
+       "finemath_int_scores": 4,
+       "finemath_scores": 4.4375,
+       "models_used": "Phi-4",
+       "nemocurator_int_scores": 3,
+       "nemocurator_scores": 3.578125,
+       "warc_filename": "crawl-data/CC-MAIN-2018-43/segments/1539583519859.77/warc/CC-MAIN-20181024042701-20181024064201-00447.warc.gz",
+       "warc_id": "<urn:uuid:884f1bed-d317-43a8-ab59-405478b5b82f>"
+      },
+      "text": "# Lesson 16: Modeling Adding and Subtracting Mixed Numbers\n\n**Objective**\n\nStudents will use shapes to model adding and subtracting mixed numbers.\n\n**Big Idea**\n\nAdding and subtracting mixed numbers can be modeled using shapes.\n\n**Lesson Author:** Rose Monroe  \n**Location:** Memphis, TN  \n**Grade Level:** Fourth grade  \n**Subjects:** Math, Fractions, Number Sense and Operations  \n**Standards:** 4.NF.B.3c, MP2, MP3, MP5\n\n## Whole Class Discussion\n\n**Duration:** 15 minutes\n\nIn today's lesson, students will learn to model adding and subtracting mixed numbers with like denominators. This relates t...[+3011 chars]"
+     }
+    ],
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/nemotron-cc-math-v1/4plus/part_000000.parquet",
+    "schema": {
+     "id": "large_string",
+     "metadata": "struct<warc_filename: large_string, warc_id: large_string, finemath_int_scores: int64, finemath_scores: double, nemocurator_int_scores: int64, nemocurator_scores: double, category: large_string, models_used: large_string>",
+     "text": "large_string"
+    }
+   },
+   "prefix": "datasets/nemotron-cc-math-v1/4plus/",
+   "role": "math"
+  },
+  "nemotron-cc-math-4plus-mind": {
+   "bytes": 90331100051,
+   "etags_sampled": [
+    "3dfeaf8ed732e5453a7dac2c7f8b5d45-121",
+    "68d4fc23d9337a3fb2d1145330b0f23c-121",
+    "b3a58e5f9f43ad55d4f3a7c1c82e587c-121"
+   ],
+   "first_key": "datasets/nemotron-cc-math-v1/4plus_MIND/part_000000.parquet",
+   "last_key": "datasets/nemotron-cc-math-v1/4plus_MIND/part_000089.parquet",
+   "objects": 90,
+   "parquet_sample": {
+    "num_rows_in_sampled_object": 992247,
+    "sample_rows": [
+     {
+      "id": "85fcda50-f571-4ccc-b910-b2a258f8bc26",
+      "metadata": {
+       "category": "math",
+       "finemath_int_scores": 4,
+       "finemath_scores": 4.125,
+       "models_used": "Phi-4",
+       "nemocurator_int_scores": 2,
+       "nemocurator_scores": 2.65625,
+       "warc_filename": "crawl-data/CC-MAIN-2019-18/segments/1555578532050.7/warc/CC-MAIN-20190421180010-20190421202010-00085.warc.gz",
+       "warc_id": "<urn:uuid:b041f078-3c65-4857-b45a-880fb4c8aed3>",
+       "warc_type": "response"
+      },
+      "text": "**Debate on NonEuclidean Geometry Concepts**\n\n**Participant A:** Let's focus on the Hyperbolic Geometry example first. The model describes a scenario where given a line \\( l \\) and a point \\( P \\), the lines \\( PX \\) and \\( PY \\) are parallels through \\( P \\) to \\( l \\). This is because they intersect the boundary circle at points \\( X \\) and \\( Y \\). \n\n**Participant B:** I agree with your summary. However, it's important to note that in other models, the concept of parallels is not as straightforward. For instance, sometimes there are unique parallels and sometimes many. The context describes...[+2589 chars]"
+     },
+     {
+      "id": "6828f728-121f-4954-a1a1-102bce9d4ea6",
+      "metadata": {
+       "category": "math",
+       "finemath_int_scores": 4,
+       "finemath_scores": 4.46875,
+       "models_used": "Phi-4",
+       "nemocurator_int_scores": 2,
+       "nemocurator_scores": 2.96875,
+       "warc_filename": "crawl-data/CC-MAIN-2020-24/segments/1590347422065.56/warc/CC-MAIN-20200602002343-20200602032343-00459.warc.gz",
+       "warc_id": "<urn:uuid:8fe58112-2878-4fb6-9fcb-0cee6affdef9>",
+       "warc_type": "response"
+      },
+      "text": "**Participant A:** Let's discuss the Combined Gas Law as presented in Tatyana Yuzefovich's worksheet. We know it combines Boyle's Law, Charles's Law, and Gay-Lussac's Law, relating pressure, volume, and temperature of a gas. The formula is given as \\(\\frac{P_1 V_1}{T_1} = \\frac{P_2 V_2}{T_2}\\).\n\n**Participant B:** Indeed, and it's important to note that the formula can be rearranged based on which variables are constant. For example, in the example problem where the temperature remains constant, we can simplify the formula to \\(\\frac{P_1 V_1}{P_2} = V_2\\).\n\n**Participant A:** Correct. In that ...[+1981 chars]"
+     }
+    ],
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/nemotron-cc-math-v1/4plus_MIND/part_000000.parquet",
+    "schema": {
+     "id": "large_string",
+     "metadata": "struct<finemath_int_scores: int64, finemath_scores: double, nemocurator_int_scores: int64, nemocurator_scores: double, warc_filename: large_string, warc_id: large_string, warc_type: large_string, category: large_string, models_used: large_string>",
+     "text": "large_string"
+    }
+   },
+   "prefix": "datasets/nemotron-cc-math-v1/4plus_MIND/",
+   "role": "math"
+  },
+  "smollm-corpus-snapshot": {
+   "bytes": 122361179294,
+   "etags_sampled": [
+    "19b9ed3f4bd594d7c3f49a109b01db7d",
+    "93f7bf200ff85d9a5d18f293dffb8a08-141",
+    "24096c309e384c2f043dc15f0c54b23a-141"
+   ],
+   "first_key": "source-snapshots/HuggingFaceTB/smollm-corpus/revision=3ba9d605774198c5868892d7a8deda78031a781f/config=cosmopedia-v2/SOURCE_MANIFEST.json",
+   "last_key": "source-snapshots/HuggingFaceTB/smollm-corpus/revision=3ba9d605774198c5868892d7a8deda78031a781f/config=cosmopedia-v2/cosmopedia-v2/train-00103-of-00104.parquet",
+   "objects": 105,
+   "parquet_sample": {
+    "num_rows_in_sampled_object": 376289,
+    "sample_rows": [
+     {
+      "audience": "college_students",
+      "format": "textbook",
+      "prompt": "Here is an extract from a webpage:\n\"Ruangguru Free Online Schools to Support Students and Teachers\nRuangguru re-opened Ruangguru Online School for free through its application. This is a form and effort of Ruangguru in responding to the high need for distance learning facilities (PJJ) during the Covid-19 pandemic.\nPreviously, since March 2020 when learning activities from home were implemented due to Covid-19, Ruangguru has launched the free Ruangguru Online School.\nIn the past school year, the Ruangguru Online School received a positive response with more than 5,000,000 students using it. Mor...[+1099 chars]",
+      "seed_data": "fineweb",
+      "text": " In today's ever-evolving world, technology has become an integral part of our lives, shaping the way we learn, work, and communicate. The COVID-19 pandemic has only accelerated this trend, forcing educational institutions worldwide to adapt quickly to remote learning models. As such, social studies integration in elementary education can greatly benefit from incorporating digital tools like those offered by Ruangguru's Online School. Let's explore how educators can effectively leverage these resources to create engaging and meaningful learning experiences for young students.\n\nFirstly, let's d...[+3724 chars]",
+      "token_length": 805
+     },
+     {
+      "audience": "college_students",
+      "format": "textbook",
+      "prompt": "Here is an extract from a webpage: \"Which induction is ceramic or glass?\nCeramic or glass induction cooktops are both an efficient and modern way to cook. Ceramic cooktops are made of a smooth glass-ceramic material on top of an induction heating element. They offer a modern, sleek look, and require special pans with a ferrous (magnetic) base.\nInduction heats the pan itself and transfers the heat to the food. They are considered the most energy and time efficient cooktop, and they can be easier to clean than traditional gas or electric cooktops.\nGlass induction cooktops are similar to ceramic ...[+1054 chars]",
+      "seed_data": "fineweb",
+      "text": " Introduction:\nIn today's world, cooking has evolved beyond traditional methods such as gas or electric stovetops. Induction cooking using ceramic or glass surfaces has become increasingly popular due to its efficiency, speed, safety, and ease of cleaning. In this section, we will delve into the concept of induction cooking, specifically focusing on pan searing techniques that yield professional results at home. We will explore how these modern appliances function, their benefits, and provide step-by-step instructions on achieving perfect pan seals every time.\n\nUnderstanding Induction Cooking ...[+3256 chars]",
+      "token_length": 793
+     }
+    ],
+    "sampled_object": "s3://nemotron-training-data-us-east-1/source-snapshots/HuggingFaceTB/smollm-corpus/revision=3ba9d605774198c5868892d7a8deda78031a781f/config=cosmopedia-v2/cosmopedia-v2/train-00000-of-00104.parquet",
+    "schema": {
+     "audience": "string",
+     "format": "string",
+     "prompt": "string",
+     "seed_data": "string",
+     "text": "string",
+     "token_length": "int64"
+    }
+   },
+   "prefix": "source-snapshots/HuggingFaceTB/smollm-corpus/",
+   "role": "english_synthetic"
+  }
+ },
+ "translations": {}
+}

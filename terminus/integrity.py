@@ -166,7 +166,8 @@ def validate_manifest(manifest: TokenManifest, root, model_config, *, developmen
                 raise ValueError(f"every curriculum phase must cover the declared scope {scope['name']!r}")
         if (manifest.provenance.get("normalization") != "NFC"
                 or manifest.provenance.get("packing") != "continuous_eos"
-                or manifest.provenance.get("document_dedup") != "sha256_nfc"
+                or manifest.provenance.get("document_dedup") not in
+                {"sha256_nfc", "id_exact_minhash_v1"}
                 or not manifest.provenance.get("licenses")):
             raise ValueError("production needs preprocessing, document deduplication and source-license provenance")
     router = TrainingTokenRouter(manifest, root=root)

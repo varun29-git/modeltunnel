@@ -16,7 +16,7 @@ from terminus.model import BitLinear, BitNetLlama, BitNetLlamaConfig
 from terminus.quantization import (
     DeepGEMMBitLinearFunction, deepgemm_bitlinear, dequantize_activation_fp8_e4m3,
     dequantize_weight_fp8_e4m3_2d, quantize_activation_fp8_e4m3,
-    quantize_fp8_directions, quantize_ternary_directions,
+    quantize_fp8_directions, quantize_ternary_directions, quantize_weight_directions,
 )
 from tests.helpers import tiny_config
 
@@ -132,7 +132,7 @@ class FP8PathTests(unittest.TestCase):
         layer = BitLinear(128, 128, quantize_activations=True, weight_scale_layout="blockwise",
                           linear_backend="deepgemm", fp8_backward="full", fp8_cache_weights=True)
         with patch("terminus.kernels.deep_gemm_fp8_gemm_nt", side_effect=emulated_fp8_gemm), \
-             patch("terminus.model.quantize_ternary_directions", wraps=quantize_ternary_directions) as quantize:
+             patch("terminus.model.quantize_weight_directions", wraps=quantize_weight_directions) as quantize:
             for _ in range(3):
                 values = torch.randn(7, 128, dtype=torch.bfloat16, requires_grad=True)
                 layer(values).float().square().mean().backward()

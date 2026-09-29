@@ -35,6 +35,9 @@ class TrainConfig:
     gradient_accumulation_steps: int = 1
     warmup_tokens: int = 0
     final_lr_fraction: float = 0.1
+    schedule: str = "cosine"
+    decay_tokens: int | None = None
+    decay_style: str = "cosine"
     grad_clip: float = 1.0
     quantization_warmup_tokens: int = 0
     quantization_start_strength: float = 1.0
@@ -67,6 +70,17 @@ class TrainConfig:
                 raise ValueError(f"{name} must be a nonnegative integer")
         if not 0 <= self.final_lr_fraction <= 1 or not 0 <= self.quantization_start_strength <= 1:
             raise ValueError("invalid learning-rate fraction or quantization strength")
+        if self.schedule not in {"cosine", "wsd"}:
+            raise ValueError("schedule must be cosine or wsd (warmup-stable-decay)")
+        if self.decay_style not in {"linear", "cosine"}:
+            raise ValueError("decay_style must be linear or cosine")
+        if self.decay_tokens is not None:
+            if isinstance(self.decay_tokens, bool) or not isinstance(self.decay_tokens, int) or self.decay_tokens <= 0:
+                raise ValueError("decay_tokens must be a positive integer")
+            if self.schedule != "wsd":
+                raise ValueError("decay_tokens only applies to the wsd schedule")
+        if self.schedule == "wsd" and self.decay_tokens is None:
+            raise ValueError("the wsd schedule requires an explicit decay_tokens budget")
         if not math.isfinite(self.grad_clip) or self.grad_clip < 0:
             raise ValueError("grad_clip must be finite and nonnegative; zero disables clipping")
         if self.time_limit_seconds is not None and (not math.isfinite(self.time_limit_seconds) or self.time_limit_seconds <= 0):
@@ -85,11 +99,27 @@ def load_config(path):
     return model, training, OptimizerConfig(**payload["optimizer"])
 
 
-def schedule_scale(tokens_after_update, total_tokens, warmup_tokens, final_lr_fraction):
+def schedule_scale(tokens_after_update, total_tokens, warmup_tokens, final_lr_fraction,
+                   *, schedule="cosine", decay_tokens=None, decay_style="cosine"):
     if not 0 <= warmup_tokens < total_tokens:
         raise ValueError("warmup must be shorter than the training budget")
+    if schedule == "wsd":
+        if decay_tokens is None or decay_tokens <= 0 or warmup_tokens + decay_tokens > total_tokens:
+            raise ValueError("wsd requires 0 < decay_tokens and warmup + decay within budget")
+    elif schedule != "cosine":
+        raise ValueError("schedule must be cosine or wsd")
     if warmup_tokens and tokens_after_update <= warmup_tokens:
         return tokens_after_update / warmup_tokens
+    if schedule == "wsd":
+        decay_start = total_tokens - decay_tokens
+        if tokens_after_update <= decay_start:
+            return 1.0
+        progress = min(1.0, (tokens_after_update - decay_start) / decay_tokens)
+        if decay_style == "linear":
+            return final_lr_fraction + (1 - final_lr_fraction) * (1 - progress)
+        return final_lr_fraction + (1 - final_lr_fraction) * 0.5 * (1 + math.cos(math.pi * progress))
+    if schedule != "cosine":
+        raise ValueError("schedule must be cosine or wsd")
     progress = min(1.0, max(0.0, (tokens_after_update - warmup_tokens) / (total_tokens - warmup_tokens)))
     return final_lr_fraction + (1 - final_lr_fraction) * 0.5 * (1 + math.cos(math.pi * progress))
 
@@ -242,8 +272,10 @@ def run_training(config_path, manifest_path, data_root, output_dir, *, resume=No
             raise ValueError("warmup token budget must be shorter than the total budget")
         if training.quantization_warmup_tokens > total_tokens:
             raise ValueError("quantization warmup exceeds the total token budget")
-        if not training.development_mode and model_config.quantization_strength != 1:
+        if not training.development_mode and model_config.weight_mode == "ternary" and model_config.quantization_strength != 1:
             raise ValueError("production must finish with fully ternary projections")
+        if model_config.weight_mode == "dense" and (training.quantization_warmup_tokens or training.quantization_start_strength != 1):
+            raise ValueError("the dense-weight stage has no quantization curriculum")
         if model_config.linear_backend == "deepgemm" and (training.quantization_warmup_tokens or training.quantization_start_strength != 1):
             raise ValueError("native DeepGEMM is not validated for a quantization curriculum")
         contract = make_resume_contract(model_config, training, optimizer_config, manifest_report, world_size, device)
@@ -323,7 +355,9 @@ def run_training(config_path, manifest_path, data_root, output_dir, *, resume=No
         while state["next_micro_step"] < total_micro_steps:
             micro_steps = min(training.gradient_accumulation_steps, total_micro_steps - state["next_micro_step"])
             update_tokens = min(micro_steps * micro_tokens, total_tokens - state["tokens_seen"])
-            scale = schedule_scale(state["tokens_seen"] + update_tokens, total_tokens, training.warmup_tokens, training.final_lr_fraction)
+            scale = schedule_scale(state["tokens_seen"] + update_tokens, total_tokens, training.warmup_tokens,
+                                   training.final_lr_fraction, schedule=training.schedule,
+                                   decay_tokens=training.decay_tokens, decay_style=training.decay_style)
             for group in optimizer.param_groups:
                 group["lr"] = group["base_lr"] * scale
             strength = model_config.quantization_strength

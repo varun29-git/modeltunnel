@@ -74,6 +74,23 @@ def _quantize_ternary_kernel(weight, codes, scales,
     tl.store(scales + row_block * (width // 128) + column_block, scale)
 
 
+@triton.jit
+def _quantize_dense_kernel(weight, codes, scales,
+                           rows: tl.constexpr, width: tl.constexpr,
+                           source_row_stride: tl.constexpr, source_column_stride: tl.constexpr):
+    # Dense-weight FP8: per-128x128-block absmax/448 scales, no ternary rounding.
+    row_block, column_block = tl.program_id(0), tl.program_id(1)
+    row_indices = row_block * 128 + tl.arange(0, 128)
+    column_indices = column_block * 128 + tl.arange(0, 128)
+    block = tl.load(weight + row_indices[:, None] * source_row_stride + column_indices[None, :] * source_column_stride)
+    scale = _safe_scale(tl.max(tl.max(tl.abs(block), axis=1), axis=0), 0.0)
+    quotient = tl.div_rn(block, scale)
+    finite = (tl.abs(block) < float("inf")) & (tl.abs(scale) < float("inf"))
+    dense = tl.where(finite, quotient, float("nan")).to(tl.float8e4nv)
+    tl.store(codes + row_indices[:, None] * width + column_indices[None, :], dense)
+    tl.store(scales + row_block * (width // 128) + column_block, scale)
+
+
 def _check_matrix(values, *, weight=False):
     if not values.is_cuda or torch.cuda.get_device_capability(values.device)[0] != 9:
         raise RuntimeError("fused ternary-FP8 kernels require Hopper SM90")
@@ -140,5 +157,18 @@ def quantize_ternary(weight, *, transposed=False):
     # The combined 128x128 reduction/FP8-transpose store left unwritten lanes
     # on the tested Triton 3.4 SM90 build. Copy the already rounded codes exactly;
     # this is paid once per optimizer update when the versioned cache is used.
+    secondary = (primary[0].T.contiguous(), primary[1].T.contiguous()) if transposed else None
+    return primary, secondary
+
+
+@torch.no_grad()
+def quantize_dense(weight, *, transposed=False):
+    _check_matrix(weight, weight=True)
+    rows, width = weight.shape
+    primary = (torch.empty((rows, width), device=weight.device, dtype=torch.float8_e4m3fn),
+               torch.empty((rows // 128, width // 128), device=weight.device, dtype=torch.float32))
+    _quantize_dense_kernel[(rows // 128, width // 128)](
+        weight, *primary, rows, width, weight.stride(0), weight.stride(1),
+        num_warps=8, enable_fp_fusion=False)
     secondary = (primary[0].T.contiguous(), primary[1].T.contiguous()) if transposed else None
     return primary, secondary

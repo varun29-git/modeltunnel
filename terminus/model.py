@@ -12,7 +12,7 @@ from .kernels import attention
 from .quantization import (
     deepgemm_bitlinear,
     validate_fp8_options,
-    quantize_ternary_directions,
+    quantize_weight_directions,
     dequantize_activation_fp8_e4m3,
     expand_scales,
     quantize_activation_fp8_e4m3,
@@ -42,6 +42,7 @@ class BitNetLlamaConfig:
     use_embedding_projection: bool = False
     quantize_activations: bool = False
     quantization_strength: float = 1.0
+    weight_mode: str = "ternary"
     residual_init_scale: float = 1.0
     gradient_checkpointing: bool = False
     local_attention_window: int = 1024
@@ -111,6 +112,8 @@ class BitNetLlamaConfig:
             raise ValueError("pad_token_id is outside the vocabulary")
         if self.weight_scale_layout not in {"rowwise", "blockwise"} or self.linear_backend not in {"torch", "deepgemm"}:
             raise ValueError("unknown quantization layout or linear backend")
+        if self.weight_mode not in {"ternary", "dense"}:
+            raise ValueError("weight_mode must be ternary (QAT) or dense (FP8/BF16 dense-weight pretraining)")
         if self.linear_backend == "deepgemm" and (
             not self.quantize_activations or self.weight_scale_layout != "blockwise"
             or self.alpha_group_size != 128 or self.quantization_strength != 1
@@ -148,9 +151,11 @@ class BitLinear(nn.Module):
     def __init__(self, in_features, out_features, *, eps=1e-6, weight_init="normal", alpha_group_size=128,
                  quantization_strength=1.0, quantize_activations=False, init_scale=1.0,
                  weight_scale_layout="rowwise", linear_backend="torch", fp8_backward="bf16", fp8_quantizer="torch", fp8_cache_weights=False,
-                 fp8_wgrad_splits=0):
+                 fp8_wgrad_splits=0, weight_mode="ternary"):
         super().__init__()
         validate_fp8_options(fp8_backward, fp8_quantizer)
+        if weight_mode not in {"ternary", "dense"}:
+            raise ValueError("weight_mode must be ternary or dense")
         if isinstance(fp8_wgrad_splits, bool) or not isinstance(fp8_wgrad_splits, int) or fp8_wgrad_splits not in {0, 1, 2, 4, 8, 16}:
             raise ValueError("invalid FP8 wgrad split count")
         if fp8_wgrad_splits and (linear_backend != "deepgemm" or fp8_backward != "full"):
@@ -176,6 +181,7 @@ class BitLinear(nn.Module):
         self.fp8_backward, self.fp8_quantizer = fp8_backward, fp8_quantizer
         self.fp8_wgrad_splits = fp8_wgrad_splits
         self.fp8_cache_weights = fp8_cache_weights
+        self.weight_mode = weight_mode
         self._fp8_weight_cache = None
         self.weight = nn.Parameter(torch.empty(out_features, in_features))
         self.register_buffer("quantization_strength", torch.tensor(float(quantization_strength)))
@@ -199,6 +205,8 @@ class BitLinear(nn.Module):
 
     def quantized_weight(self):
         latent = self.weight.float()
+        if self.weight_mode == "dense":
+            return latent  # dense stage: FP32 latent weights, no ternarization
         with torch.no_grad():
             scale = self.alpha_scale()
             target = scale * self.ternary_weight(scale).float()
@@ -218,9 +226,10 @@ class BitLinear(nn.Module):
         transposed = torch.is_grad_enabled() and values.requires_grad and self.fp8_backward != "bf16"
         identity = (id(self.weight), self.weight.data_ptr(), self.weight._version, self.weight.device,
                     self.weight.dtype, self.weight.shape, self.weight.stride(), self.fp8_quantizer, transposed,
-                    torch.is_inference_mode_enabled())
+                    self.weight_mode, torch.is_inference_mode_enabled())
         if self._fp8_weight_cache is None or self._fp8_weight_cache[0] != identity:
-            operands = quantize_ternary_directions(self.weight, transposed=transposed, backend=self.fp8_quantizer)
+            operands = quantize_weight_directions(self.weight, weight_mode=self.weight_mode,
+                                                  transposed=transposed, backend=self.fp8_quantizer)
             self._fp8_weight_cache = (identity, operands)
         return self._fp8_weight_cache[1]
 
@@ -228,7 +237,8 @@ class BitLinear(nn.Module):
         if self.linear_backend == "deepgemm":
             return deepgemm_bitlinear(values.to(torch.bfloat16), self.weight,
                                      backward_mode=self.fp8_backward, quantizer=self.fp8_quantizer,
-                                     weight_operands=self._weight_operands(values), wgrad_splits=self.fp8_wgrad_splits)
+                                     weight_operands=self._weight_operands(values),
+                                     wgrad_splits=self.fp8_wgrad_splits, weight_mode=self.weight_mode)
         if self.quantize_activations:
             values, _ = self.quantized_activation(values)
         return functional.linear(values, self.quantized_weight().to(values.dtype))
@@ -304,7 +314,8 @@ def make_linear(config, in_features, out_features, *, residual=False):
                      init_scale=config.residual_init_scale if residual else 1.0,
                      weight_scale_layout=config.weight_scale_layout, linear_backend=config.linear_backend,
                      fp8_backward=config.fp8_backward, fp8_quantizer=config.fp8_quantizer,
-                     fp8_cache_weights=config.fp8_cache_weights, fp8_wgrad_splits=config.fp8_wgrad_splits)
+                     fp8_cache_weights=config.fp8_cache_weights, fp8_wgrad_splits=config.fp8_wgrad_splits,
+                     weight_mode=config.weight_mode)
 
 
 class BitNetAttention(nn.Module):
@@ -527,6 +538,7 @@ class BitNetLlama(nn.Module):
             module.quantization_strength.fill_(strength)
 
     def count_parameters(self):
-        ternary = sum(module.weight.numel() for _, module in self.bitlinear_named_modules())
+        projected = sum(module.weight.numel() for _, module in self.bitlinear_named_modules())
         total = sum(parameter.numel() for parameter in self.parameters())
-        return {"total": total, "ternary": ternary, "unquantized": total - ternary}
+        return {"total": total, "ternary": projected, "unquantized": total - projected,
+                "weight_mode": self.config.weight_mode}
