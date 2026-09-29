@@ -155,7 +155,69 @@ faster but unmeasured — measure, don't extrapolate, before costing the campaig
 8. Smoke used `development_mode` CPU training; production contract/preflight
    binding is exercised only by unit tests.
 
-## 7. Ready/not-ready gate
+## 7. Cost-capped first campaign (dry run only — nothing launched)
+
+**Hard cap: 60 total H100 GPU-hours**, including training, preflight,
+evaluation, and checkpoint overhead. Implemented in `terminus/campaign.py`
+(budget ledger, launch refusal, repricing) + `terminus/search_plan.py`
+(staged plan) + `scripts/campaign_dry_run.py` (reviewable plan renderer).
+The dry-run artifact is `docs/campaign_dry_run.md`.
+
+Design rules enforced by code:
+
+- Jobs carry conservative estimates: tokens / (assumed rate x 0.6) + eval +
+  checkpoint overhead. Assumed rates are labeled: only the 1.5B synthetic
+  46,395 tok/s is measured; 200M/700M rates are ASSUMED placeholders to be
+  replaced by stage-0 measurements.
+- `Campaign.check_launch` refuses any job whose conservative estimate exceeds
+  the remaining budget. Failed, interrupted, and evaluation time count toward
+  the cap (ledger `cost.gpu_hours` on every finish record).
+- After stage 0, `reprice` re-estimates pending jobs with measured rates and
+  drops lowest-priority jobs if the projection exceeds the cap.
+- One training run supplies both losses: held-out LM loss from the run's own
+  validation events, task loss from scoring the same checkpoints. There are no
+  duplicate training campaigns.
+- Microbatch is manifest-controlled (`remix_manifest(..., batch_size=...)`);
+  `validate_job_manifest` enforces global batch = microbatch x DP world x
+  accumulation x sequence length.
+- QAT branches share one dense parent (costed once), decay fully within their
+  phase budgets, and are compared against a dense continuation and a
+  ternary-from-start run at matched total token exposure (asserted by
+  `matched_exposure_check`).
+
+Staged plan (dry-run totals: **51.5 conservative / 32.4 expected H100-hours**):
+
+| Stage | Content | Jobs | Conservative hours |
+| --- | --- | ---: | ---: |
+| 0 | H100 numerical preflight + sustained throughput probes (dense FP8, ternary QAT) | 2 | 1.5 |
+| 1 | 200M: 2 Muon LR rules x {0.001, 0.003, 0.009}, 600M tokens each | 6 | 11.5 |
+| 2 | top-2 promoted to 700M (1B tokens each) + one short 1.5B check (500M) | 3 | 18.8 |
+| 3 | 4 mixture overlays (baseline/indic_heavy/stem_heavy/en_heavy), 600M each | 4 | 7.7 |
+| 4 | shared 600M dense parent; 4 QAT branches (switch 0.5/0.8 x 120M/240M); dense-continuation and ternary-from-start controls at matched exposure | 7 | 8.1 |
+| 5 | second seed for up to two finalists, only if budget remains | 2 | 3.8 |
+
+Width-transfer evaluation is diagnostic, not declarative: `transfer_diag.py`
+measures per-role parameter/gradient/update-to-weight ratios and
+activation/logit scales across widths (logical Q/K/V and gate/up slices, tied
+embedding/readout, norms). Until a coherent Muon-compatible μP
+parameterization is established, results are labeled **"empirical Muon width
+transfer"** with stated limits. The frozen 65K vocabulary makes the tied
+embedding 25.1% of the 200M proxy (33% at a hypothetical 100M, 40% at 50M), so
+no sub-200M proxy is in the family — it would measure embedding scaling, not
+trunk scaling.
+
+Exact commands for the H100 host (after owner approval):
+
+```bash
+# stage 0 gates (dense + ternary configs)
+python -m terminus.preflight --config configs/campaign_200m_dense_fp8_wsd.json --output preflight_dense.json
+python -m terminus.preflight --config configs/campaign_200m_qat_ternary_wsd.json --output preflight_ternary.json
+# reviewable plan (never launches)
+python scripts/campaign_dry_run.py --cap-hours 60
+# campaign execution is owner-launched; the runner refuses over-budget jobs
+```
+
+## 8. Ready/not-ready gate
 
 **Ready for owner review and stage-0/1 launch on GPU hardware:** tokenizer,
 data path, dense-FP8 implementation, phase transition, evaluation, ledger,
@@ -179,3 +241,5 @@ search plans — all present, tested, and smoke-verified end-to-end.
 - `925c8ea` untrack accidentally committed sample files
 - `c1f01fc` tokenizer real-data edge fixes (heap BPE, E2–E4, decode classes)
 - `05b43c2` smoke orchestrator + full-prep VM driver + inventory summarizer
+- `0b8eec0` CI dependency fix (pyarrow/boto3); CI-equivalent suite green
+- `d6bfc26` cost-capped campaign runner + staged plan + transfer diagnostics
