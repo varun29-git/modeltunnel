@@ -35,3 +35,4 @@ search_runs/
 azure_credentials.json
 aws_credentials
 eval/
+sample/
