@@ -316,7 +316,10 @@ class CorpusBuilder:
     def _iter_rows(self, spec, obj):
         """Yield rows, streaming large objects via ranged reads when bounded."""
         uri = f"s3://{obj['bucket']}/{obj['key']}"
-        stream = spec.max_rows is not None or obj["size"] > 256 * 1024 * 1024
+        # Full downloads through the bounded cache are far faster than ranged
+        # streaming for objects whose row groups are large; stream only when
+        # the object cannot reasonably sit in the cache.
+        stream = obj["size"] > max(256 * 1024 * 1024, self.cache.capacity_bytes // 2)
         if obj["key"].endswith(".parquet"):
             if stream:
                 from .s3io import S3RangeReader

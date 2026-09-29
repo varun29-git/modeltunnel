@@ -4,5 +4,11 @@
   "etag": "f1eea9935365897f8da672cffe541c45",
   "sha256": "d223d8a4837791a32e2f6d4c53cf618859ddca7d046fddf85e1aab04932f9d33",
   "size": 269
+ },
+ "datasets/nemotron-climbmix/karpathy-400b-shuffle/shard_00000.parquet": {
+  "atime": 1790691200.801973,
+  "etag": "9e2a330057515197ecb88843db3c0abf-3",
+  "sha256": "054ddbd98abf30d773c54de578fc9d579bafeb6c14e04e97bd36aa90e825bf9b",
+  "size": 92291918
  }
 }

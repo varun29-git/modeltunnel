@@ -57,10 +57,8 @@ def source_specs(max_rows):
                                 license=LICENSES["sangraha"], role="language",
                                 prefix=f"{BUCKET}/datasets/sangraha/verified/{code3}/",
                                 language=code2, max_objects=1, max_rows=max_rows))
-    specs.append(SourceSpec(name="fineweb2-hin_Deva", adapter="fineweb2",
-                            license=LICENSES["fineweb2"], role="language",
-                            prefix=f"{BUCKET}/datasets/fineweb2-indic/hin_Deva/",
-                            language="hi", max_objects=1, max_rows=max_rows // 2))
+    # fineweb2 is exercised by the full-prep path; its 4.6 GiB objects are out of
+    # scope for the bounded sample (Hindi is covered by sangraha + cosmopedia-v4).
     v4 = "translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v4-20260905"
     v5 = "translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v5-20260906"
     specs.append(SourceSpec(name="cosmopedia-v5-mar", adapter="translation",
@@ -83,7 +81,7 @@ def source_specs(max_rows):
 def stream_map():
     """Raw source name -> training stream (coverage key)."""
     streams = {"climbmix": "en", "nemotron-cc-math-4plus": "math",
-               "nemotron-code-concepts": "code", "fineweb2-hin_Deva": "hi",
+               "nemotron-code-concepts": "code",
                "cosmopedia-v4-hin": "hi", "cosmopedia-v5-mar": "mr",
                "cosmopedia-v5-kan": "kn"}
     for code2 in CAMPAIGN_SOURCE_LANGS.values():

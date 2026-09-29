@@ -113,3 +113,29 @@ class PrepareCampaignTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RemixTests(unittest.TestCase):
+    def test_remix_revalidates_and_preserves_shards(self):
+        with tempfile.TemporaryDirectory() as root:
+            streams = PrepareCampaignTests().build(root)
+            scope = {"name": CAMPAIGN_SCOPE_V1, "languages": list(CAMPAIGN_LANGUAGES),
+                     "domains": list(CAMPAIGN_DOMAINS)}
+            mix = {**{lang: 0.1 for lang in CAMPAIGN_LANGUAGES}, "math": 0.1, "code": 0.1}
+            out = Path(root) / "packed"
+            prepare_campaign_data(streams, TOKENIZER, out, source_mix=mix,
+                                  total_train_tokens=640, seq_len=16, scope=scope)
+            from terminus.remix import remix_manifest
+            model_config = tiny_config(vocab_size=65536, pad_token_id=3, max_seq_len=16)
+            remix = remix_manifest(out / "manifest.json", out, model_config,
+                                   source_mix={**{lang: 0.08 for lang in CAMPAIGN_LANGUAGES},
+                                               "math": 0.18, "code": 0.18},
+                                   name="mathheavy")
+            self.assertTrue(Path(remix["path"]).exists())
+            remixed = TokenManifest.load(remix["path"])
+            self.assertEqual(remixed.config.source_mix["math"], 0.18)
+            with self.assertRaises(FileExistsError):
+                remix_manifest(out / "manifest.json", out, model_config,
+                               source_mix=mix, name="mathheavy")
+            with self.assertRaises(ValueError):
+                remix_manifest(out / "manifest.json", out, model_config, name="empty")
