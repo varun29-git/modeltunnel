@@ -40,8 +40,9 @@ from terminus.transition import convert_checkpoint
 SEQ_LEN = 1024
 TOTAL_TOKENS = 32768
 DENSE_UPDATES = 6
-MIX = {"en": 0.38, "hi": 0.15, "mr": 0.08, "kn": 0.08, "te": 0.08, "ta": 0.08,
+MIX = {"hi": 0.15, "mr": 0.08, "kn": 0.08, "te": 0.08, "ta": 0.08,
        "gu": 0.08, "bn": 0.07, "math": 0.04, "code": 0.04}
+MIX["en"] = 1.0 - sum(MIX.values())  # 0.30; English absorbs the residual
 
 SMOKE_MODEL = {"vocab_size": 65536, "dim": 256, "n_layers": 4, "n_heads": 4, "n_kv_heads": 2,
                "ffn_dim": 512, "max_seq_len": SEQ_LEN, "local_attention_window": 256,

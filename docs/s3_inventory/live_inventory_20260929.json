@@ -660,7 +660,7 @@
    "objects": 1
   }
  },
- "generated_at": "2026-09-29T13:37:10.649261+00:00",
+ "generated_at": "2026-09-29T15:44:48.960834+00:00",
  "method": "ListObjectsV2 sums; one Parquet footer + first batch per family",
  "presence_checks": {
   "datasets/CodeAlchemy/": {
@@ -689,78 +689,6 @@
   }
  },
  "sangraha": {
-  "synthetic/ben": {
-   "bytes": 0,
-   "etags_sampled": [],
-   "first_key": null,
-   "language": "bn",
-   "last_key": null,
-   "objects": 0,
-   "prefix": "datasets/sangraha/synthetic/ben/"
-  },
-  "synthetic/eng": {
-   "bytes": 0,
-   "etags_sampled": [],
-   "first_key": null,
-   "language": "en",
-   "last_key": null,
-   "objects": 0,
-   "prefix": "datasets/sangraha/synthetic/eng/"
-  },
-  "synthetic/guj": {
-   "bytes": 0,
-   "etags_sampled": [],
-   "first_key": null,
-   "language": "gu",
-   "last_key": null,
-   "objects": 0,
-   "prefix": "datasets/sangraha/synthetic/guj/"
-  },
-  "synthetic/hin": {
-   "bytes": 0,
-   "etags_sampled": [],
-   "first_key": null,
-   "language": "hi",
-   "last_key": null,
-   "objects": 0,
-   "prefix": "datasets/sangraha/synthetic/hin/"
-  },
-  "synthetic/kan": {
-   "bytes": 0,
-   "etags_sampled": [],
-   "first_key": null,
-   "language": "kn",
-   "last_key": null,
-   "objects": 0,
-   "prefix": "datasets/sangraha/synthetic/kan/"
-  },
-  "synthetic/mar": {
-   "bytes": 0,
-   "etags_sampled": [],
-   "first_key": null,
-   "language": "mr",
-   "last_key": null,
-   "objects": 0,
-   "prefix": "datasets/sangraha/synthetic/mar/"
-  },
-  "synthetic/tam": {
-   "bytes": 0,
-   "etags_sampled": [],
-   "first_key": null,
-   "language": "ta",
-   "last_key": null,
-   "objects": 0,
-   "prefix": "datasets/sangraha/synthetic/tam/"
-  },
-  "synthetic/tel": {
-   "bytes": 0,
-   "etags_sampled": [],
-   "first_key": null,
-   "language": "te",
-   "last_key": null,
-   "objects": 0,
-   "prefix": "datasets/sangraha/synthetic/tel/"
-  },
   "unverified/ben": {
    "bytes": 13656049452,
    "etags_sampled": [

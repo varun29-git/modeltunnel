@@ -142,14 +142,19 @@ def main():
         flush()
 
     for tier in SANGRAHA_TIERS:
-        for code3, code2 in SANGRAHA_LANGS.items():
-            prefix = f"datasets/sangraha/{tier}/{code3}/"
-            if f"{tier}/{code3}" in inventory["sangraha"]:
+        # verified/unverified use ISO3 dirs; synthetic uses lang_Script dirs
+        # (the *_Latn transliteration twins are excluded from the campaign).
+        names = SANGRAHA_LANGS.items() if tier != "synthetic" else \
+            [("hin_Deva", "hi"), ("mar_Deva", "mr"), ("kan_Knda", "kn"), ("tel_Telu", "te"),
+             ("tam_Taml", "ta"), ("guj_Gujr", "gu"), ("ben_Beng", "bn"), ("eng_Latn", "en")]
+        for dirname, code2 in names:
+            prefix = f"datasets/sangraha/{tier}/{dirname}/"
+            if f"{tier}/{dirname}" in inventory["sangraha"]:
                 continue
             print(f"listing {prefix}", flush=True)
-            entry = inventory_source(client, f"sangraha-{tier}-{code3}", prefix)
+            entry = inventory_source(client, f"sangraha-{tier}-{dirname}", prefix)
             entry["language"] = code2
-            inventory["sangraha"][f"{tier}/{code3}"] = entry
+            inventory["sangraha"][f"{tier}/{dirname}"] = entry
         flush()
 
     print("listing fineweb2-indic top level", flush=True)
