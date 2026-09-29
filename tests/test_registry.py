@@ -10,8 +10,6 @@ from terminus.model import BitNetLlama, BitNetLlamaConfig
 from terminus.optim import OptimizerConfig, build_optimizer, muon_update_scale_for_param
 from terminus.registry import (EXPECTED_PARAM_COUNTS, Ledger, make_run_config, pareto_frontier,
                                ranking_transfer, spearman_ranks, width_model_config)
-from terminus.search_plan import (stage1_width_transfer, stage3_dense_screen,
-                                  stage4_qat_branches)
 from tests.helpers import tiny_config
 
 
@@ -108,27 +106,50 @@ class LedgerTests(unittest.TestCase):
 
 
 class SearchPlanTests(unittest.TestCase):
-    def test_stage1_structure(self):
-        trials = stage1_width_transfer()
-        launches = [t for t in trials if t["kind"] == "width_transfer"]
-        reserved = [t for t in trials if t["kind"] == "reserved_bridge_bracket"]
-        self.assertEqual(len(launches), 12)  # 2 widths x 2 rules x 3 LRs
-        self.assertEqual(len(reserved), 2)
-        ids = [t["experiment_id"] for t in trials]
+    def test_staged_plan_structure(self):
+        from terminus.search_plan import campaign_plan, matched_exposure_check
+        jobs = campaign_plan()
+        by_stage = {}
+        for job in jobs:
+            by_stage.setdefault(job.stage, []).append(job)
+        self.assertEqual(len(by_stage["stage0"]), 2)
+        self.assertEqual(len(by_stage["stage1"]), 6)   # 2 rules x 3 LRs
+        self.assertEqual(len(by_stage["stage2"]), 3)   # 2 bridge + 1 short 1.5B check
+        self.assertEqual(len(by_stage["stage3"]), 4)   # real mixture overlays
+        self.assertEqual(len(by_stage["stage4"]), 7)   # parent + 4 branches + 2 controls
+        self.assertEqual(len(by_stage["stage5"]), 2)   # conditional second seeds
+        self.assertEqual(matched_exposure_check(jobs), [])
+        ids = [job.job_id for job in jobs]
         self.assertEqual(len(set(ids)), len(ids))
-        for trial in launches:
-            self.assertEqual(trial["config"]["model"]["weight_mode"], "dense")
-            self.assertEqual(trial["config"]["training"]["schedule"], "wsd")
 
-    def test_stage3_and_stage4_structure(self):
-        stage3 = stage3_dense_screen()
-        self.assertEqual(len(stage3), 6)
-        stage4 = stage4_qat_branches(dense_experiment_ids=["stage3/batch_screen/200m/example"])
-        branches = [t for t in stage4 if t["kind"] == "qat_branch"]
-        controls = [t for t in stage4 if t["kind"].startswith("control")]
-        self.assertEqual(len(branches), 9)  # 3 switch points x 3 QAT durations
-        self.assertEqual({t["kind"] for t in controls},
-                         {"control_dense_only", "control_ternary_from_start"})
+    def test_matched_exposure_check_catches_short_control(self):
+        from terminus.search_plan import campaign_plan, matched_exposure_check
+        jobs = campaign_plan()
+        control = [j for j in jobs if j.kind == "control_ternary_from_start"][0]
+        control.tokens //= 4
+        self.assertTrue(matched_exposure_check(jobs))
+
+    def test_mixtures_are_real_and_exact(self):
+        from terminus.search_plan import MIXTURES
+        from terminus.integrity import CAMPAIGN_LANGUAGES
+        for name, mix in MIXTURES.items():
+            self.assertAlmostEqual(sum(mix.values()), 1.0, places=12)
+            self.assertEqual(set(mix), set(CAMPAIGN_LANGUAGES) | {"math", "code"})
+            for weight in mix.values():
+                self.assertAlmostEqual(weight * 1000, round(weight * 1000), places=9)
+
+    def test_batch_decomposition_relation(self):
+        from terminus.search_plan import campaign_plan
+        for job in campaign_plan():
+            self.assertEqual(job.global_batch_tokens,
+                             job.microbatch * job.world_size * job.accumulation * job.seq_len)
+
+    def test_embedding_fraction_blocks_small_proxies(self):
+        from terminus.registry import embedding_fraction_report
+        report = embedding_fraction_report(widths=("200m",))
+        self.assertAlmostEqual(report["200m"]["embedding_fraction"], 0.2513, places=3)
+        self.assertGreater(report["100m_hypothetical"]["embedding_fraction"], 0.32)
+        self.assertGreater(report["50m_hypothetical"]["embedding_fraction"], 0.40)
 
 
 if __name__ == "__main__":

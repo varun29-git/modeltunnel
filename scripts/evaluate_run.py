@@ -57,12 +57,20 @@ def main():
     parser.add_argument("--tasks", default="bbh,human_eval,math,mbpp,mmlu")
     parser.add_argument("--max-items", type=int, default=None)
     parser.add_argument("--include-final", action="store_true")
+    parser.add_argument("--device", default="auto", help="auto (cuda if available), cpu, or cuda:N")
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
 
     started = time.time()
+    if args.device == "auto":
+        device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+    else:
+        device = torch.device(args.device)
+    if device.type == "cuda":
+        torch.set_default_dtype(torch.float32)
     model, model_config, state, checkpoint_receipt = load_verified_model(args.config,
                                                                          args.checkpoint)
+    model = model.to(device)
     tokenizer = load_tokenizer(args.tokenizer)
     eval_manifest = json.loads(Path(args.eval_manifest).read_text())
     items = []
@@ -76,13 +84,14 @@ def main():
         items.extend(load_scalingbench_items(Path(args.eval_root) / entry["file"],
                                              task=task, role=entry["role"],
                                              max_items=args.max_items))
-    records = score_items(model, tokenizer, items, device=torch.device("cpu"),
+    records = score_items(model, tokenizer, items, device=device,
                           max_seq_len=model_config.max_seq_len)
     summary = aggregate(records)
     receipt = {
         "evaluated_at_unix": time.time(), "wall_seconds": time.time() - started,
         "checkpoint": {"file": checkpoint_receipt["file"], "sha256": checkpoint_receipt["sha256"],
                        "state": state},
+        "device": str(device),
         "config_sha256": fingerprint(json.loads(Path(args.config).read_text())),
         "tokenizer_sha256": file_sha256(args.tokenizer),
         "eval_manifest_sha256": file_sha256(args.eval_manifest),

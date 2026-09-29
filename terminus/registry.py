@@ -82,6 +82,35 @@ def make_run_config(width, *, weight_mode, schedule, warmup_tokens, decay_tokens
     }
 
 
+def embedding_fraction_report(widths=("200m", "700m", "1500m"), extra_profiles=None):
+    """Embedding share of parameters per profile, with sub-200M hypotheticals.
+
+    The frozen 65,536-token vocabulary makes the tied embedding 151M params at
+    width 2304. Small proxies are dominated by the embedding, so width transfer
+    measured there reflects embedding scaling more than transformer-trunk
+    scaling — the reason the campaign does not add a <200M proxy.
+    """
+    from .model import BitNetLlama, BitNetLlamaConfig
+
+    profiles = {name: WIDTH_FAMILY[name] for name in widths}
+    profiles.update(extra_profiles or {
+        "100m_hypothetical": {"dim": 512, "n_heads": 4, "n_kv_heads": 2, "ffn_dim": 1280},
+        "50m_hypothetical": {"dim": 384, "n_heads": 3, "n_kv_heads": 1, "ffn_dim": 960},
+    })
+    report = {}
+    for name, shape in profiles.items():
+        model = BitNetLlama(BitNetLlamaConfig(vocab_size=65536, n_layers=25,
+                                              max_seq_len=4096, local_attention_window=1024,
+                                              global_attention_every=5,
+                                              attention_backend="sdpa_reference",
+                                              pad_token_id=3, **shape))
+        counts = model.count_parameters()
+        embedding = 65536 * shape["dim"]
+        report[name] = {"total": counts["total"], "embedding": embedding,
+                        "embedding_fraction": embedding / counts["total"]}
+    return report
+
+
 def git_identity(root=None):
     try:
         commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,

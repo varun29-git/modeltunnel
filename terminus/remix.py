@@ -18,15 +18,19 @@ from .integrity import validate_manifest, write_json_atomic
 
 
 def remix_manifest(manifest_path, data_root, model_config, *, source_mix=None,
-                   phase_source_mixes=None, total_train_tokens=None, name,
+                   phase_source_mixes=None, total_train_tokens=None, batch_size=None, name,
                    development_mode=False):
     manifest_path = Path(manifest_path)
     manifest = TokenManifest.load(manifest_path)
-    if not (source_mix or phase_source_mixes):
-        raise ValueError("a remix needs an explicit source_mix or phase_source_mixes")
-    config = replace(manifest.config, source_mix=source_mix,
-                     phase_source_mixes=phase_source_mixes or [],
-                     total_train_tokens=total_train_tokens or manifest.config.total_train_tokens)
+    if not (source_mix or phase_source_mixes or batch_size or total_train_tokens):
+        raise ValueError("a remix needs a new mixture, budget, or microbatch size")
+    new_mix = (source_mix if source_mix is not None
+               else (None if phase_source_mixes else manifest.config.source_mix))
+    new_phases = (phase_source_mixes if phase_source_mixes
+                  else ([] if source_mix is not None else manifest.config.phase_source_mixes))
+    config = replace(manifest.config, source_mix=new_mix, phase_source_mixes=new_phases,
+                     total_train_tokens=total_train_tokens or manifest.config.total_train_tokens,
+                     batch_size=batch_size or manifest.config.batch_size)
     remixed = TokenManifest(config, manifest.shards, manifest.tokenizer, manifest.provenance)
     report = validate_manifest(remixed, data_root, model_config,
                                development_mode=development_mode)
