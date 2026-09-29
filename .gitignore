@@ -34,3 +34,4 @@ search_runs/
 *.key
 azure_credentials.json
 aws_credentials
+eval/

@@ -6,7 +6,7 @@
   "quark-research-repository-storage TinyLlama packs"
  ],
  "fineweb2_indic": {},
- "generated_at": "2026-09-29T12:47:10.359035+00:00",
+ "generated_at": "2026-09-29T13:27:32.645011+00:00",
  "method": "ListObjectsV2 sums; one Parquet footer + first batch per family",
  "presence_checks": {},
  "sangraha": {},
@@ -38,6 +38,58 @@
    },
    "prefix": "datasets/nemotron-climbmix/karpathy-400b-shuffle/",
    "role": "english_web"
+  },
+  "code-concepts": {
+   "bytes": 32090527236,
+   "etags_sampled": [
+    "bbf22a6e5f0b3b1c7ffc4e65801d2459-63",
+    "d7e3d1c776baa977955e70a73c8518f7-63",
+    "cf4efc65620e24f92f252213fb87f1a6-64"
+   ],
+   "first_key": "datasets/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Code-Concepts/part_000000.parquet",
+   "last_key": "datasets/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Code-Concepts/part_000060.parquet",
+   "objects": 61,
+   "parquet_sample": {
+    "first_row_group_bytes": 2489495809,
+    "num_rows_in_sampled_object": 250000,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Code-Concepts/part_000000.parquet",
+    "schema": {
+     "license": "large_string",
+     "metadata": "struct<category: large_string, models_used: large_string, function_name: large_string, tags: large_string, problem_prompt: large_string, generated_solution: large_string>",
+     "text": "large_string",
+     "uuid": "large_string"
+    }
+   },
+   "prefix": "datasets/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Code-Concepts/",
+   "role": "code"
+  },
+  "math-textbooks": {
+   "bytes": 30841263255,
+   "etags_sampled": [
+    "0b0a1a8acb22afbd6cf899d647c39f81-286",
+    "b84e65bd03159aa6aabb2b59b6a3bc0c-285",
+    "3aec37f620e29423e22995b0ae81d7ff-285"
+   ],
+   "first_key": "datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Math-Textbooks/part_000000.parquet",
+   "last_key": "datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Math-Textbooks/part_000012.parquet",
+   "objects": 13,
+   "parquet_sample": {
+    "first_row_group_bytes": 2070400193,
+    "num_rows_in_sampled_object": 1000000,
+    "row_groups": 4,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Math-Textbooks/part_000000.parquet",
+    "schema": {
+     "license": "large_string",
+     "metadata": "struct<category: large_string, models_used: large_string>",
+     "text": "large_string",
+     "uuid": "large_string"
+    }
+   },
+   "prefix": "datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Math-Textbooks/",
+   "role": "math"
   },
   "nemotron-cc-hq": {
    "bytes": 1110302262436,
@@ -78,6 +130,58 @@
    },
    "prefix": "datasets/nemotron-cc-hq/",
    "role": "english_web"
+  },
+  "nemotron-cc-math-3": {
+   "bytes": 107417646757,
+   "etags_sampled": [
+    "02e39e4301fb1b19ca246586722e527c-227",
+    "411f021821142270bf2d6970c39fb5da-229",
+    "96058689aa4d9437f7401af4797f4621-228"
+   ],
+   "first_key": "datasets/nemotron-cc-math-v1/3/part_000000.parquet",
+   "last_key": "datasets/nemotron-cc-math-v1/3/part_000056.parquet",
+   "objects": 57,
+   "parquet_sample": {
+    "num_rows_in_sampled_object": 993681,
+    "sample_rows": [
+     {
+      "id": "34fc1647-8f4d-4808-9d86-94b3ad3400ea",
+      "metadata": {
+       "category": "math",
+       "finemath_int_scores": 3,
+       "finemath_scores": 3.359375,
+       "models_used": "Phi-4",
+       "nemocurator_int_scores": 3,
+       "nemocurator_scores": 3.453125,
+       "warc_filename": "crawl-data/CC-MAIN-2018-09/segments/1518891814872.58/warc/CC-MAIN-20180223233832-20180224013832-00109.warc.gz",
+       "warc_id": "<urn:uuid:b6b3b8b8-77af-4b77-a009-57b890eb2af6>"
+      },
+      "text": "# Why is There a Tidal Bulge Opposite the Moon?\n\nIn this activity, students use mathematics to understand tides and gravitation and how gravity works across astronomical distances. They utilize an apparatus made from a slinky, meter stick, and a hook. A description of the mathematical relationships seen in the demonstration is included. The resource is from PUMAS - Practical Uses of Math and Science - a collection of brief examples created by scientists and engineers showing how math and science topics taught in K-12 classes have real-world applications.\n\n**Keywords:** Antipode; Gravitational ...[+2836 chars]"
+     },
+     {
+      "id": "65a9f111-21ee-4a86-ad96-91a17f517d30",
+      "metadata": {
+       "category": "math",
+       "finemath_int_scores": 3,
+       "finemath_scores": 3.5,
+       "models_used": "Phi-4",
+       "nemocurator_int_scores": 2,
+       "nemocurator_scores": 2.875,
+       "warc_filename": "crawl-data/CC-MAIN-2016-22/segments/1464049274985.2/warc/CC-MAIN-20160524002114-00150-ip-10-185-217-139.ec2.internal.warc.gz",
+       "warc_id": "<urn:uuid:2d5be50d-b110-4d81-af46-76bba5bb8917>"
+      },
+      "text": "## Visualizing Sampling Distributions\n\n**September 25, 2011**  \n*By Bayesian Biologist* (Originally published on bayesianbiologist » Rstats, contributed to R-bloggers)\n\n---\n\n**Teacher:** \"How variable is your estimate of the mean?\"  \n**Student:** \"Uhhh, it’s not. I took a sample and calculated the sample mean. I only have one number.\"  \n**Teacher:** \"Yes, but what is the standard deviation of sample means?\"  \n**Student:** \"What do you mean means, I only have the one friggin number.\"\n\nStatisticians often discuss single events as if they have happened (or could happen) repeatedly. This is the ba...[+2743 chars]"
+     }
+    ],
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/nemotron-cc-math-v1/3/part_000000.parquet",
+    "schema": {
+     "id": "large_string",
+     "metadata": "struct<warc_filename: large_string, warc_id: large_string, finemath_int_scores: int64, finemath_scores: double, nemocurator_int_scores: int64, nemocurator_scores: double, category: large_string, models_used: large_string>",
+     "text": "large_string"
+    }
+   },
+   "prefix": "datasets/nemotron-cc-math-v1/3/",
+   "role": "math_optional"
   },
   "nemotron-cc-math-4plus": {
    "bytes": 62189080483,
@@ -184,6 +288,30 @@
    },
    "prefix": "datasets/nemotron-cc-math-v1/4plus_MIND/",
    "role": "math"
+  },
+  "scientific-coding": {
+   "bytes": 548476054,
+   "etags_sampled": [
+    "e27ce0cb2344ad90bcbd4a87576cc1fd-66"
+   ],
+   "first_key": "datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Scientific-Coding/part_000000.parquet",
+   "last_key": "datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Scientific-Coding/part_000000.parquet",
+   "objects": 1,
+   "parquet_sample": {
+    "first_row_group_bytes": 1491430209,
+    "num_rows_in_sampled_object": 905966,
+    "row_groups": 4,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Scientific-Coding/part_000000.parquet",
+    "schema": {
+     "license": "large_string",
+     "metadata": "struct<category: large_string, models_used: large_string>",
+     "text": "large_string",
+     "uuid": "large_string"
+    }
+   },
+   "prefix": "datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Scientific-Coding/",
+   "role": "code"
   },
   "smollm-corpus-snapshot": {
    "bytes": 122361179294,

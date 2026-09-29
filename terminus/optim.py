@@ -21,6 +21,8 @@ class OptimizerConfig:
     betas: tuple[float, float] = (0.9, 0.95)
     eps: float = 1e-8
     momentum: float = 0.95
+    muon_lr_rule: str = "sqrt_fan_in"   # rule A of the width-transfer study
+    muon_fan_in_base: int | None = None  # rule B: extra fan_in_base/fan_in factor
 
     def __post_init__(self):
         if self.kind not in {"adamw", "muon"}:
@@ -32,12 +34,35 @@ class OptimizerConfig:
             raise ValueError("weight decay must be finite and nonnegative")
         if len(self.betas) != 2 or any(not 0 <= beta < 1 for beta in self.betas) or not 0 <= self.momentum < 1:
             raise ValueError("optimizer moment coefficients must lie in [0, 1)")
+        if self.muon_lr_rule not in {"sqrt_fan_in", "sqrt_fan_in_ratio"}:
+            raise ValueError("muon_lr_rule must be sqrt_fan_in (rule A) or sqrt_fan_in_ratio (rule B)")
+        if self.muon_lr_rule == "sqrt_fan_in_ratio":
+            if (isinstance(self.muon_fan_in_base, bool) or not isinstance(self.muon_fan_in_base, int)
+                    or self.muon_fan_in_base <= 0):
+                raise ValueError("sqrt_fan_in_ratio requires a positive integer muon_fan_in_base")
+        elif self.muon_fan_in_base is not None:
+            raise ValueError("muon_fan_in_base only applies to sqrt_fan_in_ratio")
 
 
-def muon_update_scale_for_param(parameter):
+def muon_update_scale_for_param(parameter, *, rule="sqrt_fan_in", fan_in_base=None):
+    """Per-group Muon LR scale.
+
+    Rule A ("sqrt_fan_in"): 0.2 * sqrt(fan_in) — constant elementwise update
+    RMS with upstream's sqrt(max(1, out/in)) factor. Rule B
+    ("sqrt_fan_in_ratio"): rule A times fan_in_base/fan_in, the μP-style
+    width-ratio correction the width-transfer study compares against rule A.
+    Weight decay is divided by the same scale so lr*wd is rule-independent.
+    """
     if parameter.ndim != 2:
         raise ValueError("Muon requires a matrix")
-    return 0.2 * math.sqrt(parameter.shape[1])
+    scale = 0.2 * math.sqrt(parameter.shape[1])
+    if rule == "sqrt_fan_in_ratio":
+        if not fan_in_base:
+            raise ValueError("sqrt_fan_in_ratio requires fan_in_base")
+        scale *= fan_in_base / parameter.shape[1]
+    elif rule != "sqrt_fan_in":
+        raise ValueError("unknown Muon LR rule")
+    return scale
 
 
 def logical_muon_rows(name, parameter, model):
@@ -67,7 +92,8 @@ def build_optimizer(model, config=None):
         if not parameter.requires_grad:
             continue
         if config.kind == "muon" and id(parameter) in matrices:
-            scale = muon_update_scale_for_param(parameter)
+            scale = muon_update_scale_for_param(parameter, rule=config.muon_lr_rule,
+                                                fan_in_base=config.muon_fan_in_base)
             groups.append({"params": [parameter], "lr": config.muon_lr * scale,
                            "weight_decay": config.weight_decay / scale,
                            "momentum": config.momentum, "use_muon": True})

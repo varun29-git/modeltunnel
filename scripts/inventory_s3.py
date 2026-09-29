@@ -61,24 +61,36 @@ PRESENCE_CHECKS = [
 ]
 
 
-def schema_sample(uri, *, max_row_bytes=4096):
-    """Read schema + first rows of one Parquet object via ranged reads."""
+def schema_sample(uri, *, max_row_bytes=600, max_row_group_bytes=64 * 1024 * 1024):
+    """Read schema + first rows of one Parquet object via ranged reads.
+
+    Row sampling is skipped when the first row group exceeds
+    max_row_group_bytes — footer/schema reads stay cheap regardless.
+    """
     with S3RangeReader(uri, cache_bytes=4 * 1024 * 1024) as reader:
         pf = pq.ParquetFile(reader)
         schema = {field.name: str(field.type) for field in pf.schema_arrow}
         rows_total = pf.metadata.num_rows
+        first_group_bytes = (pf.metadata.row_group(0).total_byte_size
+                             if pf.metadata.num_row_groups else 0)
+        result = {"schema": schema, "num_rows_in_sampled_object": rows_total,
+                  "sampled_object": uri, "row_groups": pf.metadata.num_row_groups,
+                  "first_row_group_bytes": first_group_bytes}
+        if first_group_bytes > max_row_group_bytes:
+            result["sample_rows_skipped"] = ("first row group exceeds "
+                                             f"{max_row_group_bytes} bytes")
+            return result
         sample_rows = []
         try:
             batch = next(pf.iter_batches(batch_size=2))
-            table = batch.to_pylist()
-            for row in table:
+            for row in batch.to_pylist():
                 sample_rows.append({key: (value[:max_row_bytes] + f"...[+{len(value) - max_row_bytes} chars]"
                                           if isinstance(value, str) and len(value) > max_row_bytes else value)
                                     for key, value in row.items()})
         except StopIteration:
             pass
-        return {"schema": schema, "num_rows_in_sampled_object": rows_total,
-                "sampled_object": uri, "sample_rows": sample_rows}
+        result["sample_rows"] = sample_rows
+        return result
 
 
 def inventory_source(client, name, prefix):
@@ -109,12 +121,20 @@ def main():
                                                               "quark-research-repository-storage TinyLlama packs"]}
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
+    if out.exists():  # resume: keep sections already inventoried
+        previous = json.loads(out.read_text())
+        for key in inventory:
+            if key in previous and isinstance(previous[key], dict) and previous[key]:
+                inventory[key] = previous[key]
+        print(f"resuming; kept sections: {[k for k in inventory if inventory[k]]}", flush=True)
 
     def flush():
         out.write_text(json.dumps(inventory, indent=1, sort_keys=True, ensure_ascii=False))
         print(f"wrote {out}", flush=True)
 
     for name, prefix, role in SOURCES:
+        if name in inventory["sources"]:
+            continue
         print(f"listing {name} {prefix}", flush=True)
         entry = inventory_source(client, name, prefix)
         entry["role"] = role
@@ -124,6 +144,8 @@ def main():
     for tier in SANGRAHA_TIERS:
         for code3, code2 in SANGRAHA_LANGS.items():
             prefix = f"datasets/sangraha/{tier}/{code3}/"
+            if f"{tier}/{code3}" in inventory["sangraha"]:
+                continue
             print(f"listing {prefix}", flush=True)
             entry = inventory_source(client, f"sangraha-{tier}-{code3}", prefix)
             entry["language"] = code2
@@ -156,6 +178,8 @@ def main():
     flush()
 
     for name, prefix, note in TRANSLATION_RUNS:
+        if name in inventory["translations"]:
+            continue
         print(f"listing {name}", flush=True)
         objects = list_prefix(f"s3://{BUCKET}/{prefix}", client=client)
         translated = [o for o in objects if o["key"].endswith("translated_documents.parquet")]
