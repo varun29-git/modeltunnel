@@ -1,9 +1,0 @@
-{
-  "repository": "karpathy/climbmix-400b-shuffle",
-  "source": "nvidia/Nemotron-ClimbMix",
-  "shards": 6543,
-  "layout": "shard_00000.parquet .. shard_06542.parquet",
-  "status": "completed",
-  "updated_at": "2026-09-28T06:45:21.242808+00:00",
-  "shard_count": 6543
-}
