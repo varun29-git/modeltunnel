@@ -1,0 +1,36 @@
+# Python and local environments
+__pycache__/
+*.py[cod]
+.DS_Store
+.venv/
+venv/
+.pytest_cache/
+
+*.egg-info/
+build/
+dist/
+
+# Local data, checkpoints, and generated run output
+/data/*
+!/data/tokenizer/
+*.bin
+*.npy
+*.pt
+*.pth
+*.ckpt
+runs/
+checkpoints/
+artifacts/
+evaluation_outputs/
+openevolve_output/
+prepared_data/
+eval_cache/
+search_runs/
+
+# Cloud credentials and local configuration
+.env
+.env.*
+*.pem
+*.key
+azure_credentials.json
+aws_credentials
