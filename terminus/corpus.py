@@ -72,18 +72,22 @@ def shingle_hashes(text, *, n=13):
 
 
 def minhash_signature(text, *, n=5, count=64):
-    """Deterministic 64x32-bit MinHash over character n-grams."""
+    """Deterministic 64x32-bit MinHash over character n-grams.
+
+    Each gram is hashed once with blake2b-128; the 64 signature values use a
+    fixed linear-permutation family (a_i * h + b_i mod 2**32), vectorized.
+    """
+    import numpy as np
+
     grams = {text[i:i + n] for i in range(max(1, len(text) - n + 1))} or {text}
-    signature = []
-    for index in range(count):
-        best = None
-        for gram in grams:
-            value = hashlib.blake2b(gram.encode(), digest_size=4,
-                                    person=index.to_bytes(2, "little")).digest()
-            if best is None or value < best:
-                best = value
-        signature.append(int.from_bytes(best, "little"))
-    return signature
+    hashes = np.frombuffer(b"".join(
+        hashlib.blake2b(gram.encode(), digest_size=8).digest() for gram in grams),
+        dtype=np.uint64)
+    index = np.arange(count, dtype=np.uint64)
+    multipliers = (2 * index + 1).astype(np.uint64)
+    offsets = ((index * np.uint64(2654435761)) + np.uint64(12345)).astype(np.uint64)
+    values = (hashes[:, None] * multipliers[None, :] + offsets[None, :]) & np.uint64(0xFFFFFFFF)
+    return [int(v) for v in values.min(axis=0)]
 
 
 class DedupStore:
@@ -111,6 +115,10 @@ class DedupStore:
                                        (source, doc_id))
         self._commit_maybe()
         return cursor.rowcount == 0
+
+    def contains_id(self, source, doc_id):
+        return self.database.execute("SELECT 1 FROM doc_ids WHERE source = ? AND doc_id = ?",
+                                     (source, doc_id)).fetchone() is not None
 
     def seen_text(self, digest):
         cursor = self.database.execute("INSERT OR IGNORE INTO text_hashes VALUES (?)", (digest,))
@@ -174,13 +182,14 @@ class SourceSpec:
     adapter: str                 # adapter registry key
     license: str
     role: str                    # 'language' | 'domain' (math/code) | 'english'
-    uris: list                   # explicit object URIs, or
+    uris: list = None            # explicit object URIs, or
     prefix: str = None           # one S3 prefix to list
     language: str = None         # fixed language for language sources
     prefer_over: tuple = ()      # translation families: ids here win over these sources
     skip_ids_from: tuple = ()    # drop doc_ids already emitted by these sources
     max_bytes: int = None        # bound for smoke samples
     max_objects: int = None
+    max_rows: int = None         # bound rows read per object (streams instead of caching)
     notes: str = ""
 
 
@@ -220,7 +229,19 @@ def text_id_row(row, *, source, language, **context):
     return [{"doc_id": str(doc_id), "text": text, "language": language or "en"}]
 
 
-ADAPTERS = {"sangraha": sangraha_row, "fineweb2": fineweb2_row, "text_id": text_id_row}
+def translation_row(row, *, source, language, quarantined=frozenset(), **context):
+    """Committed translation chunks: translation text, document_id, language
+    (v5 column or the language= hive partition), quarantined ids dropped."""
+    if str(row.get("document_id")) in quarantined:
+        return []
+    text = row.get("translation")
+    raw_language = row.get("language") or language
+    mapped = FINEWEB2_SOURCE_LANGS.get(raw_language, raw_language)
+    return [{"doc_id": str(row.get("document_id")), "text": text, "language": mapped}]
+
+
+ADAPTERS = {"sangraha": sangraha_row, "fineweb2": fineweb2_row, "text_id": text_id_row,
+            "translation": translation_row}
 
 
 class CorpusBuilder:
@@ -255,6 +276,13 @@ class CorpusBuilder:
         bucket, _ = split_s3_uri(spec.prefix)
         objects = [dict(o, bucket=bucket) for o in list_prefix(spec.prefix, client=self.client)]
         objects = [o for o in objects if o["key"].endswith((".parquet", ".jsonl", ".json"))]
+        parquet = [o for o in objects if o["key"].endswith(".parquet")]
+        if parquet:
+            objects = parquet  # skip SOURCE.json / _parts manifests / checksums
+        objects = [o for o in objects if not o["key"].rsplit("/", 1)[-1].startswith("_")]
+        if spec.adapter == "translation":
+            # only the committed translations; never quarantine manifests or audits
+            objects = [o for o in objects if o["key"].endswith("translated_documents.parquet")]
         if spec.max_objects:
             objects = objects[:spec.max_objects]
         if spec.max_bytes:
@@ -285,26 +313,72 @@ class CorpusBuilder:
         path = self.output_dir / f"records.{source}.{split}.jsonl"
         return path.open("a", encoding="utf-8")
 
-    def _process_object(self, spec, adapter, obj):
+    def _iter_rows(self, spec, obj):
+        """Yield rows, streaming large objects via ranged reads when bounded."""
         uri = f"s3://{obj['bucket']}/{obj['key']}"
-        stats = self.stats.setdefault(spec.name, {"documents": 0, "bytes_text": 0,
-                                                  "exact_dups": 0, "near_dups": 0,
-                                                  "id_dups": 0, "contaminated": 0,
-                                                  "skipped_empty": 0})
+        stream = spec.max_rows is not None or obj["size"] > 256 * 1024 * 1024
         if obj["key"].endswith(".parquet"):
-            local = self.cache.fetch(uri, client=self.client, expected_size=obj["size"],
-                                     expected_etag=obj["etag"])
-            table = pq.read_table(local)
-            rows = table.to_pylist()
+            if stream:
+                from .s3io import S3RangeReader
+
+                with S3RangeReader(uri, client=self.client) as reader:
+                    pf = pq.ParquetFile(reader)
+                    produced = 0
+                    for batch in pf.iter_batches(batch_size=2048):
+                        for row in batch.to_pylist():
+                            yield row
+                            produced += 1
+                            if spec.max_rows is not None and produced >= spec.max_rows:
+                                return
+            else:
+                local = self.cache.fetch(uri, client=self.client, expected_size=obj["size"],
+                                         expected_etag=obj["etag"])
+                produced = 0
+                for row in pq.read_table(local).to_pylist():
+                    yield row
+                    produced += 1
+                    if spec.max_rows is not None and produced >= spec.max_rows:
+                        return
         else:
             local = self.cache.fetch(uri, client=self.client, expected_size=obj["size"],
                                      expected_etag=obj["etag"])
-            rows = [json.loads(line) for line in
-                    Path(local).read_text(encoding="utf-8").splitlines() if line.strip()]
+            produced = 0
+            with Path(local).open(encoding="utf-8") as handle:
+                for line in handle:
+                    if not line.strip():
+                        continue
+                    yield json.loads(line)
+                    produced += 1
+                    if spec.max_rows is not None and produced >= spec.max_rows:
+                        return
+
+    def _process_object(self, spec, adapter, obj):
+        stats = self.stats.setdefault(spec.name, {"documents": 0, "bytes_text": 0,
+                                                  "exact_dups": 0, "near_dups": 0,
+                                                  "id_dups": 0, "contaminated": 0,
+                                                  "superseded_by_version": 0,
+                                                  "skipped_empty": 0})
+        quarantined = frozenset()
+        if spec.adapter == "translation":
+            quarantine_key = obj["key"].rsplit("/", 1)[0] + "/quarantine_manifest.jsonl"
+            try:
+                local = self.cache.fetch(f"s3://{obj['bucket']}/{quarantine_key}",
+                                         client=self.client)
+                with Path(local).open(encoding="utf-8") as handle:
+                    quarantined = frozenset(str(json.loads(line).get("document_id"))
+                                            for line in handle if line.strip())
+            except Exception as exc:
+                stats.setdefault("quarantine_manifest_missing", 0)
+                stats["quarantine_manifest_missing"] += 1
         writers = {}
         try:
-            for index, row in enumerate(rows):
-                for doc in adapter(row, source=spec.name, language=spec.language):
+            for index, row in enumerate(self._iter_rows(spec, obj)):
+                docs = adapter(row, source=spec.name, language=spec.language,
+                               quarantined=quarantined)
+                if not docs and str(row.get("document_id")) in quarantined:
+                    stats.setdefault("quarantined", 0)
+                    stats["quarantined"] += 1
+                for doc in docs:
                     text = doc.get("text")
                     if not isinstance(text, str) or not text.strip():
                         stats["skipped_empty"] += 1
@@ -315,6 +389,10 @@ class CorpusBuilder:
                         stats["skipped_empty"] += 1
                         continue
                     doc_id = doc["doc_id"]
+                    if spec.skip_ids_from and any(
+                            self.dedup.contains_id(other, doc_id) for other in spec.skip_ids_from):
+                        stats["superseded_by_version"] += 1
+                        continue
                     if self.dedup.seen_id(spec.name, doc_id):
                         stats["id_dups"] += 1
                         continue

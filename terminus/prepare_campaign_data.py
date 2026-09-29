@@ -46,8 +46,10 @@ def prepare_campaign_data(record_files, tokenizer_path, output_dir, *, source_mi
                           batch_size=1, shard_tokens=10_000_000, scope):
     """Build a token manifest from corpus record JSONL files.
 
-    `record_files` maps source name -> JSONL path. The scope declares the
-    versioned language/domain coverage enforced by validation.
+    `record_files` maps source name -> JSONL path or list of JSONL paths
+    (merged in order, e.g. several raw sources forming one "code" stream).
+    The scope declares the versioned language/domain coverage enforced by
+    validation.
     """
     if shard_tokens <= 0:
         raise ValueError("shard token budget must be positive")
@@ -89,45 +91,50 @@ def prepare_campaign_data(record_files, tokenizer_path, output_dir, *, source_mi
         indices[key] += 1
         counts[key] = 0
 
+    def pack_record(source, record):
+        raw_source = record["source"]
+        if record["split"] not in split_map:
+            if record["split"] != "test":
+                raise ValueError(f"unknown split {record['split']!r}")
+            return  # the final test split is never tokenized into training data
+        text = record["text"]
+        if hashlib.sha256(text.encode()).hexdigest() != record["text_sha256"]:
+            raise ValueError("corpus record text hash mismatch")
+        if record["license"] != licenses.setdefault(raw_source, record["license"]):
+            raise ValueError("inconsistent license metadata for a source")
+        language, split = record["language"], split_map[record["split"]]
+        tokens = encode_text(tokenizer, text) + [tokenizer.eos_id()]
+        key = (source, language, split)
+        documents[key] += 1
+        slot = inventory[f"{source}/{split}"]
+        slot["documents"] += 1
+        slot["utf8_bytes"] += len(text.encode("utf-8"))
+        slot["tokens"] += len(tokens)
+        if hasattr(tokenizer, "is_byte"):
+            slot["byte_fallback_tokens"] += sum(tokenizer.is_byte(t) for t in tokens)
+        array = np.asarray(tokens, dtype=dtype)
+        start = 0
+        while start < len(array):
+            if key not in streams:
+                path = output_dir / f"{source}.{split}.{indices[key]:05d}.bin"
+                streams[key] = path.open("xb")
+            take = min(len(array) - start, shard_tokens - counts[key])
+            streams[key].write(array[start:start + take].tobytes())
+            counts[key] += take
+            totals[key] += take
+            start += take
+            if counts[key] == shard_tokens:
+                finish_shard(key)
+
     try:
-        for source, record_file in sorted(record_files.items()):
-            digest = file_sha256(record_file)
-            corpus_digests[source] = {"path": str(record_file), "sha256": digest}
-            for record in read_records(record_file):
-                if record["source"] != source:
-                    raise ValueError(f"record source {record['source']!r} not in its file {source!r}")
-                if record["split"] not in split_map:
-                    if record["split"] != "test":
-                        raise ValueError(f"unknown split {record['split']!r}")
-                    continue  # the final test split is never tokenized into training data
-                text = record["text"]
-                if hashlib.sha256(text.encode()).hexdigest() != record["text_sha256"]:
-                    raise ValueError("corpus record text hash mismatch")
-                if record["license"] != licenses.setdefault(source, record["license"]):
-                    raise ValueError("inconsistent license metadata for a source")
-                language, split = record["language"], split_map[record["split"]]
-                tokens = encode_text(tokenizer, text) + [tokenizer.eos_id()]
-                key = (source, language, split)
-                documents[key] += 1
-                slot = inventory[f"{source}/{split}"]
-                slot["documents"] += 1
-                slot["utf8_bytes"] += len(text.encode("utf-8"))
-                slot["tokens"] += len(tokens)
-                slot["byte_fallback_tokens"] += sum(tokenizer.is_byte(t) for t in tokens) \
-                    if hasattr(tokenizer, "is_byte") else 0
-                array = np.asarray(tokens, dtype=dtype)
-                start = 0
-                while start < len(array):
-                    if key not in streams:
-                        path = output_dir / f"{source}.{split}.{indices[key]:05d}.bin"
-                        streams[key] = path.open("xb")
-                    take = min(len(array) - start, shard_tokens - counts[key])
-                    streams[key].write(array[start:start + take].tobytes())
-                    counts[key] += take
-                    totals[key] += take
-                    start += take
-                    if counts[key] == shard_tokens:
-                        finish_shard(key)
+        for source, record_files_for_source in sorted(record_files.items()):
+            if isinstance(record_files_for_source, (str, Path)):
+                record_files_for_source = [record_files_for_source]
+            corpus_digests[source] = [{"path": str(path), "sha256": file_sha256(path)}
+                                      for path in record_files_for_source]
+            for record_file in record_files_for_source:
+                for record in read_records(record_file):
+                    pack_record(source, record)
         for key in list(streams):
             finish_shard(key)
         config = TokenDataConfig(
@@ -159,7 +166,7 @@ def prepare_campaign_data(record_files, tokenizer_path, output_dir, *, source_mi
 
 def main():
     parser = argparse.ArgumentParser(description="Tokenize campaign corpus records into packed token streams")
-    parser.add_argument("--records", required=True, help="JSON map source -> records JSONL path")
+    parser.add_argument("--records", required=True, help="JSON map source -> records JSONL path (or list)")
     parser.add_argument("--tokenizer", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--source-mix", help="JSON file mapping source names to mixture weights")

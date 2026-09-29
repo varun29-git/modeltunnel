@@ -47,8 +47,8 @@ SANGRAHA_TIERS = ["verified", "synthetic", "unverified"]
 TRANSLATION_RUNS = [
     ("cosmopedia-v4", "translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v4-20260905/", "older; keep ids absent from v5"),
     ("cosmopedia-v5", "translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v5-20260906/", "preferred"),
-    ("hq-synth-v1", "translations/Nemotron-CC-v2.1/High-Quality-Synthetic/krutrim-nemotron-cc-v21-hq-synth-v1-20260906/", "committed"),
-    ("fact-seeking-r16", "translations/Nemotron-Pretraining-Specialized-v1.2/Fact-Seeking/fact-seeking-70shard-10lang-r16-20260903/", "committed"),
+    ("hq-synth-v1", "translations/Nemotron-CC-v2.1/High-Quality-Synthetic/krutrim-nemotron-cc-v21-hq-synth-v1-20260906/", "recorded in the 27 Sep inventory; verify presence"),
+    ("fact-seeking-r16", "translations/Nemotron-Pretraining-Specialized-v1.2/Fact-Seeking/indictrans2-en-indic-dist-200M-beam1-20260902/fact-seeking-70shard-10lang-r16-20260903/", "committed trainable run"),
 ]
 # Named sources the map says to verify; absence must be explicit.
 PRESENCE_CHECKS = [
@@ -183,14 +183,24 @@ def main():
         print(f"listing {name}", flush=True)
         objects = list_prefix(f"s3://{BUCKET}/{prefix}", client=client)
         translated = [o for o in objects if o["key"].endswith("translated_documents.parquet")]
+        languages = {}
+        for o in translated:
+            for part in o["key"].split("/"):
+                if part.startswith("language="):
+                    slot = languages.setdefault(part.split("=", 1)[1], {"objects": 0, "bytes": 0})
+                    slot["objects"] += 1
+                    slot["bytes"] += o["size"]
         entry = {"prefix": prefix, "rule": note, "objects": len(objects),
                  "bytes": sum(o["size"] for o in objects),
                  "translated_documents_parquets": len(translated),
                  "translated_bytes": sum(o["size"] for o in translated),
+                 "language_partitions": languages,
                  "first_key": objects[0]["key"] if objects else None}
+        if not objects:
+            entry["status"] = "missing: prefix has no objects"
         if translated:
             try:
-                entry["parquet_sample"] = schema_sample(f"s3://{BUCKET}/{translated[0]['key']}", max_row_bytes=600)
+                entry["parquet_sample"] = schema_sample(f"s3://{BUCKET}/{translated[0]['key']}")
             except Exception as exc:
                 entry["parquet_sample_error"] = repr(exc)
         inventory["translations"][name] = entry

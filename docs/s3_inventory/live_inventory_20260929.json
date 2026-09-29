@@ -5,11 +5,1140 @@
   "translation-benchmark/",
   "quark-research-repository-storage TinyLlama packs"
  ],
- "fineweb2_indic": {},
- "generated_at": "2026-09-29T13:27:32.645011+00:00",
+ "fineweb2_indic": {
+  "asm_Beng": {
+   "bytes": 385383719,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/asm_Beng/train/000_00000.parquet",
+   "objects": 1
+  },
+  "asm_Latn": {
+   "bytes": 1326909,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/asm_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "awa_Deva": {
+   "bytes": 3092247,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/awa_Deva/train/000_00000.parquet",
+   "objects": 1
+  },
+  "ben_Beng": {
+   "bytes": 23894953700,
+   "campaign_language": "bn",
+   "first_key": "datasets/fineweb2-indic/ben_Beng/train/000_00000.parquet",
+   "objects": 5,
+   "parquet_sample": {
+    "first_row_group_bytes": 8896509,
+    "num_rows_in_sampled_object": 2912000,
+    "row_groups": 2912,
+    "sample_rows": [
+     {
+      "date": "2013-05-26T09:08:11Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368706794379/warc/CC-MAIN-20130516121954-00017-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:d84702b0-67f8-48f2-bf47-af9c8e90474e>",
+      "language": "ben",
+      "language_score": 0.9998332858085632,
+      "language_script": "Beng",
+      "minhash_cluster_size": 1,
+      "text": "প্রবাসী লেখকদের কলাম\nএকালের বাংলা সাহিত্যের সবচেয়ে জননন্দিত লেখক সদ্য প্রয়াত হুমায়ূন আহমেদের বেশিরভাগ লেখায় তাঁর প্রথম স্ত্রী গুলতেকিন এবং সন্তান নোভা-শীলা-বিপাশা-নুহাশদের প্রতি অদ্ভুত ভালবাসা দেখা গেছে । আবার দ্বিতীয় বিয়ের পর তাঁর সাহিত্যে অভিনেত্রী শাওন ও তার দুই ছেলে নিষাদ-নিনিত`র উপস্থিতি ছিল প্রবল।\nআর এসময় প্রথম পক্ষের স্ত্রী-সন্তানরা ক্রমশ তাঁর জীবন ও সাহিত্য থেকে আড়াল হয়ে যায় । তবে ক্যান্সারের চিকিৎসার জন্য যুক্তরাষ্ট্রে অবস্থানকালীন তার লেখা ‘তিন ডব্লিউ’’তে উঠে আসে কন্যা নোভা, শিলা ও বিপাশা আহমেদের কথা।\nআর এ লেখাতে যেমন ছিল কন্যাদের প্রতি তার অন্যরকম ভাললাগার কথা, তেমনি ছিল ত...[+18227 chars]",
+      "top_langs": "{}",
+      "url": "http://hollywoodbangla.com/index.php?option=com_content&view=article&id=8258:2012-08-01-10-39-24&catid=37:2010-10-11-16-50-49&Itemid=143"
+     },
+     {
+      "date": "2013-05-20T09:20:45Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368698693943/warc/CC-MAIN-20130516100453-00017-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:0b74f8c6-57e5-4017-931f-4e975018d990>",
+      "language": "ben",
+      "language_score": 0.9994524121284485,
+      "language_script": "Beng",
+      "minhash_cluster_size": 2,
+      "text": "- হোম\n- খবর\n- স্থানীয় খবর\n- পলিসি\n- ফ্রিল্যান্সিং\n- রিভিউ\n- টিউটোরিয়াল\n- ব্লগ\n- টেক টক\n- ফোরাম\n- প্রিয়.কম\n- আমার ফ্রিল্যান্সিং জীবন\n২০০৬ সালের সিম ট্যাক্স ৩৪৮ কোটি টাকা জমা দিল গ্রামীণফোন\nSubmitted by PriyoTech on Tue, 11/09/2012 - 11:11pm\nবন্ধ হতে পারে বাংলালিংক, রবি ও সিটিসেলের ব্যাংক অ্যাকাউন্ট\n(প্রিয় টেক) ২০০৬ সালের কয়েক মাস ধরে সিম ট্যাক্স না দিয়ে বরং এ বিষয়ে সরকারের বিরুদ্ধে মামলা করেছিল চারটি মোবাইল অপারেটর। সেই মামলায় হেরে যাওয়ার ফলে সে সময়ের বকেয়া হিসেবে আজ মঙ্গলবার টাকা পরিশোধের শেষ দিনে সরকারেকে ৩৪৮ কোটি টাকা দিয়েছে গ্রামীণফোন। তবে অন্য তিন অপারেটর বাংলালিংক, রবি এবং সিট...[+797 chars]",
+      "top_langs": "{}",
+      "url": "http://tech.priyo.com/news/business/2012/09/11/nbr5582.html"
+     }
+    ],
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/ben_Beng/train/000_00000.parquet",
+    "schema": {
+     "date": "string",
+     "dump": "string",
+     "file_path": "string",
+     "id": "string",
+     "language": "string",
+     "language_score": "double",
+     "language_script": "string",
+     "minhash_cluster_size": "int64",
+     "text": "string",
+     "top_langs": "string",
+     "url": "string"
+    }
+   }
+  },
+  "ben_Latn": {
+   "bytes": 32545716,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/ben_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "bho_Deva": {
+   "bytes": 25417218,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/bho_Deva/train/000_00000.parquet",
+   "objects": 1
+  },
+  "bod_Tibt": {
+   "bytes": 419509894,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/bod_Tibt/train/000_00000.parquet",
+   "objects": 1
+  },
+  "doi_Deva": {
+   "bytes": 1876481,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/doi_Deva/train/000_00000.parquet",
+   "objects": 1
+  },
+  "dty_Deva": {
+   "bytes": 14703,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/dty_Deva/train/000_00000.parquet",
+   "objects": 1
+  },
+  "gom_Deva": {
+   "bytes": 10982735,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/gom_Deva/train/000_00000.parquet",
+   "objects": 1
+  },
+  "gom_Latn": {
+   "bytes": 5732530,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/gom_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "guj_Gujr": {
+   "bytes": 3338859951,
+   "campaign_language": "gu",
+   "first_key": "datasets/fineweb2-indic/guj_Gujr/train/000_00000.parquet",
+   "objects": 1,
+   "parquet_sample": {
+    "first_row_group_bytes": 9732447,
+    "num_rows_in_sampled_object": 2127094,
+    "row_groups": 2128,
+    "sample_rows": [
+     {
+      "date": "2013-05-20T05:19:45Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368698354227/warc/CC-MAIN-20130516095914-00047-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:8f8d748c-b316-4f56-aecb-885522659490>",
+      "language": "guj",
+      "language_score": 1.0000100135803223,
+      "language_script": "Gujr",
+      "minhash_cluster_size": 1,
+      "text": "સાયબરજગતમાં ‘દો કિસ્મ કે લોગ હોતે હૈં - એક જો ટેક્નોલોજી કા સહી ઉપયોગ કરતે હૈં, ઔર દૂસરે જો...' આ ‘દૂસરે' ટાઇપના લોકોમાં વાયરસ, સ્પાયવેર્સ, એડવેર્સ, ટ્રોજન, કી-લોગર્સ વગેરે વગેરેનો ફેલાવો કરનારા લોકોનો સમાવેશ થાય છે.\nઆ બધાં નામ જેમને થોડાં અજાણ્યાં લાગ્યાં હોય એમના માટે જરા ક્વિક રેફરન્સ...\nવાયરસ એટલે આપણી જાણ બહાર કમ્પ્યુટરમાં ઘૂસી જતો નાનો પ્રોગ્રામ. જે મેડિકલ વાયરસની જેમ જ, કમ્પ્યુટરમાં હાહાકાર મચાવી શકે, સિસ્ટમ ક્રેશ કરી શકે, બધો ડેટા ભૂંસી શકે.\nસ્પાયવેર જરા જુદા, એ તમારા કમ્પ્યુટરમાં ઘૂસ્યા પછી, તમારી બાતમી - પાસવર્ડ, ક્રેડિટ કાર્ડના નંબર વગેરે - પોતાના મૂળ માલિક, સ્પાયવેર તૈયાર કરનાર વ્ય...[+1577 chars]",
+      "top_langs": "{}",
+      "url": "http://cybersafar.com/index.php?option=com_content&view=article&id=132:2008-11-26-04-37-52&catid=34:useful-services&Itemid=72"
+     },
+     {
+      "date": "2013-05-25T16:02:16Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368705958528/warc/CC-MAIN-20130516120558-00029-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:ec4af47d-eb3e-470b-882e-7c11b4e4ce79>",
+      "language": "guj",
+      "language_score": 0.9999939203262329,
+      "language_script": "Gujr",
+      "minhash_cluster_size": 6,
+      "text": "GujaratiLexicon is a landmark work in the history of Gujarati language containing resources of more than 25 lakh words. It aims to preserve, popularize and develop Gujarati language through the power of information technology. Lovers of Gujarati language can develop vocabulary, enjoy literature, read exclusive literature and join our mission through GujaratiLexicon.com.\nઋતુઓનો ચકડોળ ચક્કરભમ્મર ફરવા મંડાણો. નવ નવ નોરતાં, વીસ વજૈયા અને દિવાળી, આનંદનો અબીલગુલાલ ઉડાડતી આવી એવી વહી ગઈ. હુતાસણીના પરબે હમચીકૂંડું ખૂંદવા માંડ્યું. ખેતરોમાંથી કાલાં વીણાઈ ગયાં. ઘઉંનો વાઢ પડી ગયો. ઘઉંની ઝાલ્યું ભરાઈને ખળ...[+128 chars]",
+      "top_langs": "{}",
+      "url": "http://blog.gujaratilexicon.com/tag/%E0%AA%B0%E0%AB%82%E0%AA%AA%E0%AA%BF%E0%AA%AF%E0%AA%BE/"
+     }
+    ],
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/guj_Gujr/train/000_00000.parquet",
+    "schema": {
+     "date": "string",
+     "dump": "string",
+     "file_path": "string",
+     "id": "string",
+     "language": "string",
+     "language_score": "double",
+     "language_script": "string",
+     "minhash_cluster_size": "int64",
+     "text": "string",
+     "top_langs": "string",
+     "url": "string"
+    }
+   }
+  },
+  "guj_Latn": {
+   "bytes": 1340064,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/guj_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "hin_Deva": {
+   "bytes": 34272968716,
+   "campaign_language": "hi",
+   "first_key": "datasets/fineweb2-indic/hin_Deva/train/000_00000.parquet",
+   "objects": 8,
+   "parquet_sample": {
+    "first_row_group_bytes": 5963879,
+    "num_rows_in_sampled_object": 2910000,
+    "row_groups": 2910,
+    "sample_rows": [
+     {
+      "date": "2013-05-22T12:07:04Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368701670866/warc/CC-MAIN-20130516105430-00004-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:4969b555-2e2b-4ca0-a99e-2c7f1f129e71>",
+      "language": "hin",
+      "language_score": 0.9866893887519836,
+      "language_script": "Deva",
+      "minhash_cluster_size": 33,
+      "text": "चीन में एक समय चोरों का बड़ा आतंक था. राज्य की राजधानी में ची युंग नामक एक व्यक्ति था जो किसी भी व्यक्ति का चेहरा देखकर यह बता देता था कि वह व्यक्ति चोर है या नहीं. सामनेवाले व्यक्ति के मुखमंडल के कुछ लक्षणों और उसके मन में चल रहे भावों को पढने में उसे महारत हासिल थी. उसका यह कौशल देखकर वहां के राजा ने उसे राज्य के नागरिकों के निरीक्षण में लगा दिया. ची युंग ने हजारों नागरिकों को देखा और उनमें से चोरों की पहचान कर ली. ची युंग ने चोरों को ढूंढ निकाला और राज्य में सर्वत्र खुशहाली छा गई.\nराजा ने लाओ-त्ज़ु से ची युंग की बड़ी तारीफ की और कहा – “ची युंग ने अकेले ही राज्य को चोरों-डाकुओं से रिक्त कर द...[+1345 chars]",
+      "top_langs": "{}",
+      "url": "http://hindizen.com/2009/05/06/making-of-a-utopian-land/"
+     },
+     {
+      "date": "2013-05-22T12:35:03Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368701670866/warc/CC-MAIN-20130516105430-00004-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:6ae2f613-0726-4453-8706-be1ee7652264>",
+      "language": "hin",
+      "language_score": 0.9722992181777954,
+      "language_script": "Deva",
+      "minhash_cluster_size": 1,
+      "text": "कोयला 'घोटाला' : सीएजी ने दी पीएम को सफाई\nनई दिल्ली. 2 जी स्पेक्ट्रम घोटाले के बाद केंद्र सरकार कोयला खदानों के आवंटन को लेकर घिर गई दिखती है। एक अंग्रेजी अखबार में छपी खबर में सीएजी की ड्राफ्ट रिपोर्ट के हवाले से बताया गया है कि कोयला खदानों की बिना नीलामी 'पहले आओ पहले पाओ' के आधार पर आवंटन किए जाने से सरकारी खजाने को 10.67 लाख करोड़ रुपये का 'चूना' लगा है। बताया जा रहा है कि यह 2 जी से 6 गुना बड़ा घोटाला है, जिसमें करीब 100 निजी कंपनियों को फायदा पहुंचाया गया है। ड्राफ्ट रिपोर्ट में कहा गया है कि 155 कोयला खदानों का आवंटन बिना नीलामी के किया गया। 2 जी स्पेक्ट्रम घोटाले में 1.76 लाख करोड़ रु...[+2817 chars]",
+      "top_langs": "{}",
+      "url": "http://www.bhaskar.com/article/NAT-government-lost-rs-10-3003795.html?OTS="
+     }
+    ],
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/hin_Deva/train/000_00000.parquet",
+    "schema": {
+     "date": "string",
+     "dump": "string",
+     "file_path": "string",
+     "id": "string",
+     "language": "string",
+     "language_score": "double",
+     "language_script": "string",
+     "minhash_cluster_size": "int64",
+     "text": "string",
+     "top_langs": "string",
+     "url": "string"
+    }
+   }
+  },
+  "hin_Latn": {
+   "bytes": 198462618,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/hin_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "hne_Deva": {
+   "bytes": 21534180,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/hne_Deva/train/000_00000.parquet",
+   "objects": 1
+  },
+  "kan_Knda": {
+   "bytes": 3526351166,
+   "campaign_language": "kn",
+   "first_key": "datasets/fineweb2-indic/kan_Knda/train/000_00000.parquet",
+   "objects": 1,
+   "parquet_sample": {
+    "first_row_group_bytes": 8660244,
+    "num_rows_in_sampled_object": 2390982,
+    "row_groups": 2391,
+    "sample_rows": [
+     {
+      "date": "2013-05-24T02:20:15Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368704132729/warc/CC-MAIN-20130516113532-00015-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:00863128-cd81-4b8b-80a8-285a070da163>",
+      "language": "kan",
+      "language_score": 0.9998098015785217,
+      "language_script": "Knda",
+      "minhash_cluster_size": 61,
+      "text": "ಜಾಗತೀಕರಣದ ಅಬ್ಬರ ಮತ್ತು ಸ್ಥಳೀಯ ಮಾರುಕಟ್ಟೆಯಲ್ಲಿನ ವಿದೇಶಿ ಸ್ಪರ್ಧೆಗಳನ್ನು ಯಾವುದೇ ಭಾವಾವೇಶಕ್ಕೆ ಒಳಗಾಗದೆ ಭಾರತೀಯರು ಸಮರ್ಥವಾಗಿ ಉದ್ದಿಮೆಗಳನ್ನು ಮುನ್ನಡೆಸುತ್ತಿದ್ದಾರೆ.\nಕಳೆದ ಕೆಲವು ತಿಂಗಳುಗಳಿಂದ ಎಲ್ಲೆಲ್ಲೂ ಉದ್ಯಮಿ ವಿಜಯ್ ಮಲ್ಯರದ್ದೇ ಸುದ್ದಿ. ಉದ್ಯಮದಲ್ಲಿ ಅವರು ಎದುರಿಸುತ್ತಿರುವ ಸಂಕಷ್ಟ, ಇನ್ನೇನು ಅವರ ಕಥೆ ಮುಗಿದೇ ಹೋಯ್ತು ಎಂದು ಸಂತಾಪ ಸೂಚಿಸಿ ಅನೇಕರು ಪುಟಗಟ್ಟಳೆ ಬರೆದುಬಿಟ್ಟರು. ಅವರ ಪ್ರಮುಖ ಉದ್ದಿಮೆ ಯುನೈಟೆಡ್ ಸ್ಪಿರಿಟ್ಸ್ ನ ಬಹುತೇಕ ಷೇರುಗಳನ್ನು ವಿದೇಶಿ ಕಂಪನಿ ಡಿಯಾಗೊಗೆ ಮಾರಿದ್ದು, ತಮ್ಮ ವಿಮಾನಯಾನ ಸಂಸ್ಥೆ ಕಿಂಗ್ ಫಿಶರ್ ಏರ್ಲೈನ್ಸ್ ನಲ್ಲಿ ಬಂಡವಾಳ ಹೂಡುವಂತೆ ವಿದೇಶಿ ಕಂಪನಿಗಳ ಮನವೊಲಿಕೆಗೆ ಮಲ್ಯ ನಡೆಸಿದ ಕಸರತ್ತು ಬರೆಯುವವರಿಗೆ ಇನ್ನಷ್ಟು ಸರಕು ಒದಗಿಸಿತು. ಕೆಲವರಂತೂ ಮೂರು ದಶಕಗಳ ಕಾಲ ಮಲ್ಯ ಕಷ್ಟ...[+4674 chars]",
+      "top_langs": "{}",
+      "url": "http://vijaykarnataka.indiatimes.com/articleshow/18370053.cms"
+     },
+     {
+      "date": "2013-05-23T05:15:45Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368702849682/warc/CC-MAIN-20130516111409-00019-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:70d55212-f8db-4be7-9a06-104ab4d6825e>",
+      "language": "kan",
+      "language_score": 0.9999603033065796,
+      "language_script": "Knda",
+      "minhash_cluster_size": 34,
+      "text": "ಬೆಂಗಳೂರು: ಡಿಸೆಂಬರ್ 15ರಿಂದ ನಡೆಸಲು ಉದ್ದೇಶಿಸಿರುವ ಕೆಎಎಸ್ ಮುಖ್ಯ ಪರೀಕ್ಷೆ ವೇಳಾಪಟ್ಟಿ ಕುರಿತು ಚರ್ಚಿಸಲು ಆಯೋಗದ ಸದಸ್ಯರ ಸಭೆ ಬುಧವಾರ ನಡೆಯಲಿದ್ದು, ಅಲ್ಲಿ ಅಂತಿಮ ನಿರ್ಧಾರ ಕೈಗೊಳ್ಳಲಾಗುವುದು ಎಂದು ಕರ್ನಾಟಕ ಲೋಕಸೇವಾ ಆಯೋಗದ ಪರ ವಕೀಲರು ಹೈಕೋರ್ಟ್ಗೆ ತಿಳಿಸಿದ್ದಾರೆ.\nಮುಖ್ಯ ಪರೀಕ್ಷೆ ನಡೆಯುವ ಸಮಯದಲ್ಲೇ ರಾಷ್ಟ್ರೀಯ ಅರ್ಹತಾ ಪರೀಕ್ಷೆ ಸೇರಿದಂತೆ ಹಲವು ಸ್ಪರ್ಧಾತ್ಮಕ ಹಾಗೂ ಇಲಾಖೆ ಪರೀಕ್ಷೆಗಳು ನಡೆಯುತ್ತಿದ್ದು, ಇದರಿಂದ ಪರೀಕ್ಷೆಗಳಲ್ಲಿ ಭಾಗವಹಿಸುವುದು ಕಷ್ಟವಾಗುತ್ತದೆ ಎಂದು ಹಲವು ಅಭ್ಯರ್ಥಿ ಗಳು ಆಯೋಗಕ್ಕೆ ಮನವಿ ಸಲ್ಲಿಸಿದ್ದಾರೆ. ಆ ಕುರಿತು ಸಭೆಯಲ್ಲಿ ನಿರ್ಧಾರ ಕೈಗೊಂಡು, ನಂತರ ನ್ಯಾಯಾಲಯಕ್ಕೆ ತಿಳಿಸಲಾಗುವುದು ಎಂದು ವಕೀಲರು ನ್ಯಾ.ಎ.ಎನ್.ವೇಣುಗೋಪಾಲ ಗೌಡ ಅವರಿದ್ದ ನ್ಯಾಯ ಪೀಠಕ್ಕೆ ಮಂಗಳವಾರ ತಿಳಿಸಿದರು. ಇದರಿಂದ ಬುಧ...[+826 chars]",
+      "top_langs": "{}",
+      "url": "http://vijaykarnataka.indiatimes.com/articleshow/17390896.cms"
+     }
+    ],
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/kan_Knda/train/000_00000.parquet",
+    "schema": {
+     "date": "string",
+     "dump": "string",
+     "file_path": "string",
+     "id": "string",
+     "language": "string",
+     "language_score": "double",
+     "language_script": "string",
+     "minhash_cluster_size": "int64",
+     "text": "string",
+     "top_langs": "string",
+     "url": "string"
+    }
+   }
+  },
+  "kan_Latn": {
+   "bytes": 2406737,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/kan_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "kas_Arab": {
+   "bytes": 411820,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/kas_Arab/train/000_00000.parquet",
+   "objects": 1
+  },
+  "kas_Deva": {
+   "bytes": 614859,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/kas_Deva/train/000_00000.parquet",
+   "objects": 1
+  },
+  "kas_Latn": {
+   "bytes": 50492,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/kas_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "kha_Latn": {
+   "bytes": 24524853,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/kha_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "kru_Deva": {
+   "bytes": 81490,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/kru_Deva/train/000_00000.parquet",
+   "objects": 1
+  },
+  "mag_Deva": {
+   "bytes": 1118519,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/mag_Deva/train/000_00000.parquet",
+   "objects": 1
+  },
+  "mai_Deva": {
+   "bytes": 47074596,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/mai_Deva/train/000_00000.parquet",
+   "objects": 1
+  },
+  "mal_Latn": {
+   "bytes": 7399476,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/mal_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "mal_Mlym": {
+   "bytes": 5915341648,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/mal_Mlym/train/000_00000.parquet",
+   "objects": 2
+  },
+  "mar_Deva": {
+   "bytes": 6278522796,
+   "campaign_language": "mr",
+   "first_key": "datasets/fineweb2-indic/mar_Deva/train/000_00000.parquet",
+   "objects": 2,
+   "parquet_sample": {
+    "first_row_group_bytes": 7784270,
+    "num_rows_in_sampled_object": 2957000,
+    "row_groups": 2957,
+    "sample_rows": [
+     {
+      "date": "2013-05-19T19:05:29Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368697974692/warc/CC-MAIN-20130516095254-00022-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:b4a50889-e321-4fb8-b165-0d0ffb240bfe>",
+      "language": "mar",
+      "language_score": 0.9999963045120239,
+      "language_script": "Deva",
+      "minhash_cluster_size": 1,
+      "text": "www.24taas.com, भोपाळ\nमध्य प्रदेशात लाईव्ह एन्टाऊंटर नाट्य घडलं. त्याचं असं झालं की, दरोडेखोरांनी लूट करताना तीन लाख पळविले. मात्र, पोलिसांना माहिती मिळताच त्यांनी घेराव घातला. पोलिसांना शरण येण्याऐवजी लुटारूंनी गोळीबार केला आणि चकमक झाली.\nमध्यप्रदेशातल्या एका गावात तीन दरोडेखोरांनी एका ठिकाणी तीन लाख रुपयांची लूट केली होती. पोलिसांना याची माहिती मिळताच दरोडेखोरांनी पैसे घेऊन तिथून पळ काढला. पोलिसांनी त्यांचा पाठलाग केला, दरोडेखोर एका घरात लपले होते. त्या ठिकाणी पोलिसांनी त्यांना पकडण्याचा प्रयत्न केला. मात्र दरोडेखोरांनी पोलिसांवर गावठी कट्ट्यातून गोळीबार केला. त्याला प्रत्युत्त म्हणून पोलिसा...[+185 chars]",
+      "top_langs": "{}",
+      "url": "http://zeenews.india.com/marathi/news/%E0%A4%AD%E0%A4%BE%E0%A4%B0%E0%A4%A4/%E0%A4%AE%E0%A4%A7%E0%A5%8D%E0%A4%AF-%E0%A4%AA%E0%A5%8D%E0%A4%B0%E0%A4%A6%E0%A5%87%E0%A4%B6%E0%A4%BE%E0%A4%A4-%E0%A4%B2%E0%A4%BE%E0%A4%88%E0%A4%B5%E0%A5%8D%E0%A4%B9-%E0%A4%8F%E0%A4%A8%E0%A5%8D/108846"
+     },
+     {
+      "date": "2013-05-18T07:13:42Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368696381249/warc/CC-MAIN-20130516092621-00016-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:b2119799-8309-425b-a7e2-b31e1c16ba89>",
+      "language": "mar",
+      "language_score": 0.997521162033081,
+      "language_script": "Deva",
+      "minhash_cluster_size": 10,
+      "text": "आज टीवीवर ‘लव आज कल’ या सैफ-दीपिका यांच्या सिनेमाच ट्रेलर पहिल .तस आधीही पाहिल होत पण मी दिग्दर्शकाच्या नावाकडे लक्ष दिल न्वहत.तर आज पाहिल नाव इम्तियाज अली ..हे नाव पाहून लगेच आठवण झाली ‘जब वी मेट’ या त्याच्या २००७ साली आलेल्या चित्रपटाची.तो चित्रपट मला खुप आवडतो आणी मी तो बरयाच वेळा पाहून सुध्हा कधीही बोअर वाटला नाही रिपीट बघायला असे फार थोड़े चित्रपट असतात.मग वाटल लिहूया या चित्रपटाबद्दल थोडस आपल्या ब्लोग्वर म्हणून हा उपद्व्याप…\n‘जब वी मेट’ हा एक छान, हलकाफुलका सिनेमा आहे.दोघांची केमिस्ट्री मस्त. प्रसंगानुरूप विनोदही मस्त आहेत. शाहिदला ती संयत भूमिका खूपच सूट झाली आहे.खरतर करिना मला अजिबात आ...[+2169 chars]",
+      "top_langs": "{}",
+      "url": "http://davbindu.wordpress.com/2009/07/05/%E0%A4%9C%E0%A4%AC-%E0%A4%B5%E0%A5%80-%E0%A4%AE%E0%A5%87%E0%A4%9F/"
+     }
+    ],
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/mar_Deva/train/000_00000.parquet",
+    "schema": {
+     "date": "string",
+     "dump": "string",
+     "file_path": "string",
+     "id": "string",
+     "language": "string",
+     "language_score": "double",
+     "language_script": "string",
+     "minhash_cluster_size": "int64",
+     "text": "string",
+     "top_langs": "string",
+     "url": "string"
+    }
+   }
+  },
+  "mar_Latn": {
+   "bytes": 3264635,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/mar_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "mni_Beng": {
+   "bytes": 9886501,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/mni_Beng/train/000_00000.parquet",
+   "objects": 1
+  },
+  "mni_Latn": {
+   "bytes": 4429986,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/mni_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "mni_Mtei": {
+   "bytes": 239344,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/mni_Mtei/train/000_00000.parquet",
+   "objects": 1
+  },
+  "mup_Deva": {
+   "bytes": 600637,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/mup_Deva/train/000_00000.parquet",
+   "objects": 1
+  },
+  "npi_Deva": {
+   "bytes": 6683397712,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/npi_Deva/train/000_00000.parquet",
+   "objects": 2
+  },
+  "npi_Latn": {
+   "bytes": 4418851,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/npi_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "ory_Latn": {
+   "bytes": 3478084,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/ory_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "ory_Orya": {
+   "bytes": 1373319465,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/ory_Orya/train/000_00000.parquet",
+   "objects": 1
+  },
+  "pan_Guru": {
+   "bytes": 1577744291,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/pan_Guru/train/000_00000.parquet",
+   "objects": 1
+  },
+  "pan_Latn": {
+   "bytes": 11425543,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/pan_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "san_Deva": {
+   "bytes": 88005869,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/san_Deva/train/000_00000.parquet",
+   "objects": 1
+  },
+  "san_Latn": {
+   "bytes": 24800381,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/san_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "sat_Latn": {
+   "bytes": 369997,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/sat_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "sat_Olck": {
+   "bytes": 2827750,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/sat_Olck/train/000_00000.parquet",
+   "objects": 1
+  },
+  "sin_Sinh": {
+   "bytes": 2012430591,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/sin_Sinh/train/000_00000.parquet",
+   "objects": 1
+  },
+  "snd_Arab": {
+   "bytes": 414216896,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/snd_Arab/train/000_00000.parquet",
+   "objects": 1
+  },
+  "snd_Deva": {
+   "bytes": 938452,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/snd_Deva/train/000_00000.parquet",
+   "objects": 1
+  },
+  "snd_Latn": {
+   "bytes": 454580,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/snd_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "tam_Latn": {
+   "bytes": 13266958,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/tam_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "tam_Taml": {
+   "bytes": 9438382231,
+   "campaign_language": "ta",
+   "first_key": "datasets/fineweb2-indic/tam_Taml/train/000_00000.parquet",
+   "objects": 2,
+   "parquet_sample": {
+    "first_row_group_bytes": 10204493,
+    "num_rows_in_sampled_object": 2598000,
+    "row_groups": 2598,
+    "sample_rows": [
+     {
+      "date": "2013-05-19T21:59:10Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368698090094/warc/CC-MAIN-20130516095450-00046-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:1d15e0c4-2e83-4056-a0e5-9c189c6e0559>",
+      "language": "tam",
+      "language_score": 1.0000100135803223,
+      "language_script": "Taml",
+      "minhash_cluster_size": 2,
+      "text": "ராமநாதபுரம் ஜில்லா போர்டு தலைவர் W.P.A. சவுந்தரபாண்டியன் அவர்கள் மோட்டார் கம்பெனி முதலாளிகளுக்குப் பின்வருமாறு ஒரு சுற்றுக் கடிதம் அனுப்பியிருக்கிறார்கள். அது வருமாறு:\nஇந்த ஜில்லாவிலுள்ள சில மோட்டார் கம்பெனி முதலாளிகள் ஆதி திராவிடர்களை தமது பஸ்களில் ஏற்றிக் கொண்டு போவதில்லையென்றும் டிக்கெட்டில், ஆதிதிராவிடர்களுக்கு டிக்கட்டு கொடுக்கப்பட மாட்டாது என்று நிபந்தனை ஏற்படுத்தியிருப்பதாகவும் அறிகின்றோம்.\nஇவ் வழக்கம் பிரயாணிகளுக்கு இடைஞ்சல் உண்டு பண்ணத் தக்கதாகவும், மிக அக்கிரம மானதாகவும் இருக்கிறது.\nஆகவே மோட்டார் கம்பெனி முதலாளிகள் ஏதேனும் ஒரு சமூகத்தாரை பஸ்சில் ஏற்றிச் செல்ல மறுக்கவோ, டிக்கெட்டுகளில...[+307 chars]",
+      "top_langs": "{}",
+      "url": "http://viduthalai.in/page8/33834-2012-05-12-06-54-00.html"
+     },
+     {
+      "date": "2013-05-22T17:47:23Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368702127714/warc/CC-MAIN-20130516110207-00046-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:d7221875-af19-47c9-addd-013807910396>",
+      "language": "tam",
+      "language_score": 1.0000100135803223,
+      "language_script": "Taml",
+      "minhash_cluster_size": 70,
+      "text": "கட்டற்ற வணிகம்\nகட்டற்ற வணிகம் அல்லது சுதந்திர வர்த்தகம் என்பது ஒரு சந்தை மாதிரி (market model) ஆகும். இது, நாடுகளிடையேயான பொருட்கள் மற்றும் சேவைகள் தொடர்பான வணிகம், வரி மற்றும் வரியற்ற வேறு தடைகள் போன்ற அரசாங்கக் கட்டுப்பாடுகளால் பாதிக்கப்படாமல் நடைபெறுவதைக் குறிக்கும். ஒரு பகுதி பொருளியல் பகுப்பாவாய்வாளர்கள், கட்டற்ற வணிகம், சம்பந்தப்படுகின்ற இரு பகுதியினருக்கும் இலாபகரமானது என்றும், இதன் சாதக விளைவுகள், பாதக விளைவுகளிலும் அதிகம் என்றும் வாதிடுகிறார்கள். உலகமயமாக்கத்துக்கு எதிரானவர்களும், தொழிலாளர் நலன் குறித்த பரப்புரையாளர்களும் பல்வேறு பிரச்சினைகளை எடுத்துக்காட்டி இதனை எதிர்க்கின்றனர்.\nகட்ட...[+2479 chars]",
+      "top_langs": "{}",
+      "url": "http://ta.wikipedia.org/wiki/%E0%AE%95%E0%AE%9F%E0%AF%8D%E0%AE%9F%E0%AE%B1%E0%AF%8D%E0%AE%B1_%E0%AE%B5%E0%AE%A3%E0%AE%BF%E0%AE%95%E0%AE%AE%E0%AF%8D"
+     }
+    ],
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/tam_Taml/train/000_00000.parquet",
+    "schema": {
+     "date": "string",
+     "dump": "string",
+     "file_path": "string",
+     "id": "string",
+     "language": "string",
+     "language_score": "double",
+     "language_script": "string",
+     "minhash_cluster_size": "int64",
+     "text": "string",
+     "top_langs": "string",
+     "url": "string"
+    }
+   }
+  },
+  "tcy_Knda": {
+   "bytes": 2660390,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/tcy_Knda/train/000_00000.parquet",
+   "objects": 1
+  },
+  "tel_Latn": {
+   "bytes": 46935113,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/tel_Latn/train/000_00000.parquet",
+   "objects": 1
+  },
+  "tel_Telu": {
+   "bytes": 3950350913,
+   "campaign_language": "te",
+   "first_key": "datasets/fineweb2-indic/tel_Telu/train/000_00000.parquet",
+   "objects": 1,
+   "parquet_sample": {
+    "first_row_group_bytes": 12350368,
+    "num_rows_in_sampled_object": 1964395,
+    "row_groups": 1965,
+    "sample_rows": [
+     {
+      "date": "2013-05-25T16:23:34Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368705958528/warc/CC-MAIN-20130516120558-00006-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:894cbbd7-1cc2-4753-9f9c-2d48d5a2d2f4>",
+      "language": "tel",
+      "language_score": 0.9999924898147583,
+      "language_script": "Telu",
+      "minhash_cluster_size": 1,
+      "text": "టాలీవుడ్ లో కళ్యాణ్ హీరోగా వచ్చిన కత్తి సినిమాలో , ఆ తరువాత మంచు మనోజ్ హీరోగా వచ్చిన మిస్టర్ నూకయ్య చిత్రాలలో నటించిన హాట్ భామ సనాఖాన్ గత కొన్నాళ్ళ నుండి వెండితెర పై కనిపించడం లేదు. తాజాగా ఈమె బిగ్ బాస్ - 6షోలో ఛాన్స్ కొట్టేసి మళ్ళీ ప్రేక్షకుల ముందుకు వచ్చింది. సనా ఖాన్ కి ఇదే మంచి అవకాశం అనుకుంటే అంత కంటే ఎక్కువ మంచి అవకాశం కొట్టేసింది. అదేంటంటే... బాలీవుడ్ కండల వీరుడు సల్మాన్ ఖాన్ సనాఖాన్ బిగ్ బాస్ షోలో చేసిన డాన్స్ కి ఫిధా అయిపోయి, ఆమెకు తన సినిమాలో అవకాశం కల్పిస్తానని హామి ఇచ్చాడట. ఒకవేళ సల్లూభాయ్ సనాఖాన్ కి తన సినిమాలో ఆఫర్ ఇస్తే...ఈమె దశ తిరిగినట్లే అని బాలీవుడ్ జనాలు అనుకుంటున్నారు.",
+      "top_langs": "{}",
+      "url": "http://www.teluguwishesh.com/teluguhome/244-movie-gossips/38813-sana-khan-got-chance-with-salman-khan.html"
+     },
+     {
+      "date": "2013-05-19T13:28:12Z",
+      "dump": "CC-MAIN-2013-20",
+      "file_path": "s3://commoncrawl/crawl-data/CC-MAIN-2013-20/segments/1368697552127/warc/CC-MAIN-20130516094552-00087-ip-10-60-113-184.ec2.internal.warc.gz",
+      "id": "<urn:uuid:59bd0d29-e2a4-4268-ae62-13889a2ac458>",
+      "language": "tel",
+      "language_score": 1.0000083446502686,
+      "language_script": "Telu",
+      "minhash_cluster_size": 2,
+      "text": "ఒకే శ్రోత\nఒక మారు ఒక పండితుడు కంచిలోని శంకరాచార్యులవారి వద్దకు వెళ్ళి , భక్తి తో నమస్కరించి\n” స్వామీ ! నేను గొప్ప పండితుడ్ని.భగవద్గీత ప్రవచనం చేయడంలో పేరు పొందినవాడిని.ఇంతవరకూ వేయి ప్రవచనాలు చేశాను . తమరు అనుగ్రహిస్తే ఈ శంకర మఠంలో భాగవద్గీత ప్రవచనం పద్ధెనిమిది రోజులపాటు చేయాలని సంకల్పించి వచ్చాను.అనుగ్ర హించగలరు.” అని విన్నవించుకున్నాడు.\nఆచార్యులు చిరునవ్వుతో ” దాందేముంది తప్పక ప్రవచించు ,నేను ఒక పక్షంపాటు యాత్రలకు వెళ్ళవలసి ఉంది.నీవు నిర్విఘ్నంగా నీపని కానీ.” అని చెప్పి ఆచార్యులు మఠం విడచి యాత్రలకై బయల్దేరారు.\nమన పండితుడు ఆరోజున మహదానందంగా భగవద్గీత ప్రవచనం మొదలుపెట్టారు. పద్దెనిమిది రోజులూ ఇట...[+619 chars]",
+      "top_langs": "{}",
+      "url": "http://hyma1947.wordpress.com/2012/03/21/33/"
+     }
+    ],
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/tel_Telu/train/000_00000.parquet",
+    "schema": {
+     "date": "string",
+     "dump": "string",
+     "file_path": "string",
+     "id": "string",
+     "language": "string",
+     "language_score": "double",
+     "language_script": "string",
+     "minhash_cluster_size": "int64",
+     "text": "string",
+     "top_langs": "string",
+     "url": "string"
+    }
+   }
+  },
+  "urd_Arab": {
+   "bytes": 6868759323,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/urd_Arab/train/000_00000.parquet",
+   "objects": 2
+  },
+  "urd_Latn": {
+   "bytes": 128884719,
+   "campaign_language": null,
+   "first_key": "datasets/fineweb2-indic/urd_Latn/train/000_00000.parquet",
+   "objects": 1
+  }
+ },
+ "generated_at": "2026-09-29T13:37:10.649261+00:00",
  "method": "ListObjectsV2 sums; one Parquet footer + first batch per family",
- "presence_checks": {},
- "sangraha": {},
+ "presence_checks": {
+  "datasets/CodeAlchemy/": {
+   "bytes_in_first_10": 0,
+   "present": false
+  },
+  "datasets/SwallowMath/": {
+   "bytes_in_first_10": 0,
+   "present": false
+  },
+  "datasets/finemath/": {
+   "bytes_in_first_10": 0,
+   "present": false
+  },
+  "datasets/nemotron-code/": {
+   "bytes_in_first_10": 0,
+   "present": false
+  },
+  "translation-benchmark/": {
+   "bytes_in_first_10": 30258432,
+   "present": true
+  },
+  "translation-staging/": {
+   "bytes_in_first_10": 24480,
+   "present": true
+  }
+ },
+ "sangraha": {
+  "synthetic/ben": {
+   "bytes": 0,
+   "etags_sampled": [],
+   "first_key": null,
+   "language": "bn",
+   "last_key": null,
+   "objects": 0,
+   "prefix": "datasets/sangraha/synthetic/ben/"
+  },
+  "synthetic/eng": {
+   "bytes": 0,
+   "etags_sampled": [],
+   "first_key": null,
+   "language": "en",
+   "last_key": null,
+   "objects": 0,
+   "prefix": "datasets/sangraha/synthetic/eng/"
+  },
+  "synthetic/guj": {
+   "bytes": 0,
+   "etags_sampled": [],
+   "first_key": null,
+   "language": "gu",
+   "last_key": null,
+   "objects": 0,
+   "prefix": "datasets/sangraha/synthetic/guj/"
+  },
+  "synthetic/hin": {
+   "bytes": 0,
+   "etags_sampled": [],
+   "first_key": null,
+   "language": "hi",
+   "last_key": null,
+   "objects": 0,
+   "prefix": "datasets/sangraha/synthetic/hin/"
+  },
+  "synthetic/kan": {
+   "bytes": 0,
+   "etags_sampled": [],
+   "first_key": null,
+   "language": "kn",
+   "last_key": null,
+   "objects": 0,
+   "prefix": "datasets/sangraha/synthetic/kan/"
+  },
+  "synthetic/mar": {
+   "bytes": 0,
+   "etags_sampled": [],
+   "first_key": null,
+   "language": "mr",
+   "last_key": null,
+   "objects": 0,
+   "prefix": "datasets/sangraha/synthetic/mar/"
+  },
+  "synthetic/tam": {
+   "bytes": 0,
+   "etags_sampled": [],
+   "first_key": null,
+   "language": "ta",
+   "last_key": null,
+   "objects": 0,
+   "prefix": "datasets/sangraha/synthetic/tam/"
+  },
+  "synthetic/tel": {
+   "bytes": 0,
+   "etags_sampled": [],
+   "first_key": null,
+   "language": "te",
+   "last_key": null,
+   "objects": 0,
+   "prefix": "datasets/sangraha/synthetic/tel/"
+  },
+  "unverified/ben": {
+   "bytes": 13656049452,
+   "etags_sampled": [
+    "a40a1552893976c5ddee3a9c7403e691-46",
+    "b9768f5b8b1adef11e5e74ce26a86539-45",
+    "fec37611803d93f41c148269f5ff3ec9-46"
+   ],
+   "first_key": "datasets/sangraha/unverified/ben/data-0.parquet",
+   "language": "bn",
+   "last_key": "datasets/sangraha/unverified/ben/data-9.parquet",
+   "objects": 36,
+   "parquet_sample": {
+    "first_row_group_bytes": 993782387,
+    "num_rows_in_sampled_object": 174762,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/ben/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/unverified/ben/"
+  },
+  "unverified/eng": {
+   "bytes": 0,
+   "etags_sampled": [],
+   "first_key": null,
+   "language": "en",
+   "last_key": null,
+   "objects": 0,
+   "prefix": "datasets/sangraha/unverified/eng/"
+  },
+  "unverified/guj": {
+   "bytes": 1433901968,
+   "etags_sampled": [
+    "4b8673e26db259888671a583382f1db7-43",
+    "ebdd6127155b055da2b3f56d2e596cb4-43",
+    "1942aa53f6b6e426819b99ccd9416af2-43"
+   ],
+   "first_key": "datasets/sangraha/unverified/guj/data-0.parquet",
+   "language": "gu",
+   "last_key": "datasets/sangraha/unverified/guj/data-3.parquet",
+   "objects": 4,
+   "parquet_sample": {
+    "first_row_group_bytes": 915439143,
+    "num_rows_in_sampled_object": 146744,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/guj/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/unverified/guj/"
+  },
+  "unverified/hin": {
+   "bytes": 42703950857,
+   "etags_sampled": [
+    "6567940a71ee977721b40e228241cc14-46",
+    "2a8e000525bc1621ff6288041ed326d7-45",
+    "89179e5433411947e48a1bb41ef7efd0-46"
+   ],
+   "first_key": "datasets/sangraha/unverified/hin/data-0.parquet",
+   "language": "hi",
+   "last_key": "datasets/sangraha/unverified/hin/data-99.parquet",
+   "objects": 113,
+   "parquet_sample": {
+    "first_row_group_bytes": 998979476,
+    "num_rows_in_sampled_object": 149796,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/hin/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/unverified/hin/"
+  },
+  "unverified/kan": {
+   "bytes": 1465018670,
+   "etags_sampled": [
+    "a11b2dc4730fc134ff58926fdc7f65c7-44",
+    "601642eefcb43604af80af5b2a65eb98-44",
+    "e75bc8b258855b36a436ff6b33534f74-44"
+   ],
+   "first_key": "datasets/sangraha/unverified/kan/data-0.parquet",
+   "language": "kn",
+   "last_key": "datasets/sangraha/unverified/kan/data-3.parquet",
+   "objects": 4,
+   "parquet_sample": {
+    "first_row_group_bytes": 958335946,
+    "num_rows_in_sampled_object": 156394,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/kan/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/unverified/kan/"
+  },
+  "unverified/mar": {
+   "bytes": 2516462878,
+   "etags_sampled": [
+    "d26512c54dfa80472b4cf8efb7f2928f-43",
+    "0febf4ed5ee898067e8e05b360111316-43",
+    "0d769cea752e4556ef373ec670d457f0-43"
+   ],
+   "first_key": "datasets/sangraha/unverified/mar/data-0.parquet",
+   "language": "mr",
+   "last_key": "datasets/sangraha/unverified/mar/data-6.parquet",
+   "objects": 7,
+   "parquet_sample": {
+    "first_row_group_bytes": 944723149,
+    "num_rows_in_sampled_object": 149796,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/mar/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/unverified/mar/"
+  },
+  "unverified/tam": {
+   "bytes": 6019944812,
+   "etags_sampled": [
+    "ce45024deba63e2a304be131fdd898ce-40",
+    "e6d4005bcad43b4c541d302e4501a008-40",
+    "2889b9e7c8f349b35e3143322d1df7d1-41"
+   ],
+   "first_key": "datasets/sangraha/unverified/tam/data-0.parquet",
+   "language": "ta",
+   "last_key": "datasets/sangraha/unverified/tam/data-9.parquet",
+   "objects": 18,
+   "parquet_sample": {
+    "first_row_group_bytes": 940457857,
+    "num_rows_in_sampled_object": 116508,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/tam/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/unverified/tam/"
+  },
+  "unverified/tel": {
+   "bytes": 2361501295,
+   "etags_sampled": [
+    "b30e6245869183bf255ac9d3428ad016-47",
+    "6e526b40e57d1f03e553a9ec8b63d33f-48",
+    "6554f38551d75396ca048eb896042fae-47"
+   ],
+   "first_key": "datasets/sangraha/unverified/tel/data-0.parquet",
+   "language": "te",
+   "last_key": "datasets/sangraha/unverified/tel/data-5.parquet",
+   "objects": 6,
+   "parquet_sample": {
+    "first_row_group_bytes": 1007909178,
+    "num_rows_in_sampled_object": 149832,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/tel/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/unverified/tel/"
+  },
+  "verified/ben": {
+   "bytes": 29900341277,
+   "etags_sampled": [
+    "826c2f36c3c820e2175a64a901d8c1f3-47",
+    "89570c0fe85447f29799b9f290fa6508-47",
+    "912e8c39a73c18afe0ff539ecd3d8d81-45"
+   ],
+   "first_key": "datasets/sangraha/verified/ben/data-0.parquet",
+   "language": "bn",
+   "last_key": "datasets/sangraha/verified/ben/data-9.parquet",
+   "objects": 77,
+   "parquet_sample": {
+    "first_row_group_bytes": 1017602585,
+    "num_rows_in_sampled_object": 149797,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/ben/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string",
+     "type": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/verified/ben/"
+  },
+  "verified/eng": {
+   "bytes": 29919629677,
+   "etags_sampled": [
+    "6ac0d6782572c3575f157ebfb00790cf-72",
+    "03b8397fcc795d397b7136d81362dff0-71",
+    "919bbd1ee2d94c5bfb5520433be4b6d2-72"
+   ],
+   "first_key": "datasets/sangraha/verified/eng/data-0.parquet",
+   "language": "en",
+   "last_key": "datasets/sangraha/verified/eng/data-9.parquet",
+   "objects": 50,
+   "parquet_sample": {
+    "first_row_group_bytes": 966129016,
+    "num_rows_in_sampled_object": 349525,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/eng/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string",
+     "type": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/verified/eng/"
+  },
+  "verified/guj": {
+   "bytes": 9931759912,
+   "etags_sampled": [
+    "df40b62798a6b92a6ef5df512c2da7ec-45",
+    "ac8e2368dc07b309a41a272be38001dc-45",
+    "69e3a27ee6dfd830051d6906c3b96c2f-45"
+   ],
+   "first_key": "datasets/sangraha/verified/guj/data-0.parquet",
+   "language": "gu",
+   "last_key": "datasets/sangraha/verified/guj/data-9.parquet",
+   "objects": 27,
+   "parquet_sample": {
+    "first_row_group_bytes": 939429083,
+    "num_rows_in_sampled_object": 149797,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/guj/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string",
+     "type": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/verified/guj/"
+  },
+  "verified/hin": {
+   "bytes": 37340748989,
+   "etags_sampled": [
+    "495ef0e96a9f3677a5a2e6d76a320f00-46",
+    "0608c82f8860224c6a099d7dd6f5e3e1-45",
+    "bd4a18afadd09b3c23af3c24d05742c8-45"
+   ],
+   "first_key": "datasets/sangraha/verified/hin/data-0.parquet",
+   "language": "hi",
+   "last_key": "datasets/sangraha/verified/hin/data-99.parquet",
+   "objects": 100,
+   "parquet_sample": {
+    "first_row_group_bytes": 990619001,
+    "num_rows_in_sampled_object": 174763,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/hin/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string",
+     "type": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/verified/hin/"
+  },
+  "verified/kan": {
+   "bytes": 7649517444,
+   "etags_sampled": [
+    "7d04445c2477e7aefce616fdabda1b20-44",
+    "3f531989be7f7b99585d2cbde5344aa6-41",
+    "1d65ea2d6b0932e8d9dae21b07f8fcdd-44"
+   ],
+   "first_key": "datasets/sangraha/verified/kan/data-0.parquet",
+   "language": "kn",
+   "last_key": "datasets/sangraha/verified/kan/data-9.parquet",
+   "objects": 21,
+   "parquet_sample": {
+    "first_row_group_bytes": 958349391,
+    "num_rows_in_sampled_object": 174762,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/kan/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string",
+     "type": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/verified/kan/"
+  },
+  "verified/mar": {
+   "bytes": 12781930636,
+   "etags_sampled": [
+    "51e6a240b5aca182fe414540d91f3324-46",
+    "1dd51f4d4d9afe5e93b888df12ae51d5-46",
+    "e38213744a8594e8579d4b1a8e2d2fbd-46"
+   ],
+   "first_key": "datasets/sangraha/verified/mar/data-0.parquet",
+   "language": "mr",
+   "last_key": "datasets/sangraha/verified/mar/data-9.parquet",
+   "objects": 34,
+   "parquet_sample": {
+    "first_row_group_bytes": 1004588891,
+    "num_rows_in_sampled_object": 174763,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/mar/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string",
+     "type": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/verified/mar/"
+  },
+  "verified/tam": {
+   "bytes": 18707825069,
+   "etags_sampled": [
+    "b06e5e3028ecb5232ab2795aed28ff9f-43",
+    "ad6b1dc9368826704adf380b765e5704-43",
+    "600fa018c1e3ff5e606ef29a02b9f214-43"
+   ],
+   "first_key": "datasets/sangraha/verified/tam/data-0.parquet",
+   "language": "ta",
+   "last_key": "datasets/sangraha/verified/tam/data-9.parquet",
+   "objects": 53,
+   "parquet_sample": {
+    "first_row_group_bytes": 1015372154,
+    "num_rows_in_sampled_object": 149796,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/tam/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string",
+     "type": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/verified/tam/"
+  },
+  "verified/tel": {
+   "bytes": 15104046970,
+   "etags_sampled": [
+    "f54bfc19fa0001472bbed202a79bd304-45",
+    "bd9f6dd4252a18477c224687a7acf1a9-41",
+    "7253a7c8e5ac53fc439e0a44643e98a9-45"
+   ],
+   "first_key": "datasets/sangraha/verified/tel/data-0.parquet",
+   "language": "te",
+   "last_key": "datasets/sangraha/verified/tel/data-9.parquet",
+   "objects": 41,
+   "parquet_sample": {
+    "first_row_group_bytes": 951146404,
+    "num_rows_in_sampled_object": 174762,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/tel/data-0.parquet",
+    "schema": {
+     "doc_id": "large_string",
+     "text": "large_string",
+     "type": "large_string"
+    }
+   },
+   "prefix": "datasets/sangraha/verified/tel/"
+  }
+ },
  "sources": {
   "climbmix-400b-shuffle": {
    "bytes": 599760237992,
@@ -357,5 +1486,187 @@
    "role": "english_synthetic"
   }
  },
- "translations": {}
+ "translations": {
+  "cosmopedia-v4": {
+   "bytes": 142934116236,
+   "first_key": "translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v4-20260905/language=ben_Beng/source=1704bc31ef3c6bc88f0e362eb1421820ce0196eaa33dbee1f1c5085ad2382204/chunk=0acd4e3a0e2960bf2f50972fd89f51e936287461abd50134c4882a6594f9d38f/_SUCCESS.json",
+   "language_partitions": {
+    "ben_Beng": {
+     "bytes": 24504731590,
+     "objects": 271
+    },
+    "guj_Gujr": {
+     "bytes": 24453032658,
+     "objects": 271
+    },
+    "hin_Deva": {
+     "bytes": 23512315626,
+     "objects": 272
+    },
+    "pan_Guru": {
+     "bytes": 18869043063,
+     "objects": 222
+    },
+    "tam_Taml": {
+     "bytes": 25462651067,
+     "objects": 263
+    },
+    "tel_Telu": {
+     "bytes": 25008433845,
+     "objects": 270
+    }
+   },
+   "objects": 17259,
+   "parquet_sample": {
+    "first_row_group_bytes": 339165163,
+    "num_rows_in_sampled_object": 24667,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v4-20260905/language=ben_Beng/source=1704bc31ef3c6bc88f0e362eb1421820ce0196eaa33dbee1f1c5085ad2382204/chunk=0acd4e3a0e2960bf2f50972fd89f51e936287461abd50134c4882a6594f9d38f/translated_documents.parquet",
+    "schema": {
+     "document_id": "int64",
+     "immutable_span_counts": "string",
+     "parser_version": "string",
+     "source_sha256": "string",
+     "source_text": "string",
+     "span_count": "int32",
+     "translated_prose_spans": "int32",
+     "translation": "string",
+     "translation_sha256": "string"
+    }
+   },
+   "prefix": "translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v4-20260905/",
+   "rule": "older; keep ids absent from v5",
+   "translated_bytes": 141810207849,
+   "translated_documents_parquets": 1569
+  },
+  "cosmopedia-v5": {
+   "bytes": 55554398475,
+   "first_key": "translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v5-20260906/language=kan_Knda/source=12edd356ada9c952b670f1358bef21dd0ce9c2924cf688915fb000c574194fc3/chunk=0156f2983dd701670b31aa6005d9a68c052675f7ab0a04f65aeec6dbca16da1d/_SUCCESS.json",
+   "language_partitions": {
+    "kan_Knda": {
+     "bytes": 14582656010,
+     "objects": 156
+    },
+    "mal_Mlym": {
+     "bytes": 13563857201,
+     "objects": 138
+    },
+    "mar_Deva": {
+     "bytes": 14950733285,
+     "objects": 163
+    },
+    "ory_Orya": {
+     "bytes": 12123179103,
+     "objects": 131
+    }
+   },
+   "objects": 6468,
+   "parquet_sample": {
+    "first_row_group_bytes": 363483631,
+    "num_rows_in_sampled_object": 24730,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v5-20260906/language=kan_Knda/source=12edd356ada9c952b670f1358bef21dd0ce9c2924cf688915fb000c574194fc3/chunk=0156f2983dd701670b31aa6005d9a68c052675f7ab0a04f65aeec6dbca16da1d/translated_documents.parquet",
+    "schema": {
+     "document_id": "int64",
+     "immutable_span_counts": "string",
+     "language": "dictionary<values=string, indices=int32, ordered=0>",
+     "parser_version": "string",
+     "source_sha256": "string",
+     "source_text": "string",
+     "span_count": "int32",
+     "translated_prose_spans": "int32",
+     "translation": "string",
+     "translation_sha256": "string"
+    }
+   },
+   "prefix": "translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v5-20260906/",
+   "rule": "preferred",
+   "translated_bytes": 55220425599,
+   "translated_documents_parquets": 588
+  },
+  "fact-seeking-r16": {
+   "bytes": 200619781740,
+   "first_key": "translations/Nemotron-Pretraining-Specialized-v1.2/Fact-Seeking/indictrans2-en-indic-dist-200M-beam1-20260902/fact-seeking-70shard-10lang-r16-20260903/_budget_cap/3b-v1/language=ben_Beng/baseline.json",
+   "language_partitions": {
+    "ben_Beng": {
+     "bytes": 18029951923,
+     "objects": 336
+    },
+    "guj_Gujr": {
+     "bytes": 17984161222,
+     "objects": 290
+    },
+    "hin_Deva": {
+     "bytes": 17922802242,
+     "objects": 323
+    },
+    "kan_Knda": {
+     "bytes": 18232599466,
+     "objects": 345
+    },
+    "mal_Mlym": {
+     "bytes": 18933258085,
+     "objects": 403
+    },
+    "mar_Deva": {
+     "bytes": 18576701973,
+     "objects": 414
+    },
+    "ory_Orya": {
+     "bytes": 18223813316,
+     "objects": 334
+    },
+    "pan_Guru": {
+     "bytes": 18363424056,
+     "objects": 423
+    },
+    "tam_Taml": {
+     "bytes": 18750129053,
+     "objects": 360
+    },
+    "tel_Telu": {
+     "bytes": 18198700739,
+     "objects": 427
+    }
+   },
+   "objects": 35305,
+   "parquet_sample": {
+    "first_row_group_bytes": 377033723,
+    "num_rows_in_sampled_object": 195373,
+    "row_groups": 1,
+    "sample_rows_skipped": "first row group exceeds 67108864 bytes",
+    "sampled_object": "s3://nemotron-training-data-us-east-1/translations/Nemotron-Pretraining-Specialized-v1.2/Fact-Seeking/indictrans2-en-indic-dist-200M-beam1-20260902/fact-seeking-70shard-10lang-r16-20260903/language=ben_Beng/source=24c0607adac25c9e3e90/chunk=02fe47bf5eb2a30701eaa79ea4b79c85625f12d308314d890e9c3cb8a4f36e01/files/ben_Beng/translated_documents.parquet",
+    "schema": {
+     "document_id": "string",
+     "immutable_value_repairs": "int64",
+     "license": "string",
+     "metadata": "struct<category: string, models_used: string>",
+     "source_record_id": "string",
+     "source_sha256": "string",
+     "source_text": "string",
+     "text": "string",
+     "translation": "string",
+     "translation_sha256": "string",
+     "uuid": "string"
+    }
+   },
+   "prefix": "translations/Nemotron-Pretraining-Specialized-v1.2/Fact-Seeking/indictrans2-en-indic-dist-200M-beam1-20260902/fact-seeking-70shard-10lang-r16-20260903/",
+   "rule": "committed trainable run",
+   "translated_bytes": 183215542075,
+   "translated_documents_parquets": 3655
+  },
+  "hq-synth-v1": {
+   "bytes": 0,
+   "first_key": null,
+   "language_partitions": {},
+   "objects": 0,
+   "prefix": "translations/Nemotron-CC-v2.1/High-Quality-Synthetic/krutrim-nemotron-cc-v21-hq-synth-v1-20260906/",
+   "rule": "recorded in the 27 Sep inventory; verify presence",
+   "status": "missing: prefix has no objects",
+   "translated_bytes": 0,
+   "translated_documents_parquets": 0
+  }
+ }
 }
