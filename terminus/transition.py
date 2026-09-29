@@ -76,7 +76,20 @@ def convert_checkpoint(parent_run_dir, qat_config_path, qat_manifest_path, qat_d
     parent_payload = load_checkpoint(parent_source, parent_contract)
     parent_state = parent_payload["state"]
 
-    model_config, training, optimizer_config = load_config(qat_config_path)
+    config_payload = json.loads(Path(qat_config_path).read_text())
+    parent_seen = parent_payload["state"]["tokens_seen"]
+    expected_offset = 0 if data_policy == "restart" else parent_seen
+    declared = config_payload["training"].get("phase_start_tokens")
+    if declared is not None and declared != expected_offset:
+        raise ValueError(f"QAT config phase_start_tokens={declared} but the transition needs "
+                         f"{expected_offset}; leave it null and let the transition set it")
+    config_payload["training"]["phase_start_tokens"] = expected_offset
+    from .model import BitNetLlamaConfig
+    from .train import TrainConfig
+    from .optim import OptimizerConfig
+    model_config = BitNetLlamaConfig(**config_payload["model"])
+    training = TrainConfig(**config_payload["training"])
+    optimizer_config = OptimizerConfig(**config_payload["optimizer"])
     if model_config.weight_mode != "ternary":
         raise ValueError("the QAT phase must run the ternary weight mode")
     manifest = TokenManifest.load(qat_manifest_path)
@@ -141,6 +154,9 @@ def convert_checkpoint(parent_run_dir, qat_config_path, qat_manifest_path, qat_d
     else:
         rank_rng = parent_payload["rank_rng"]
 
+    output_dir.mkdir(parents=True, exist_ok=True)
+    effective_config_path = output_dir / "qat_config.json"
+    write_json_atomic(effective_config_path, config_payload)
     checkpoints = output_dir / "checkpoints"
     path = save_checkpoint(checkpoints, model, optimizer, state, contract, rank_rng)
     write_json_atomic(output_dir / "run.json",
@@ -161,7 +177,8 @@ def convert_checkpoint(parent_run_dir, qat_config_path, qat_manifest_path, qat_d
                           "checkpoint_file": parent_receipt.get("file"),
                           "contract_sha256": parent_run["contract_sha256"],
                           "state": parent_state},
-               "child": {"config_sha256": fingerprint(json.loads(Path(qat_config_path).read_text())),
+               "child": {"config_sha256": fingerprint(config_payload),
+                         "effective_config": str(effective_config_path),
                          "contract_sha256": fingerprint(contract),
                          "manifest_sha256": manifest_report["manifest_sha256"],
                          "initial_checkpoint": path.name, "state": state},

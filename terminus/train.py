@@ -38,6 +38,7 @@ class TrainConfig:
     schedule: str = "cosine"
     decay_tokens: int | None = None
     decay_style: str = "cosine"
+    phase_start_tokens: int | None = None
     grad_clip: float = 1.0
     quantization_warmup_tokens: int = 0
     quantization_start_strength: float = 1.0
@@ -81,6 +82,9 @@ class TrainConfig:
                 raise ValueError("decay_tokens only applies to the wsd schedule")
         if self.schedule == "wsd" and self.decay_tokens is None:
             raise ValueError("the wsd schedule requires an explicit decay_tokens budget")
+        if self.phase_start_tokens is not None and (isinstance(self.phase_start_tokens, bool)
+                or not isinstance(self.phase_start_tokens, int) or self.phase_start_tokens < 0):
+            raise ValueError("phase_start_tokens must be a nonnegative integer")
         if not math.isfinite(self.grad_clip) or self.grad_clip < 0:
             raise ValueError("grad_clip must be finite and nonnegative; zero disables clipping")
         if self.time_limit_seconds is not None and (not math.isfinite(self.time_limit_seconds) or self.time_limit_seconds <= 0):
@@ -189,9 +193,14 @@ def evaluate(model, manifest, root, device, amp_dtype, max_batches, rank, world_
     model.eval()
     result = {}
     try:
-        languages = sorted({spec.language for spec in manifest.shards_for(split=manifest.config.val_split)})
+        from .integrity import manifest_scope
+
+        domains = set(manifest_scope(manifest)["domains"])
+        val_shards = manifest.shards_for(split=manifest.config.val_split)
+        key_of = lambda spec: spec.source if spec.source in domains else spec.language
+        languages = sorted({key_of(spec) for spec in val_shards})
         for language in languages:
-            span = TokenSpan([spec for spec in manifest.shards_for(split=manifest.config.val_split) if spec.language == language], root=root)
+            span = TokenSpan([spec for spec in val_shards if key_of(spec) == language], root=root)
             blocks = (span.num_tokens - 1) // manifest.config.seq_len
             selected = min(blocks, max_batches * manifest.config.batch_size * world_size)
             totals = torch.zeros(2, device=device, dtype=torch.float64)
@@ -333,6 +342,13 @@ def run_training(config_path, manifest_path, data_root, output_dir, *, resume=No
             raise ValueError("checkpoint token and data-cursor counters disagree")
         if state["next_micro_step"] != min(state["updates"] * training.gradient_accumulation_steps, total_micro_steps):
             raise ValueError("checkpoint update and accumulation counters disagree")
+        phase_offset = training.phase_start_tokens or 0
+        if phase_offset and not resume:
+            raise ValueError("a nonzero phase_start_tokens requires resuming from a transition checkpoint")
+        if phase_offset >= total_tokens:
+            raise ValueError("phase_start_tokens exceeds the manifest token budget")
+        if state["tokens_seen"] < phase_offset:
+            raise ValueError("checkpoint cursor predates the phase start")
         if state["tokens_seen"] >= total_tokens:
             raise ValueError("training budget is already complete")
         iterator = iter(PrefetchingTokenLoader(manifest, root=data_root, rank=rank, world_size=world_size,
@@ -355,14 +371,15 @@ def run_training(config_path, manifest_path, data_root, output_dir, *, resume=No
         while state["next_micro_step"] < total_micro_steps:
             micro_steps = min(training.gradient_accumulation_steps, total_micro_steps - state["next_micro_step"])
             update_tokens = min(micro_steps * micro_tokens, total_tokens - state["tokens_seen"])
-            scale = schedule_scale(state["tokens_seen"] + update_tokens, total_tokens, training.warmup_tokens,
+            scale = schedule_scale(state["tokens_seen"] + update_tokens - phase_offset,
+                                   total_tokens - phase_offset, training.warmup_tokens,
                                    training.final_lr_fraction, schedule=training.schedule,
                                    decay_tokens=training.decay_tokens, decay_style=training.decay_style)
             for group in optimizer.param_groups:
                 group["lr"] = group["base_lr"] * scale
             strength = model_config.quantization_strength
             if training.quantization_warmup_tokens:
-                progress = min(1.0, (state["tokens_seen"] + update_tokens) / training.quantization_warmup_tokens)
+                progress = min(1.0, (state["tokens_seen"] + update_tokens - phase_offset) / training.quantization_warmup_tokens)
                 strength = training.quantization_start_strength + (strength - training.quantization_start_strength) * progress
             model.set_quantization_strength_(strength)
             optimizer.zero_grad(set_to_none=not training.cuda_graphs)

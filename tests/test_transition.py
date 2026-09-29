@@ -55,11 +55,11 @@ class TransitionTests(unittest.TestCase):
 
     def test_transition_carries_state_and_completes_without_data_repeat(self):
         with contextlib.redirect_stdout(io.StringIO()):
-            parent = self.train_dense(updates=2)  # 64 of 72 tokens, micro step 4
-            self.assertEqual(parent["tokens_seen"], 64)
+            parent = self.train_dense(updates=1)  # 32 of 72 tokens, micro step 2
+            self.assertEqual(parent["tokens_seen"], 32)
             receipt = self.convert()
-            self.assertEqual(receipt["parent"]["state"]["tokens_seen"], 64)
-            self.assertEqual(receipt["child"]["state"]["tokens_seen"], 64)
+            self.assertEqual(receipt["parent"]["state"]["tokens_seen"], 32)
+            self.assertEqual(receipt["child"]["state"]["tokens_seen"], 32)
             self.assertEqual(receipt["data_policy"], "continue")
             self.assertEqual(receipt["intentional_resets"], [])
             self.assertEqual(receipt["changed_fields"]["model"]["weight_mode"],
@@ -71,25 +71,34 @@ class TransitionTests(unittest.TestCase):
                 torch.testing.assert_close(child_payload["model"][name], tensor, rtol=0, atol=0)
             # Finish the QAT phase; train.py's per-step cursor check proves the
             # stream continues exactly (no repeat, no gap).
-            final = run_training(self.root / "qat.json", self.manifest, self.data_root,
+            final = run_training(self.root / "qat_run/qat_config.json", self.manifest, self.data_root,
                                  self.root / "qat_run", resume=self.root / "qat_run/checkpoints")
             self.assertEqual(final["tokens_seen"], 72)
-            self.assertEqual(final["updates"], 3)  # 8 remaining tokens, one partial update
+            self.assertEqual(final["updates"], 3)  # two QAT updates, the last one partial
+            # phase-relative LR re-warmup applied: the first QAT update ran below peak scale
+            events = [json.loads(line) for line in
+                      (self.root / "qat_run/events.jsonl").read_text().splitlines()]
+            scales = [e["lr_scale"] for e in events if e.get("event") == "train"]
+            # the QAT schedule restarted at the phase boundary: the dense cosine
+            # would give ~0.13 here, the fresh QAT window gives > 0.5, and the
+            # QAT decay ends at the configured final fraction
+            self.assertGreater(scales[0], 0.5)
+            self.assertAlmostEqual(scales[-1], 0.1, places=6)
 
     def test_transition_matches_within_qat_resume(self):
         with contextlib.redirect_stdout(io.StringIO()):
             self.train_dense(updates=1)  # 32 of 72 tokens consumed
             self.convert(out="qat_a")
-            complete = run_training(self.root / "qat.json", self.manifest, self.data_root,
+            complete = run_training(self.root / "qat_a/qat_config.json", self.manifest, self.data_root,
                                     self.root / "qat_a", resume=self.root / "qat_a/checkpoints")
             self.convert(out="qat_b")
             # interrupt after the first QAT update, then resume exactly
-            stopped = run_training(self.root / "qat.json", self.manifest, self.data_root,
+            stopped = run_training(self.root / "qat_b/qat_config.json", self.manifest, self.data_root,
                                    self.root / "qat_b", resume=self.root / "qat_b/checkpoints",
                                    stop_after_updates=2)
             self.assertEqual(stopped["updates"], 2)
             self.assertLess(stopped["tokens_seen"], 72)
-            resumed = run_training(self.root / "qat.json", self.manifest, self.data_root,
+            resumed = run_training(self.root / "qat_b/qat_config.json", self.manifest, self.data_root,
                                    self.root / "qat_b", resume=self.root / "qat_b/checkpoints")
             self.assertEqual(complete, resumed)
             expected, actual = checkpoint_payload(self.root / "qat_a"), checkpoint_payload(self.root / "qat_b")
@@ -98,9 +107,9 @@ class TransitionTests(unittest.TestCase):
 
     def test_dense_history_changes_final_weights(self):
         with contextlib.redirect_stdout(io.StringIO()):
-            self.train_dense(updates=2)
+            self.train_dense(updates=1)
             self.convert(out="qat_a")
-            final_a = run_training(self.root / "qat.json", self.manifest, self.data_root,
+            final_a = run_training(self.root / "qat_a/qat_config.json", self.manifest, self.data_root,
                                    self.root / "qat_a", resume=self.root / "qat_a/checkpoints")
             pure = run_training(self.root / "qat.json", self.manifest, self.data_root,
                                 self.root / "qat_pure")
