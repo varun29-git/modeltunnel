@@ -1,0 +1,175 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[a4paper,margin=21mm,headheight=15pt]{geometry}
+\usepackage{fontspec}
+\setmainfont{Palatino}
+\setsansfont{Arial}
+\setmonofont[Scale=0.85]{Menlo}
+\usepackage{amsmath,amssymb,booktabs,tabularx,array,xcolor,microtype}
+\usepackage{caption,fancyhdr,hyperref}
+\definecolor{ink}{HTML}{16354A}
+\hypersetup{colorlinks=true,linkcolor=ink,citecolor=ink,urlcolor=ink,
+  pdftitle={Adapting ModelTunnelv2 for Terminus: A Task-Aware Proxy-Scaling Research Protocol},
+  pdfauthor={Terminus Project}}
+\pagestyle{fancy}\fancyhf{}
+\fancyhead[L]{\sffamily\footnotesize TERMINUS / MODELTUNNELV2 PROTOCOL}
+\fancyhead[R]{\sffamily\footnotesize 27 SEPTEMBER 2026}
+\fancyfoot[C]{\sffamily\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\setlength{\parindent}{1em}\setlength{\parskip}{0.32em}
+\setlength{\emergencystretch}{2em}
+\captionsetup{font=small,labelfont=bf}
+\newcommand{\Terminus}{\textsf{Terminus}}
+\newcommand{\MT}{ModelTunnelv2}
+
+\begin{document}
+\begin{center}
+{\sffamily\bfseries\fontsize{19}{22}\selectfont Adapting ModelTunnelv2 for Terminus\par}
+\vspace{2mm}
+{\sffamily\large A task-aware proxy-scaling research protocol for multilingual ternary training\par}
+\vspace{2mm}
+{\sffamily Terminus Project \quad\textbar\quad 27 September 2026 \quad\textbar\quad Protocol version 1.0\par}
+\end{center}
+\vspace{2mm}\hrule\vspace{3mm}
+
+\begin{abstract}
+MiniCPM4's ModelTunnelv2 searches pretraining strategies with small proxy models, replaces generic pretraining loss with downstream-task conditional loss as a selection signal, and tests whether hyperparameters transfer across model size under maximal-update parameterization. This paper specifies how to reproduce that \emph{method} for the maintained Terminus model, whose optimizer, tokenizer, multilingual objective and ternary arithmetic differ from MiniCPM4. Public ScalingBench supplies five English task families, but the complete ModelTunnelv2 trainer and its exact proxy training mixture are not publicly released in the inspected sources. We therefore define a local tunnel: representative Terminus proxy data, explicit input/output scoring, an Indic task extension, empirical calibration between proxy loss and target-task performance, and a controlled Muon width-transfer test. Only after these gates pass may the tunnel rank learning rates, effective batches, data mixtures, quantizers, and dense-to-ternary schedules. A completed 800B-token FP8 model followed by 200B ternary QAT is included as one BitCPM4-inspired test case, not as an assumed optimum. This prospective protocol reports no new training or quality result.
+\end{abstract}
+\vspace{2mm}\hrule\vspace{3mm}
+\noindent\textbf{Keywords:} ModelTunnelv2; ScalingBench; task loss; multilingual evaluation; Muon; width transfer; ternary QAT.
+
+\section{The question this study answers}
+\label{sec:question}
+
+The current request is methodological: \emph{Can a ModelTunnelv2-style small-model pipeline make reliable and inexpensive decisions for Terminus before large training runs are committed?} The deliverable is a validated ranking procedure and a recommended full-size recipe with stated uncertainty. The paper does not claim to select the final recipe now, develop a new general language-model architecture, or report a completed 800B-token training run.
+
+We operationalize the method as four linked claims: (1) proxy models see a representative version of the \emph{intended Terminus pretraining distribution}; (2) task-conditioned loss predicts outcomes that matter in English and ten Indic languages; (3) promising hyperparameters transfer across widths or their transfer error is measured; and (4) proxy rankings survive a small number of target-size checks. Failure of any claim narrows the use of the tunnel: the scorer may remain useful for evaluation even if zero-shot LR or QAT-schedule transfer fails.
+
+The maintained Terminus baseline has 1,500,334,898 parameters, 25 layers at width 2304, an RWKV-7-world 65,536-entry model vocabulary, 18 query/6 KV heads, four local attention layers per global layer, Muon on logical projection matrices, auxiliary AdamW on the tied embedding/head, and DeepGEMM FP8 ternary-target arithmetic. Its observed 46,395 synthetic tokens/s on one H100 NVL used context 4096, microbatch 8, accumulation 64 and 2,097,152 tokens/update \cite{local}. These facts describe \emph{a measured reference point}, not the tunnel's compulsory architecture, batch or training horizon. No representative real-data throughput or downstream quality for this baseline has been measured.
+
+\section{What ModelTunnelv2 actually provides}
+\label{sec:source}
+
+In MiniCPM4 Section 2.3, the original ModelTunnel's model-size scaling is extended with ScalingBench, a task-derived conditional-loss indicator. Tiny proxy models often score near chance on generated answers, so direct task accuracy cannot reliably rank them. The authors score reference continuations of task prompts, then report a sigmoid relationship between conditional loss and downstream performance for their own models trained with an identical vocabulary. Their fit used models from 0.36B to 4B and held out larger 7B and 80B points as checks \cite{minicpm4}. \emph{Those fit parameters are not transferable to Terminus.} ModelTunnelv2 also compares $\mu$P and StepLaw-style hyperparameter selection; neither consistently dominates in its published comparison. The system's FP8 and multi-token-prediction choices are part of MiniCPM4's broader pretraining engineering, not requirements of the ModelTunnelv2 evaluation method.
+
+Table~\ref{tab:copy} separates what can be reused from what must be engineered. The public ScalingBench repository has five separate JSONL files under \texttt{bbh/}, \texttt{human\_eval/}, \texttt{math/}, \texttt{mbpp/} and \texttt{mmlu/}. Observed rows have \texttt{input} and \texttt{output}; optional fields include \texttt{file\_name} and \texttt{num}. Outputs include answers and GPT-4o-generated rationales. Its card cautions that these rationales are only soft references and may be wrong \cite{scalingbench,densinglaw}. Do not assume the dataset-server default view loads all five files.
+
+\begin{table}[ht]
+\centering\small
+\caption{Reusing ModelTunnelv2 for Terminus: public component versus local work.}
+\label{tab:copy}
+\begin{tabularx}{\linewidth}{@{}p{40mm}p{55mm}X@{}}
+\toprule
+Component & Publicly inspectable & Terminus adaptation \\
+\midrule
+Method & MiniCPM4 Section 2.3, Figure 4; Densing Law paper & Experiment registry, ranking rules, calibration and transfer checks \\
+Task data & Five ScalingBench task files; English and generated rationales & Task adapter; Indic development tasks; protected final tests \\
+Parameterization & Microsoft \texttt{mup} shape/coordinate tools; Muon/$\mu$P paper & Role-specific tied readout, GQA, Muon, ternary STE policy \\
+Training corpus & General public corpus sources, not MiniCPM's exact proxy mixture & Versioned Terminus raw corpus and representative proxy samples \\
+Run engine & Existing maintained Terminus trainer and local receipts & Multi-run orchestration, task scorer, phase branches, learning-curve ledger \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The inspected MiniCPM4 release does not expose a complete ModelTunnelv2 pipeline or its exact proxy training corpus. We can copy the public \emph{method and task files}; we must build and verify the Terminus-specific pipeline. A public task set is an \emph{evaluation set}, never the proxy pretraining corpus.
+
+\section{Terminus tunnel data and scoring}
+\label{sec:scoring}
+
+\subsection{Training stream for proxy models}
+
+Prepare a versioned raw-text pool in the intended language and domain proportions. Initial source candidates include audited Sangraha verified Indic subsets, selected FineWeb2 subsets, English FineWeb-Edu and bounded educational/code material \cite{sangraha,fineweb2}. The choice of sources, filter thresholds and mixture is itself searchable. For an isolated optimizer or QAT comparison, give candidates the \emph{same} source mix and tokenization so the effect is interpretable. Later change the data recipe and recheck shortlisted LR/batch settings. Deduplicate before splitting and exclude benchmark or near-duplicate task material. Record realized per-language exposure, repetition, document IDs and source hashes. The public MiniCPM4 corpus cannot be reproduced from its paper, so no claim of identical data should be made.
+
+The first tunnel family uses the existing RWKV tokenizer to make loss directly comparable across sizes. When testing another tokenizer, retokenize the same raw documents into a separate family and compare bits per byte and task scores; token NLL and nominal ``B tokens'' do not mean the same thing across vocabularies. Ensure the proxy mixture has genuine English and ten-Indic coverage; a mostly-English proxy would not support an eleven-language final decision.
+
+\subsection{Conditional-loss evaluator}
+
+For task record $(x_i,y_i)$, encode the prompt and reference continuation under a defined separator/special-token policy, teacher-force the concatenated sequence, and mask loss on the prompt. The basic tunnel quantity is
+\begin{equation}
+\ell_i(\theta)=-\frac{1}{|T(y_i)|}\sum_{t\in T(y_i)}\log p_\theta(t\mid T(x_i),T(y_i)_{<t}),\qquad
+L_{\mathrm{task}}=\frac{1}{n}\sum_{i=1}^{n}\ell_i.
+\label{eq:taskloss}
+\end{equation}
+Fix how prompt/output boundaries are tokenized, how EOS is included, maximum context, truncation, and empty or malformed outputs. For multiple-choice tasks, also score the short answer itself and the margin between the correct label and alternatives. Report full output loss \emph{and} answer-only loss: a fluent but false generated rationale can distort the former. Normalizing each item before averaging prevents long code or math solutions from dominating. Retain each task family and language separately; macro-average only after recording the components. Across tokenizers, rely on raw-string task accuracy and byte-normalized held-out likelihood rather than treating token losses as interchangeable.
+
+For Indic tasks, construct a development analogue using licensed examples such as accessible MILU validation material and suitable native-language reading/reasoning sets \cite{milu}. Preserve independently verified answers. If rationales are generated, keep answer and rationale fields separate and flag unverified reasoning; the answer-based indicators remain primary until rationales are audited. Source-level deduplication between all proxy training shards and task sets is a prerequisite. Reserve an untouched multilingual final set outside the HPO loop. Public ScalingBench can be used repeatedly as English \emph{development}; its score is not an independent final test after tuning on it.
+
+\section{Calibrating the task signal}
+\label{sec:calib}
+
+The MiniCPM4 sigmoid is an empirical result on its model collection, not a property of conditional loss in general. Our tunnel first tests whether its own task loss is useful. Train several \emph{bridge} checkpoints that differ in width, horizon, LR and possibly data mix, and evaluate both conditional loss and direct task performance at sizes where accuracy is no longer purely chance. A practical initial set is multiple 200M and 700M checkpoints plus a small number of 1.5B checks; the target-size checks are held out when assessing proxy predictions. Record seeds and task/domain components to distinguish smooth capacity trends from true ranking transfer.
+
+Fit a monotone mapping $\widehat S=f(L_{\mathrm{task}})$ only after inspecting the data. A sigmoid is one candidate, compared with a simpler monotone fit and the baseline predictor from held-out pretraining loss. Evaluate rank correlation, calibration error and out-of-sample prediction on held-out \emph{models or training runs}, not merely random held-out questions from the same models. Fit separate calibrations for English and Indic groups if a common curve fails; do not silently reuse an English curve for the other ten languages. Report confidence intervals by task and language. If task loss fails to rank downstream quality reliably, use direct task measurements at larger proxies and label the small-model tunnel as an inconclusive filter, not a predictor.
+
+This calibration is the central \MT{} acceptance gate. It is cheaper to reject an unreliable task surrogate here than to spend a full training budget on a wrong hyperparameter ranking.
+
+\section{Proxy transfer and the search sequence}
+\label{sec:transfer}
+
+\subsection{Model family and \texorpdfstring{Muon/$\mu$P}{Muon/muP} gate}
+
+For a first controlled width test, use 25 layers and head dimension 128 at widths 768, 1536 and 2304, with 6/2, 12/4 and 18/6 query/KV heads respectively; the corresponding sizes are about 200M, 700M and 1.5B. Keep tokenizer, local/global pattern, context and data equal \emph{inside that width experiment}. This makes a learning-rate-transfer claim interpretable. Other architectures and vocabularies can have their own tunnel families; these reference dimensions are not permanent restrictions. A 5M software smoke model is too dominated by a 64K vocabulary to validate target-scale quality transfer.
+
+Current Terminus multiplies pinned Muon's approximately orthogonalized projection update by a group LR proportional to $0.2\sqrt{\mathrm{fan\_in}}$, yielding roughly constant elementwise update RMS across matrix sizes at fixed base LR. A recent Muon/$\mu$P study preserves RMS matching and adds $\mathrm{fan\_in}_{\mathrm{base}}/\mathrm{fan\_in}$ to hidden-matrix LR for width transfer, with separate treatment for embeddings and readout \cite{muonmup,moonlight}. Compare the existing rule and this paper-inspired variant across all three widths using the same data, batch, horizon and small base-LR bracket. Keep logical Q/K/V and gate/up Muon slices distinct. Preserve effective weight decay while isolating LR scaling. The tied embedding/output matrix uses auxiliary AdamW, so do not apply a hidden-Muon factor to it. Check coordinate, logit, gradient and update-to-weight statistics as well as held-out loss and task scores. A transferred LR is accepted only if its useful region and recipe ranking survive the 700M and 1.5B checks. This step does \emph{not} declare global batch fixed for the broader search.
+
+\subsection{Concrete tunnel campaign}
+
+Table~\ref{tab:stages} defines the minimal sequence. The counts are \emph{initial design points}, not a promise that a fixed GPU-hour quota can support every run. Actual continuation length is based on sufficient optimizer updates and measured cost. Let $M$ be per-GPU microbatch, $D$ data-parallel size, $A$ accumulation and $L$ sequence length; effective batch is $B=MDAL$ tokens/update. The previously measured 2.1M is one candidate. A batch change requires its own LR/warmup check, and short equal-token trials can contain very different numbers of updates.
+
+Each stage has a prepriced GPU-hour ceiling and records unsuccessful trials. Rerun a small LR check after switching data, tokenizer, batch, quantizer or phase schedule. Use paired task uncertainty, at least two seeds for close finalists, and protected target-size checks. Select on a frontier of multilingual quality, actual training cost and eventual inference cost. Do not force a single scalar score to conceal losses in weaker languages.
+
+\begin{table}[ht]
+\centering\small
+\caption{ModelTunnelv2 adaptation: staged experiments and required evidence.}
+\label{tab:stages}
+\begin{tabularx}{\linewidth}{@{}p{33mm}p{69mm}X@{}}
+\toprule
+Stage & Initial experiments & Gate to promotion \\
+\midrule
+0. Data and scoring & Inspect each of five ScalingBench files; build exact prompt/output masks; create Indic development and protected tests; version proxy corpus & Hand-checked scorer outputs, no leakage, reproducible task manifests \\
+1. Width transfer & At 200M and 700M: two Muon rules with three log-spaced base LRs; reserve a small 1.5B bracket to test the predicted region & Stable coordinates and useful LR/ranking transfer, or explicit transfer failure \\
+2. Surrogate calibration & Checkpoints across width, LR, seed and multiple token horizons; score conditional loss \emph{and} direct tasks & Held-out-run ranking and calibration beat generic pretraining-loss selection \\
+3. Recipe screen & Small-model batch/LR/warmup, source mix, arithmetic, quantizer and QAT branches; retain common data within each comparison & Pareto improvement in task-aware quality versus measured GPU-hours \\
+4. Bridge confirmation & Re-run leading complete recipes at 700M, then targeted 1.5B checks & Proxy predictions and per-language trends remain credible before final-scale commitment \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Using the tunnel for dense-to-ternary decisions}
+
+BitCPM4's 5M tunnel held combined training at 2B tokens with 20\% decay and found QAT above roughly 40\% of total gave final loss near ternary-from-scratch QAT. Its authors express the chosen conversion budget as twice the decay length and report QAT LR re-warmup as important \cite{minicpm4}. For Terminus, test QAT-from-start and several dense/QAT allocations at \emph{matched total raw-data exposure}, record the different GPU costs, then verify survivors at larger widths. The native Terminus trainer currently cannot execute dense hold $\rightarrow$ ternary QAT with a re-warmup as a config-only change, so phase support and exact conversion/resume tests precede quality comparisons \cite{local}.
+
+If a full FP8 model has already trained for 100B warmup, 600B stable and 100B decay, the paper's $Q=2D$ rule gives an \emph{additional 200B-QAT candidate}. This is a different experiment from the pilot's fixed-total allocation: 800B dense plus 200B QAT makes QAT 20\% of the new 1T total. Both arithmetic statements are correct. The tunnel should compare planned QAT endings near 100B, 200B and, if justified, 350B using a shared QAT warmup/stable prefix and \emph{separate final decay branches}. Score completed ternary branches, not an undecayed checkpoint against a completed one. The exact MiniCPM4 LR values and reported 350B full-model QAT process do not determine Terminus's optimal LR or stopping point.
+
+No proxy trained for a few billion tokens proves the outcome of an 800B/200B target run. Check at multiple proxy horizons and at one or more bridge horizons, examine how the preferred QAT length changes, and treat any long-horizon extrapolation as provisional until a target-size conversion checkpoint supplies evidence. If the 800B run is not yet committed, earlier dense-to-QAT switches may be cheaper or better and should compete at matched \emph{total} cost.
+
+\section{Required engineering, evidence, and stopping rules}
+\label{sec:implementation}
+
+The smallest local ModelTunnel implementation consists of: (i) immutable raw-corpus and task manifests; (ii) a teacher-forced conditional-loss scorer with answer masks and exact task normalization; (iii) an Indic task adapter and contamination audit; (iv) a multi-run config/receipt ledger with source, runtime and data hashes; (v) Muon role/coordinate instrumentation and width-scaling variants; (vi) calibration and uncertainty analysis; and (vii) a deliberate dense/QAT phase transition if that question is studied. Reuse Microsoft \texttt{mup} shape and coordinate diagnostics, public ScalingBench data, existing evaluation adapters and DataTrove-style text processing where appropriate \cite{mup,lmeval,datatrove}. No full official ModelTunnelv2 package was identified in the inspected release.
+
+For each candidate, record training tokens \emph{and} raw bytes, optimizer updates, loss and task vectors, sequence/context policy, batch decomposition, peak memory, sustained tokens/s, seed and GPU-hours. Preserve the maintained checkpoint loader's exact-resume contract. A conversion to dense or ternary arithmetic requires a separate phase-initialization receipt carrying compatible optimizer state or an explicit reset, RNG and data cursor. Correctness gates include output-mask tests, all-language task sampling, partial accumulation weighting, native/reference numerical comparisons, and non-repeated data across a transition.
+
+The tunnel is considered \emph{validated for a decision type} only if it predicts held-out bridge/target ranking within predeclared uncertainty and the accepted recipe improves the measured quality/cost frontier without unacceptable language regressions. A failure to calibrate answer loss, a shift in best LR across widths, or a QAT schedule whose ranking reverses at bridge scale is a useful negative result: narrow the proxy claim and measure that decision directly at larger scale. This gate prevents calling a small-model convenience a trustworthy large-model prediction.
+
+\section{Discussion and conclusion}
+
+For the present use case, ModelTunnelv2 is a \emph{decision pipeline}: representative proxy training, task-conditioned scoring, local score-to-capability calibration, transfer testing, and selective target validation. It is not simply the Microsoft $\mu$P package, a public benchmark to pretrain on, or a published list of optimal learning rates. Its greatest cost advantage is screening many variants before expensive Terminus runs; its greatest risk is false transfer from tiny, English-skewed or numerically different proxies. The first concrete deliverable is therefore a reproducible Terminus tunnel whose task scores and rankings have been checked on our own 200M/700M/1.5B family. Only then should it recommend a full training recipe or the length of an 800B-to-QAT continuation.
+
+\begingroup\raggedright
+\begin{thebibliography}{20}
+\bibitem{minicpm4} OpenBMB, ``MiniCPM4: Ultra-Efficient LLMs on End Devices,'' 2025, Sections 2.3 and 3.3. \url{https://arxiv.org/html/2506.07900v2}.
+\bibitem{densinglaw} C. Xiao et al., ``Densing Law of LLMs,'' 2024. \url{https://arxiv.org/abs/2412.04315}.
+\bibitem{scalingbench} OpenBMB, ``DensingLaw-ScalingBench,'' public task dataset. \url{https://huggingface.co/datasets/openbmb/DensingLaw-ScalingBench}.
+\bibitem{mup} G. Yang et al., ``Tensor Programs V: Tuning Large Neural Networks via Zero-Shot Hyperparameter Transfer,'' 2022. \url{https://arxiv.org/abs/2203.03466}; implementation: \url{https://github.com/microsoft/mup}.
+\bibitem{moonlight} Moonshot AI, ``Muon is Scalable for LLM Training,'' 2025. \url{https://arxiv.org/abs/2502.16982}.
+\bibitem{muonmup} ``Let's Scale Step by Step: Compute-Efficient Hyperparameter Transfer for Large-Scale Mixture-of-Experts,'' 2026. \url{https://arxiv.org/html/2608.20061}.
+\bibitem{sangraha} AI4Bharat, ``Sangraha,'' public corpus. \url{https://huggingface.co/datasets/ai4bharat/sangraha}.
+\bibitem{fineweb2} Hugging Face, ``FineWeb2,'' public corpus and filtering pipeline. \url{https://huggingface.co/datasets/HuggingFaceFW/fineweb-2}.
+\bibitem{milu} AI4Bharat, ``MILU,'' eleven-language task dataset. \url{https://huggingface.co/datasets/ai4bharat/MILU}.
+\bibitem{datatrove} Hugging Face, ``DataTrove,'' data-processing software. \url{https://github.com/huggingface/datatrove}.
+\bibitem{lmeval} EleutherAI, ``lm-evaluation-harness,'' task-evaluation software. \url{https://github.com/EleutherAI/lm-evaluation-harness}.
+\bibitem{local} Terminus Project, ``Maintained 1.5B Muon benchmark and archive-policy receipt,'' 2026. \texttt{reports/evidence/muon\_25l\_20260927/README.md}; current training, optimizer and checkpoint code in \texttt{terminus/}.
+\end{thebibliography}
+\endgroup
+
+\end{document}
