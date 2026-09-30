@@ -428,6 +428,8 @@ def run_training(config_path, manifest_path, data_root, output_dir, *, resume=No
                     loss.backward()
                 if monitor is not None:
                     monitor.active = False
+            if sampled:
+                monitor.gradients_before_clip()
             try:
                 grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), training.grad_clip or float("inf"), error_if_nonfinite=True, foreach=True)
             except Exception as exc:

@@ -118,6 +118,16 @@ class StabilityMonitor:
             "mean_entropy": entropy.mean(), "min_entropy": entropy.amin()}
 
     @torch.no_grad()
+    def gradients_before_clip(self):
+        for name, parameter in self.model.named_parameters():
+            if parameter.grad is None:
+                continue
+            values = parameter.grad.detach().reshape(-1)
+            stride = max(1, values.numel() // self.max_parameter_values)
+            sample = values[::stride][:self.max_parameter_values]
+            self.records[f"{name}.gradient_before_clip"] = {"values": sample.numel(), **_stats(sample)}
+
+    @torch.no_grad()
     def before_step(self):
         self.parameter_samples = {}
         for name, parameter in self.model.named_parameters():

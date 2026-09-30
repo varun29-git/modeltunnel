@@ -79,6 +79,7 @@ class TrainingTests(unittest.TestCase):
             self.assertEqual([record["updates"] for record in records], [1, 2])
             self.assertIn("layer_00.attention_sample", records[0]["probes"])
             self.assertIn("layers.0.attn.q_proj.fp8_input", records[0]["probes"])
+            self.assertIn("layers.0.attn.q_proj.weight.gradient_before_clip", records[0]["probes"])
             events = [json.loads(line) for line in (root / "run/events.jsonl").read_text().splitlines()]
             training = [event for event in events if event["event"] == "train"]
             self.assertEqual(len(training), 2)
