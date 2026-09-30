@@ -98,7 +98,7 @@ def optimized_kernel_preflight(config, device):
             for rows in (1, 17, 257):
                 packed = torch.randn(rows, config.ffn_dim * 2, dtype=torch.bfloat16, device=device, requires_grad=True)
                 reference = RMSNorm(config.ffn_dim, config.rms_norm_eps, gain="scalar").to(device)
-                weight = reference.weight if config.use_subln else None
+                weight = reference.weight if config.ffn_subln_enabled else None
                 operands = (packed, weight) if weight is not None else (packed,)
                 gate, up = packed.chunk(2, -1)
                 expected = reference(F.silu(gate) * up) if weight is not None else F.silu(gate) * up
@@ -111,11 +111,13 @@ def optimized_kernel_preflight(config, device):
         if config.fused_qkv:
             q, kv, dim = config.n_heads, config.n_kv_heads, config.head_dim
             packed = torch.randn(2, 17, (q + 2 * kv) * dim, device=device, dtype=torch.bfloat16, requires_grad=True)
-            actual = packed_qkv_rope(packed, cos, sin, q, kv, config.rms_norm_eps)
+            normalize_qk = config.qk_norm_mode == "unit_rms"
+            actual = packed_qkv_rope(packed, cos, sin, q, kv, config.rms_norm_eps, normalize_qk=normalize_qk)
             expected = []
             for index, part in enumerate(packed.split((q * dim, kv * dim, kv * dim), -1)):
                 part = part.view(2, 17, q if index == 0 else kv, dim).transpose(1, 2)
-                expected.append(qk_rope(part, cos, sin, config.rms_norm_eps) if index < 2 else part)
+                expected.append((qk_rope(part, cos, sin, config.rms_norm_eps) if normalize_qk
+                                 else apply_rotary(part, cos, sin)) if index < 2 else part)
             check("packed_qkv_rope", torch.cat(actual, 1), torch.cat(expected, 1), (packed,), (packed,))
     if config.loss_backend != "checkpoint":
         values = torch.randn(17, 128, device=device, requires_grad=True)

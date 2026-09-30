@@ -79,15 +79,18 @@ class HopperCandidateTests(unittest.TestCase):
 
     def test_packed_qkv_equations_strided_gradients_and_value_only(self):
         from terminus.pointwise import packed_qkv_rope, qk_rope
+        from terminus.model import apply_rotary
 
-        for q, kv, dim in ((16, 4, 128), (4, 1, 64), (6, 2, 256)):
+        for q, kv, dim, normalize_qk in ((16, 4, 128, True), (4, 1, 64, True),
+                                          (6, 2, 256, True), (5, 1, 128, False)):
             packed = torch.randn(2, 17, (q + 2 * kv) * dim, device="cuda", dtype=torch.bfloat16, requires_grad=True)
             cos, sin = (torch.randn(1, 1, 17, dim // 2, device="cuda") for _ in range(2))
-            actual = packed_qkv_rope(packed, cos, sin, q, kv, 1e-5)
+            actual = packed_qkv_rope(packed, cos, sin, q, kv, 1e-5, normalize_qk=normalize_qk)
             expected = []
             for index, part in enumerate(packed.split((q * dim, kv * dim, kv * dim), -1)):
                 part = part.view(2, 17, q if index == 0 else kv, dim).transpose(1, 2)
-                expected.append(qk_rope(part, cos, sin, 1e-5) if index < 2 else part)
+                expected.append((qk_rope(part, cos, sin, 1e-5) if normalize_qk
+                                 else apply_rotary(part, cos, sin)) if index < 2 else part)
             for a, b in zip(actual, expected):
                 self.assertLess(error_ratio(a, b), .006)
             for broadcast in (False, True):

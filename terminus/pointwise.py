@@ -108,12 +108,13 @@ def qk_rope(values, cos, sin, eps):
 
 class _PackedQKVRoPE(torch.autograd.Function):
     @staticmethod
-    def forward(ctx, packed, cos, sin, query_heads, kv_heads, eps):
+    def forward(ctx, packed, cos, sin, query_heads, kv_heads, eps, normalize_qk):
         from .qkv_kernels import packed_qkv_forward
 
-        query, key, value, inverse = packed_qkv_forward(packed, cos, sin, query_heads, kv_heads, eps)
+        query, key, value, inverse = packed_qkv_forward(packed, cos, sin, query_heads, kv_heads, eps, normalize_qk)
         ctx.save_for_backward(packed, cos, sin, inverse)
         ctx.heads = query_heads, kv_heads
+        ctx.normalize_qk = normalize_qk
         return query, key, value
 
     @staticmethod
@@ -121,10 +122,10 @@ class _PackedQKVRoPE(torch.autograd.Function):
     def backward(ctx, dq, dk, dv):
         from .qkv_kernels import packed_qkv_backward
 
-        return packed_qkv_backward(dq, dk, dv, *ctx.saved_tensors, *ctx.heads), None, None, None, None, None
+        return packed_qkv_backward(dq, dk, dv, *ctx.saved_tensors, *ctx.heads, ctx.normalize_qk), None, None, None, None, None, None
 
 
-def packed_qkv_rope(packed, cos, sin, query_heads, kv_heads, eps):
+def packed_qkv_rope(packed, cos, sin, query_heads, kv_heads, eps, *, normalize_qk=True):
     import math
 
     if not packed.is_cuda or packed.ndim != 3 or not packed.is_contiguous() or packed.numel() == 0:
@@ -133,6 +134,8 @@ def packed_qkv_rope(packed, cos, sin, query_heads, kv_heads, eps):
         raise ValueError("QKV head counts must be positive integers")
     if query_heads % kv_heads or packed.shape[-1] % (query_heads + 2 * kv_heads):
         raise ValueError("invalid packed QKV head dimensions")
+    if not isinstance(normalize_qk, bool):
+        raise ValueError("normalize_qk must be boolean")
     if not math.isfinite(eps) or eps <= 0:
         raise ValueError("QKV normalization requires positive finite epsilon")
     dim = packed.shape[-1] // (query_heads + 2 * kv_heads)
@@ -140,4 +143,4 @@ def packed_qkv_rope(packed, cos, sin, query_heads, kv_heads, eps):
         raise ValueError("packed QKV requires BF16/FP32 and head width 64, 128 or 256")
     if any(t.device != packed.device or t.shape != (1, 1, packed.shape[1], dim // 2) or not t.is_contiguous() for t in (cos, sin)):
         raise ValueError("RoPE tables must be contiguous and match sequence/head dimensions")
-    return _PackedQKVRoPE.apply(packed, cos, sin, query_heads, kv_heads, eps)
+    return _PackedQKVRoPE.apply(packed, cos, sin, query_heads, kv_heads, eps, normalize_qk)

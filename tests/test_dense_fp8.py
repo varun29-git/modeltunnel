@@ -26,6 +26,17 @@ from tests.test_fp8 import emulated_fp8_gemm, error_ratio
 
 
 class DenseQuantizerTests(unittest.TestCase):
+    def test_native_preflight_reference_uses_dense_weights(self):
+        from terminus.fp8_validation import reference_linear
+
+        values = torch.randn(7, 256, dtype=torch.bfloat16)
+        weights = torch.randn(256, 256)
+        gradient = torch.randn(7, 256, dtype=torch.bfloat16)
+        dense = reference_linear(values, weights, gradient, "full", "dense")
+        ternary = reference_linear(values, weights, gradient, "full", "ternary")
+        self.assertGreater(error_ratio(dense["forward"].float(), ternary["forward"].float()), .05)
+        self.assertEqual(dense["weight_gradient"].dtype, torch.float32)
+
     def test_roundtrip_close_and_not_ternary(self):
         torch.manual_seed(7)
         weight = torch.randn(256, 384) * 0.05

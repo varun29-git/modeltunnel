@@ -127,9 +127,35 @@ class ModelTests(unittest.TestCase):
 
     def test_bad_configuration(self):
         for options in ({"n_heads": 0}, {"n_layers": 3}, {"dim": 30}, {"rms_norm_eps": math.nan},
-                        {"rope_theta": math.inf}, {"dropout": 1.0}, {"pad_token_id": 33}, {"loss_chunk_size": 0}):
+                        {"rope_theta": math.inf}, {"dropout": 1.0}, {"pad_token_id": 33}, {"loss_chunk_size": 0},
+                        {"qk_norm_mode": "bad"}, {"use_attention_subln": 1}, {"use_ffn_subln": "off"}):
             with self.subTest(options=options), self.assertRaises(ValueError):
                 tiny_config(**options)
+
+    def test_lean_norm_cuts_keep_pre_norms_and_train(self):
+        base = tiny_config()
+        lean = tiny_config(qk_norm_mode="none", use_attention_subln=False, use_ffn_subln=False)
+        self.assertTrue(base.attention_subln_enabled)
+        self.assertFalse(lean.attention_subln_enabled)
+        self.assertFalse(lean.ffn_subln_enabled)
+        self.assertTrue(tiny_config(use_subln=False, use_attention_subln=True).attention_subln_enabled)
+        self.assertFalse(tiny_config(use_subln=False, use_attention_subln=True).ffn_subln_enabled)
+        model = BitNetLlama(lean)
+        self.assertIsInstance(model.layers[0].attn.q_norm, torch.nn.Identity)
+        self.assertIsInstance(model.layers[0].attn.attn_sub_norm, torch.nn.Identity)
+        self.assertIsInstance(model.layers[0].ffn.ffn_sub_norm, torch.nn.Identity)
+        self.assertIsInstance(model.layers[0].attn_norm, RMSNorm)
+        self.assertIsInstance(model.layers[0].ffn_norm, RMSNorm)
+        ids = torch.randint(0, lean.vocab_size, (1, 9))
+        result = model(ids, ids, return_logits=False)
+        self.assertTrue(torch.isfinite(result["loss"]))
+        result["loss"].backward()
+        self.assertTrue(all(torch.isfinite(p.grad).all() for p in model.parameters()))
+        model.eval()
+        full = model(ids)["logits"]
+        first, cache = model.forward_cached(ids[:, :4])
+        second, _ = model.forward_cached(ids[:, 4:], cache=cache)
+        torch.testing.assert_close(torch.cat((first["logits"], second["logits"]), dim=1), full)
 
     def test_cache_chunking_and_storage(self):
         model = BitNetLlama(tiny_config()).eval()

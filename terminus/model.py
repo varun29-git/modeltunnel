@@ -38,6 +38,8 @@ class BitNetLlamaConfig:
     alpha_group_size: int = 128
     attention_backend: str = "fa3"
     use_subln: bool = True
+    use_attention_subln: bool | None = None
+    use_ffn_subln: bool | None = None
     ffn_activation: str = "swiglu"
     use_embedding_projection: bool = False
     quantize_activations: bool = False
@@ -85,6 +87,9 @@ class BitNetLlamaConfig:
         for name in ("use_subln", "use_embedding_projection", "quantize_activations", "gradient_checkpointing", "fp8_cache_weights", "fused_pointwise", "fuse_projections", "fused_mlp", "fused_qkv"):
             if not isinstance(getattr(self, name), bool):
                 raise ValueError(f"{name} must be a boolean")
+        for name in ("use_attention_subln", "use_ffn_subln"):
+            if getattr(self, name) is not None and not isinstance(getattr(self, name), bool):
+                raise ValueError(f"{name} must be a boolean or null")
         for name in ("vocab_size", "dim", "n_layers", "n_heads", "n_kv_heads", "ffn_dim", "max_seq_len", "alpha_group_size", "local_attention_window", "global_attention_every", "loss_chunk_size"):
             value = getattr(self, name)
             if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
@@ -106,8 +111,8 @@ class BitNetLlamaConfig:
             raise ValueError("production attention requires head_dim 64, 128 or 256")
         if self.weight_init not in {"normal", "orthogonal"} or self.ffn_activation not in {"swiglu", "relu2"}:
             raise ValueError("unsupported initialization or FFN activation")
-        if self.qk_norm_mode != "unit_rms":
-            raise ValueError("only parameter-free Q/K RMS normalization is implemented")
+        if self.qk_norm_mode not in {"unit_rms", "none"}:
+            raise ValueError("Q/K normalization must be unit_rms or none")
         if self.pad_token_id is not None and not 0 <= self.pad_token_id < self.vocab_size:
             raise ValueError("pad_token_id is outside the vocabulary")
         if self.weight_scale_layout not in {"rowwise", "blockwise"} or self.linear_backend not in {"torch", "deepgemm"}:
@@ -124,6 +129,14 @@ class BitNetLlamaConfig:
     @property
     def head_dim(self):
         return self.dim // self.n_heads
+
+    @property
+    def attention_subln_enabled(self):
+        return self.use_subln if self.use_attention_subln is None else self.use_attention_subln
+
+    @property
+    def ffn_subln_enabled(self):
+        return self.use_subln if self.use_ffn_subln is None else self.use_ffn_subln
 
 
 class RMSNorm(nn.Module):
@@ -330,9 +343,9 @@ class BitNetAttention(nn.Module):
             self.k_proj = make_linear(config, config.dim, config.n_kv_heads * config.head_dim)
             self.v_proj = make_linear(config, config.dim, config.n_kv_heads * config.head_dim)
         self.o_proj = make_linear(config, config.dim, config.dim, residual=True)
-        self.q_norm = RMSNorm(config.head_dim, config.rms_norm_eps, gain="none", fused=config.fused_pointwise)
-        self.k_norm = RMSNorm(config.head_dim, config.rms_norm_eps, gain="none", fused=config.fused_pointwise)
-        self.attn_sub_norm = RMSNorm(config.dim, config.rms_norm_eps, gain="scalar", fused=config.fused_pointwise) if config.use_subln else nn.Identity()
+        self.q_norm = RMSNorm(config.head_dim, config.rms_norm_eps, gain="none", fused=config.fused_pointwise) if config.qk_norm_mode == "unit_rms" else nn.Identity()
+        self.k_norm = RMSNorm(config.head_dim, config.rms_norm_eps, gain="none", fused=config.fused_pointwise) if config.qk_norm_mode == "unit_rms" else nn.Identity()
+        self.attn_sub_norm = RMSNorm(config.dim, config.rms_norm_eps, gain="scalar", fused=config.fused_pointwise) if config.attention_subln_enabled else nn.Identity()
 
     def forward(self, hidden, cos, sin, attention_mask=None, cache=None):
         batch, length, _ = hidden.shape
@@ -340,7 +353,8 @@ class BitNetAttention(nn.Module):
             from .pointwise import packed_qkv_rope
 
             query, key, value = packed_qkv_rope(self.qkv_proj(hidden), cos, sin,
-                self.config.n_heads, self.config.n_kv_heads, self.config.rms_norm_eps)
+                self.config.n_heads, self.config.n_kv_heads, self.config.rms_norm_eps,
+                normalize_qk=self.config.qk_norm_mode == "unit_rms")
         else:
             if self.config.fuse_projections:
                 kv_width = self.config.n_kv_heads * self.config.head_dim
@@ -350,7 +364,7 @@ class BitNetAttention(nn.Module):
             query = query.view(batch, length, self.config.n_heads, self.config.head_dim).transpose(1, 2)
             key = key.view(batch, length, self.config.n_kv_heads, self.config.head_dim).transpose(1, 2)
             value = value.view(batch, length, self.config.n_kv_heads, self.config.head_dim).transpose(1, 2)
-            if self.config.fused_pointwise:
+            if self.config.fused_pointwise and self.config.qk_norm_mode == "unit_rms":
                 from .pointwise import qk_rope
 
                 query, key = (qk_rope(values, cos, sin, self.config.rms_norm_eps) for values in (query, key))
@@ -383,7 +397,7 @@ class BitNetFeedForward(nn.Module):
         if not self.fuse_projections:
             self.up_proj = make_linear(config, config.dim, config.ffn_dim)
         self.down_proj = make_linear(config, config.ffn_dim, config.dim, residual=True)
-        self.ffn_sub_norm = RMSNorm(config.ffn_dim, config.rms_norm_eps, gain="scalar", fused=config.fused_pointwise) if config.use_subln else nn.Identity()
+        self.ffn_sub_norm = RMSNorm(config.ffn_dim, config.rms_norm_eps, gain="scalar", fused=config.fused_pointwise) if config.ffn_subln_enabled else nn.Identity()
 
     def forward(self, hidden):
         if self.fused_mlp:

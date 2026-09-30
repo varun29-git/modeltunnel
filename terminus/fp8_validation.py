@@ -5,7 +5,7 @@ import torch
 from .model import BitLinear
 from .quantization import (
     dequantize_activation_fp8_e4m3, dequantize_weight_fp8_e4m3_2d,
-    quantize_fp8_directions, quantize_ternary_directions,
+    quantize_fp8_directions, quantize_weight_directions,
 )
 
 
@@ -25,9 +25,9 @@ def gradient_metrics(actual, expected):
     return {"relative_error": relative_error(actual, expected), "cosine": float(cosine)}
 
 
-def reference_linear(values, weight, gradient, mode):
+def reference_linear(values, weight, gradient, mode, weight_mode="ternary"):
     input_rows, input_columns = quantize_fp8_directions(values, transposed=mode == "full")
-    weights, _ = quantize_ternary_directions(weight)
+    weights, _ = quantize_weight_directions(weight, weight_mode=weight_mode)
     effective_inputs = dequantize_activation_fp8_e4m3(*input_rows)
     effective_weights = dequantize_weight_fp8_e4m3_2d(*weights)
     with torch.autocast(device_type=values.device.type, enabled=False):
@@ -61,7 +61,7 @@ def projection_shapes(config):
             "gate_up": (config.ffn_dim, config.dim), "down": (config.dim, config.ffn_dim)}
 
 
-def validate_quantizers(backend, device):
+def validate_quantizers(backend, device, weight_mode="ternary"):
     errors = []
     for rows in (7, 128, 257):
         for magnitude in (0., 1e-12, 1.):
@@ -75,28 +75,30 @@ def validate_quantizers(backend, device):
                     raise AssertionError(f"fused FP8 quantizer disagrees with its reference: {error}")
                 errors.append(error)
     weights = torch.randn(256, 384, device=device)
-    primary, secondary = quantize_ternary_directions(weights, transposed=True, backend=backend)
-    expected, _ = quantize_ternary_directions(weights)
+    primary, secondary = quantize_weight_directions(weights, weight_mode=weight_mode,
+                                                    transposed=True, backend=backend)
+    expected, _ = quantize_weight_directions(weights, weight_mode=weight_mode)
     weight_error = relative_error(dequantize_weight_fp8_e4m3_2d(*primary), dequantize_weight_fp8_e4m3_2d(*expected))
     if not weight_error < .002 or not torch.equal(primary[0].float().T, secondary[0].float()):
-        raise AssertionError("ternary quantizer or exact transpose mismatch")
+        raise AssertionError(f"{weight_mode} quantizer or exact transpose mismatch")
     for invalid in (float("nan"), float("inf")):
         inputs[0, 0] = invalid
         for operand in quantize_fp8_directions(inputs, transposed=True, eps=0, backend=backend):
             if torch.isfinite(dequantize_activation_fp8_e4m3(*operand)).all():
                 raise AssertionError("FP8 quantization silently sanitized a nonfinite input")
         weights[0, 0] = invalid
-        operand, _ = quantize_ternary_directions(weights, backend=backend)
+        operand, _ = quantize_weight_directions(weights, weight_mode=weight_mode, backend=backend)
         if torch.isfinite(dequantize_weight_fp8_e4m3_2d(*operand)).all():
-            raise AssertionError("ternary quantization silently sanitized a nonfinite latent weight")
-    return {"max_directional_error": max(errors), "ternary_error": weight_error,
+            raise AssertionError(f"{weight_mode} quantization silently sanitized a nonfinite latent weight")
+    return {"max_directional_error": max(errors), "weight_error": weight_error,
             "tiny_gradients": "passed", "nonfinite_propagation": "passed"}
 
 
 def validate_linear_case(config, device, rows, outputs, width, *, stress="normal"):
     layer = BitLinear(width, outputs, quantize_activations=True, weight_scale_layout="blockwise", linear_backend="deepgemm",
                       fp8_backward=config.fp8_backward, fp8_quantizer=config.fp8_quantizer,
-                      fp8_cache_weights=config.fp8_cache_weights, fp8_wgrad_splits=config.fp8_wgrad_splits).to(device)
+                      fp8_cache_weights=config.fp8_cache_weights, fp8_wgrad_splits=config.fp8_wgrad_splits,
+                      weight_mode=config.weight_mode).to(device)
     inputs = torch.randn(rows, width, device=device, dtype=torch.bfloat16, requires_grad=True)
     gradient = torch.randn(rows, outputs, device=device, dtype=torch.bfloat16)
     if stress == "zero_gradient":
@@ -108,7 +110,8 @@ def validate_linear_case(config, device, rows, outputs, width, *, stress="normal
     output = layer(inputs)
     output.backward(gradient)
     with torch.no_grad():
-        expected = reference_linear(inputs.detach(), layer.weight.detach(), gradient, config.fp8_backward)
+        expected = reference_linear(inputs.detach(), layer.weight.detach(), gradient,
+                                    config.fp8_backward, config.weight_mode)
     actual = {"forward": output, "input_gradient": inputs.grad, "weight_gradient": layer.weight.grad}
     implementation = {name: gradient_metrics(value, expected[name]) for name, value in actual.items()}
     if not all(result["relative_error"] < .01 for result in implementation.values()):
@@ -125,14 +128,15 @@ def validate_linear_case(config, device, rows, outputs, width, *, stress="normal
     if layer.weight.grad.dtype != torch.float32:
         raise AssertionError("latent weight gradients must remain FP32")
     return {"rows": rows, "outputs": outputs, "width": width, "stress": stress,
+            "weight_mode": config.weight_mode,
             "implementation": implementation, "gradient_approximation": approximation,
             "weight_gradient_dtype": str(layer.weight.grad.dtype)}
 
 
 def run_fp8_preflight(config, device):
     if device.type != "cuda" or torch.cuda.get_device_capability(device)[0] != 9:
-        raise RuntimeError("ternary-FP8 certification requires the actual Hopper device")
-    quantizers = validate_quantizers(config.fp8_quantizer, device)
+        raise RuntimeError("dense/ternary FP8 certification requires the actual Hopper device")
+    quantizers = validate_quantizers(config.fp8_quantizer, device, config.weight_mode)
     cases = [validate_linear_case(config, device, rows, 256, 256)
              for rows in (1, 7, 128, 257)]
     for stress in ("zero_gradient", "tiny_gradient", "token_outliers"):
@@ -140,7 +144,7 @@ def run_fp8_preflight(config, device):
     for role, (outputs, width) in projection_shapes(config).items():
         case = validate_linear_case(config, device, config.max_seq_len, outputs, width)
         cases.append({"role": role, **case})
-    return {"backward_mode": config.fp8_backward, "quantizer": config.fp8_quantizer,
+    return {"weight_mode": config.weight_mode, "backward_mode": config.fp8_backward, "quantizer": config.fp8_quantizer,
             "wgrad_splits": config.fp8_wgrad_splits,
             "weight_cache": config.fp8_cache_weights, "quantizers": quantizers, "cases": cases,
             "scope": "Real native GEMMs versus explicit per-operation FP8 references and full-precision STE products. Numerical gates do not establish language-model convergence or quality parity."}
