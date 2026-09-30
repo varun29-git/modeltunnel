@@ -1,21 +1,27 @@
 {
   "data_parallel_world_size": 1,
-  "dense_stop_after_updates": 6867,
-  "dense_tokens_per_variant": 1800142848,
   "device": "single Azure H100 NVL (SM90)",
-  "evaluation": "paired dense and post-QAT held-out loss/tasks at equal tokens and GPU-hours",
+  "evaluation": "dense midpoint and final held-out loss/tasks; no QAT in this run",
   "global_batch_tokens": 262144,
   "gradient_accumulation_steps": 2,
-  "hyperparameters": "provisional; do not infer an optimum from this plan",
+  "hyperparameters": "BitCPM4 pilot LR is a direct trial setting, not a validated 146M optimum",
+  "incident_file": "incidents.jsonl",
+  "learning_rate_source": "BitCPM4 5M/2B dense FP8 pilot; unvalidated at 146M with Muon",
   "microbatch_per_gpu": 32,
-  "model_parameters": {
-    "control": 146423730,
-    "lean": 146423680
-  },
-  "nominal_total_tokens_per_variant": 3000000000,
-  "qat_tokens_per_variant": 1199853568,
+  "midpoint_stop_after_updates": 5722,
+  "midpoint_tokens": 1499987968,
+  "model_parameters": 146423680,
+  "nominal_total_tokens": 3000000000,
+  "normal_checkpoint_updates": [
+    5722,
+    11445
+  ],
+  "peak_learning_rate": 0.01,
   "sequence_length": 4096,
+  "stability_file": "stability.jsonl",
   "status": "prepared_not_launched",
   "tokenizer_sha256": "c53e0e95cd19e2954a8c7114c0a580eeb16698b153fdf84c5d80a7187d778d29",
-  "usable_total_tokens_per_variant": 2999996416
+  "total_updates": 11445,
+  "usable_total_tokens": 2999996416,
+  "weight_mode": "dense"
 }

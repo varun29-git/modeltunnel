@@ -1,4 +1,4 @@
-"""After data is delivered, derive aligned dense/full views without retokenizing.
+"""After data is delivered, derive one full dense view without retokenizing.
 
 This script is intentionally not part of plan.py: it reads prepared token shards
 and must only be run after the owner declares the data ready.
@@ -20,7 +20,7 @@ from terminus.integrity import (CAMPAIGN_DOMAINS, CAMPAIGN_LANGUAGES, CAMPAIGN_S
                                 manifest_scope, validate_manifest, write_json_atomic)  # noqa: E402
 from terminus.model import BitNetLlamaConfig  # noqa: E402
 
-from plan import (DENSE_TOKENS, HERE, NOMINAL_TOTAL_TOKENS, SEQ_LEN,
+from plan import (HERE, NOMINAL_TOTAL_TOKENS, SEQ_LEN,
                   TOKENIZER_SHA256)  # noqa: E402
 
 
@@ -35,9 +35,9 @@ def main():
     if base.tokenizer.get("sha256") != TOKENIZER_SHA256:
         raise ValueError("prepared data does not use the frozen Terminus tokenizer")
     if base.config.seq_len != SEQ_LEN or not base.config.source_mix or base.config.phase_source_mixes:
-        raise ValueError("this paired test requires 4096-token sequences and one fixed source mix")
+        raise ValueError("this dense run requires 4096-token sequences and one fixed source mix")
     if base.config.cosmopedia_stories_prefix_tokens:
-        raise ValueError("this paired test requires no separate prefix curriculum")
+        raise ValueError("this dense run requires no separate prefix curriculum")
     scope = manifest_scope(base)
     if (scope["name"] != CAMPAIGN_SCOPE_V1 or set(scope["languages"]) != set(CAMPAIGN_LANGUAGES)
             or set(scope["domains"]) != set(CAMPAIGN_DOMAINS)):
@@ -46,18 +46,14 @@ def main():
     if output.exists() and any(output.iterdir()):
         raise FileExistsError("choose an empty output directory for immutable manifest views")
     model = BitNetLlamaConfig(**json.loads((HERE / "configs/lean_dense.json").read_text())["model"])
-    views = {}
-    for name, budget in (("dense", DENSE_TOKENS), ("full", NOMINAL_TOTAL_TOKENS)):
-        config = replace(base.config, batch_size=plan["microbatch_per_gpu"], total_train_tokens=budget)
-        view = TokenManifest(config, base.shards, base.tokenizer, base.provenance)
-        report = validate_manifest(view, args.data_root, model, development_mode=False)
-        views[name] = (view, report)
+    config = replace(base.config, batch_size=plan["microbatch_per_gpu"], total_train_tokens=NOMINAL_TOTAL_TOKENS)
+    view = TokenManifest(config, base.shards, base.tokenizer, base.provenance)
+    report = validate_manifest(view, args.data_root, model, development_mode=False)
     output.mkdir(parents=True, exist_ok=True)
-    for name, (view, report) in views.items():
-        write_json_atomic(output / f"manifest.{name}.json", asdict(view))
-        print(json.dumps({"view": name, "manifest_sha256": report["manifest_sha256"],
-                          "usable_train_tokens": view.config.usable_train_tokens,
-                          "batch_size": view.config.batch_size}))
+    write_json_atomic(output / "manifest.dense.json", asdict(view))
+    print(json.dumps({"view": "dense", "manifest_sha256": report["manifest_sha256"],
+                      "usable_train_tokens": view.config.usable_train_tokens,
+                      "batch_size": view.config.batch_size}))
 
 
 if __name__ == "__main__":

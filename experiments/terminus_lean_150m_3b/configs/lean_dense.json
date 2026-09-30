@@ -31,30 +31,31 @@
     "weight_scale_layout": "blockwise"
   },
   "optimizer": {
-    "adamw_lr": 0.003,
+    "adamw_lr": 0.01,
     "kind": "muon",
     "muon_fan_in_base": null,
-    "muon_lr": 0.003,
+    "muon_lr": 0.01,
     "muon_lr_rule": "sqrt_fan_in",
-    "norm_lr": 0.0002,
+    "norm_lr": 0.01,
     "weight_decay": 0.1
   },
   "training": {
-    "checkpoint_interval": 500,
+    "checkpoint_interval": 20000,
     "compile": false,
     "decay_style": "cosine",
-    "decay_tokens": 300000000,
+    "decay_tokens": 600000000,
     "development_mode": false,
     "device": "cuda",
     "dtype": "bf16",
     "final_lr_fraction": 0.1,
     "grad_clip": 1.0,
     "gradient_accumulation_steps": 2,
-    "log_interval": 10,
+    "log_interval": 1,
     "schedule": "wsd",
     "seed": 1337,
+    "stability_log_interval": 10,
     "validation_batches_per_language": 8,
-    "validation_interval": 500,
-    "warmup_tokens": 90000000
+    "validation_interval": 100,
+    "warmup_tokens": 300000000
   }
 }

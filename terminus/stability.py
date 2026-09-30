@@ -138,7 +138,7 @@ class StabilityMonitor:
             delta = new.float() - old.float()
             weight_rms = old.float().square().mean().sqrt()
             self.records[f"{name}.parameter_sample"] = {
-                "values": len(indices), "weight": _stats(old), "gradient": grad_stats,
+                "values": len(indices), "weight": _stats(old), "gradient_after_clip": grad_stats,
                 "update": _stats(delta), "update_to_weight_rms": delta.square().mean().sqrt() / weight_rms.clamp_min(1e-12)}
         self.parameter_samples = {}
 

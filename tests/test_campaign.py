@@ -220,7 +220,7 @@ class NestedBudgetTests(unittest.TestCase):
                 batcher = TokenBatcher(TokenManifest.load(path), root=data_root, rank=0,
                                        world_size=1, device="cpu")
                 for step in range(limit):
-                    _, inputs, targets = batcher.train_batch(step)
+                    inputs, targets = batcher.train_batch(step)
                     (full_batches if limit == 4 else half_batches).append(
                         (inputs.tolist(), targets.tolist()))
             self.assertEqual(full_batches[:2], half_batches)

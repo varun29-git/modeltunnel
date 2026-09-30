@@ -1,28 +1,26 @@
-# Terminus Lean: 150M-scale, 3B-token H100 comparison
+# Terminus Lean: one dense FP8 run at 150M scale
 
-**Status: prepared, not launched.** No corpus preparation, Azure VM, GPU preflight, benchmark, or training run is performed by this folder's creation. Start only after the owner delivers the prepared data and authorizes the run.
+**Prepared, not launched.** This folder defines one 3B-token dense-weight FP8 run on an Azure H100. It does not start training, allocate a VM, or prepare data. The separate data workstream must deliver a validated manifest before any run.
 
-This folder compares the existing normalization policy (`control`) with a cut-down one (`lean`) on the **same production training implementation**. Each variant is a separate 3B-token-total dense-FP8 → ternary-QAT experiment. The control costs another 3B tokens; it is necessary to tell whether the cuts helped. The 60/40 dense/QAT split and learning rates are registered trial settings, not claimed optima.
-
-| Item | Value |
+| Item | Registered value |
 | --- | --- |
-| Parameters | 146,423,730 control; 146,423,680 lean |
-| Shape | 25 layers, width 640, FFN 1664, 5 query / 1 KV head, head width 128 |
-| Attention | 4 local layers (1,024-token window) then 1 global; 4,096-token context |
+| Model | 146,423,680 parameters; 25 layers, width 640, FFN 1664, 5 query / 1 KV head |
+| Attention | Four 1,024-token-local layers, then one global; 4,096-token context |
+| Cuts | FFN SubLN, attention SubLN, and Q/K unit RMS removed; learned pre-block/final RMSNorm retained |
 | Tokenizer | `tokenizer/tokenizer-65k.json`, SHA-256 `c53e0e95cd19e2954a8c7114c0a580eeb16698b153fdf84c5d80a7187d778d29` |
-| Precision | dense FP8 E4M3 weights + FP8 activations; then ternary FP8 weight codes + FP8 activations; FP32 masters |
-| H100 path | DeepGEMM, FA3, Triton split quantizer, full FP8 backward, fused QKV/SwiGLU/pointwise, Triton loss, BF16 residual, logical Muon |
-| Tokens per update | 262,144 on one GPU, initially microbatch 32 × 4,096 × accumulation 2 |
-| Dense → QAT | 6,867 dense updates = 1,800,142,848 tokens; then 1,199,853,568 usable QAT tokens |
+| Precision | Dense FP32 master weights; FP8 E4M3 weight and activation operands; BF16 residuals |
+| Production kernels | DeepGEMM, FA3, Triton split FP8 quantization, full FP8 backward, fused QKV/SwiGLU/pointwise, Triton loss |
+| Optimizer | Muon for projection matrices, auxiliary AdamW elsewhere |
+| Batch | 262,144 tokens/update on one GPU; initial microbatch 32 × 4,096 × accumulation 2 |
+| LR | `0.01` base for Muon, AdamW, and norm groups; per-matrix Muon effective rates differ due to shape scaling |
+| WSD | 300M warmup, stable until 2.4B, 600M decay, 0.1 final LR fraction |
+| Budget | 3,000,000,000 nominal; 2,999,996,416 usable tokens; 11,445 updates including a partial final update |
+| Checkpoints | Update 5,722 at 1,499,987,968 tokens; final update 11,445 at 2,999,996,416 tokens |
 
-The nominal budget is 3,000,000,000 tokens per variant. The last 3,584 tokens cannot form a 4,096-token sequence, so the usable total is 2,999,996,416. The final QAT update is partial; the trainer accounts for it. The 5:1 query/KV ratio differs from the 1.5B model's 3:1 ratio because 640 width and 128-wide heads give five query heads. This proxy preserves 25-layer depth and the 4:1 local/global schedule; it does not prove width transfer.
+[MiniCPM4/BitCPM4 Section 3.3.1](../../papers/minicpm4_2506.07900.pdf) reports `1e-2` for its **5M/2B dense FP8 pilot** and `5e-3` after conversion to ternary QAT. This run copies the dense numeric LR only. The paper does not give a 146M Muon optimum; the shape-scaled Muon rate can differ substantially from the paper's optimizer. The 300M warmup and 0.1 LR floor are our provisional choices; the paper specifies an 80% combined warmup/stable phase and 20% decay for that pilot, not those exact values. **No QAT conversion or ternary training is scheduled here.** The removed-normalization architecture and `0.01` LR are jointly being tested, so the run does not isolate their effects.
 
-`plan.py generate` writes the four immutable candidate configs and a synthetic throughput-sweep config. `plan.py check` verifies their source-independent contract and tokenizer hash. `prepare_views.py` is deliberately separate: **do not run it until the data owner says the prepared corpus is ready**. It will verify the delivered manifest and derive two budget views over the same existing token shards, without retokenizing or changing source data.
+`plan.py generate` writes only `lean_dense.json` and a synthetic microbatch-sweep config. `plan.py check` verifies the tokenizer, parameter count, dense mode, native stack, batch arithmetic, learning rate and checkpoint boundaries without touching data. `prepare_views.py` is for **later**, after the data owner confirms readiness; it validates a delivered manifest and derives one full dense view over existing shards without retokenizing.
 
-```bash
-.venv/bin/python experiments/terminus_lean_150m_3b/plan.py check --microbatch 32
-```
+Per-update records in `events.jsonl` include train NLL, token count, total gradient norm before clipping, clip coefficient, actual optimizer-group LR range, FP8 mode strength, throughput, and allocated/reserved/peak GPU memory. Every tenth update, plus the first, midpoint, and final updates, `stability.jsonl` samples all layers' residual/attention/FFN magnitudes, Q/K and attention-logit/entropy behavior, FP8 input reconstruction error and scale ranges, plus sampled weight, gradient, and update-to-weight ratios. Validation runs every 100 updates by language/domain. Nonfinite loss and gradient failures go to `incidents.jsonl`. Sampled probes are diagnostic evidence, not exhaustive scans of every token or exact FA3 attention probabilities. The FP8 reconstruction probe uses the matching reference quantizer on sampled inputs; native-kernel numerical agreement remains a separate H100 preflight requirement.
 
-On the Azure H100 host, after data readiness and run approval, follow [AZURE_H100.md](AZURE_H100.md). The first GPU work is native numerical preflight and a bounded throughput sweep. Only then select the microbatch and start the 3B-token jobs. Compare per-language/domain held-out loss, task conditional loss, conversion spike and recovery, nonfinite events, attention-logit/gradient behavior, and **measured** training tokens per GPU-hour. Dense-only quality is not the decision criterion; the final ternary checkpoints are.
-
-The current pipeline's Indic task suite remains gated. If it has not arrived, record that limit rather than calling an English-only result the best eight-language architecture. All data preparation and evaluation-set provenance remain owned by the data workstream.
+The planned two checkpoint files are immutable and SHA-receipted. A signal interruption can create an extra recovery checkpoint; that is intentional. The midpoint is a stop/resume boundary, not a second experiment. The runbook is [AZURE_H100.md](AZURE_H100.md). The cuts and their scope are in [CUTS.md](CUTS.md).
