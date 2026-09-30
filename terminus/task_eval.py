@@ -225,12 +225,14 @@ def load_scalingbench_items(path, *, task, role="development", max_items=None):
     return items
 
 
-def task_text_hashes(paths):
+def task_text_hashes(paths, *, max_rows_per_file=None):
     """Normalized task texts for the corpus contamination guard."""
     texts = []
     for path in paths:
         with Path(path).open(encoding="utf-8") as handle:
-            for line in handle:
+            for index, line in enumerate(handle):
+                if max_rows_per_file and index >= max_rows_per_file:
+                    break
                 row = json.loads(line)
                 texts.extend(value for value in (row.get("input"), row.get("output"))
                              if isinstance(value, str))

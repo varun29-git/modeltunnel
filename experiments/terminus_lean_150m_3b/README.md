@@ -5,7 +5,7 @@
 | Item | Registered value |
 | --- | --- |
 | Model | 146,423,680 parameters; 25 layers, width 640, FFN 1664, 5 query / 1 KV head |
-| Attention | Four 1,024-token-local layers, then one global; 4,096-token context |
+| Attention | Four 512-token-local layers, then one global; 4,096-token context |
 | Cuts | FFN SubLN, attention SubLN, and Q/K unit RMS removed; learned pre-block/final RMSNorm retained |
 | Tokenizer | `tokenizer/tokenizer-65k.json`, SHA-256 `c53e0e95cd19e2954a8c7114c0a580eeb16698b153fdf84c5d80a7187d778d29` |
 | Precision | Dense FP32 master weights; FP8 E4M3 weight and activation operands; BF16 residuals |
@@ -26,3 +26,5 @@ With the registered Muon rule, `0.01` becomes a peak optimizer-group LR of about
 Per-update records in `events.jsonl` include train NLL, token count, total gradient norm before clipping, clip coefficient, actual optimizer-group LR range, FP8 mode strength, throughput, and allocated/reserved/peak GPU memory. Every tenth update, plus the first, midpoint, and final updates, `stability.jsonl` samples all layers' residual/attention/FFN magnitudes, Q/K and attention-logit/entropy behavior, FP8 input reconstruction error and scale ranges, plus sampled weight, gradients before and after clipping, and update-to-weight ratios. Validation runs every 100 updates by language/domain. Nonfinite loss and gradient failures go to `incidents.jsonl`. Sampled probes are diagnostic evidence, not exhaustive scans of every token or exact FA3 attention probabilities. The FP8 reconstruction probe uses the matching reference quantizer on sampled inputs; native-kernel numerical agreement remains a separate H100 preflight requirement.
 
 The planned two checkpoint files are immutable and SHA-receipted. A signal interruption can create an extra recovery checkpoint; that is intentional. The midpoint is a stop/resume boundary, not a second experiment. The runbook is [AZURE_H100.md](AZURE_H100.md). The cuts and their scope are in [CUTS.md](CUTS.md).
+
+The 512-token local window is deliberate: four local layers have a theoretical causal receptive field of about 2,045 tokens before the next global layer. This leaves the global layer a distinct full-context role at 4,096 tokens. The actual quality/throughput tradeoff remains unmeasured until the H100 run.

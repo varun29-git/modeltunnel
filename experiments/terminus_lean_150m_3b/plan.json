@@ -7,6 +7,7 @@
   "hyperparameters": "BitCPM4 pilot LR is a direct trial setting, not a validated 146M optimum",
   "incident_file": "incidents.jsonl",
   "learning_rate_source": "BitCPM4 5M/2B dense FP8 pilot; unvalidated at 146M with Muon",
+  "local_attention_window": 512,
   "microbatch_per_gpu": 32,
   "midpoint_stop_after_updates": 5722,
   "midpoint_tokens": 1499987968,

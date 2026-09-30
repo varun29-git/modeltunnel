@@ -62,10 +62,11 @@ def main():
     args = parser.parse_args()
     adapter, language, prefix, target = SOURCES[args.source]
     guard_paths = sorted(Path(args.eval_root).glob("scalingbench/*/data.jsonl"))
-    guard_texts = task_text_hashes(guard_paths) if guard_paths else []
+    guard_texts = task_text_hashes(guard_paths, max_rows_per_file=2000) if guard_paths else []
     config = CorpusBuildConfig(scope_name=CAMPAIGN_SCOPE_V1, split_salt=CAMPAIGN_SCOPE_V1,
                                dev_per_10000=50, test_per_10000=50)
-    builder = CorpusBuilder(config, args.output_dir, cache_dir=args.cache_dir,
+    builder = CorpusBuilder(config, args.output_dir,
+                            cache_dir=Path(args.cache_dir) / args.source,
                             contamination_texts=guard_texts)
     spec = SourceSpec(name=args.source, adapter=adapter,
                       license=LICENSES_BY_SOURCE.get(args.source, LICENSES[adapter]),

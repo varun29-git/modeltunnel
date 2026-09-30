@@ -2,6 +2,8 @@
 
 **Future execution only.** Wait for the data owner's complete prepared manifest and explicit launch authorization. This folder has not allocated a GPU or started training.
 
+This run uses a 512-token sliding local window in four layers out of every five; the fifth layer sees the full 4,096-token context. The H100 preflight and microbatch sweep must use the regenerated 512-window configs below.
+
 Use one Azure H100 NVL (SM90). Reproduce or deliberately revise the measured stack: Python 3.10.12, PyTorch 2.8.0+cu126, Triton 3.4.0, FA3 `060c9188beec3a8b62b33a3bfa6d5d2d44975fab`, DeepGEMM `559d79fb6994a58b8a15b4b93bf13ccc16edf247`. Record driver, CUDA compiler, all package/native revisions, git commit and GPU SKU. See `docs/terminus/H100_OPTIMIZATION.md` and `scripts/build_h100_fa3.sh`. The FA3 build enables BF16 head width 128; the observed DeepGEMM JIT needed CUDA 13.2 even with PyTorch CUDA 12.6. Native source/runtime hashes are captured in the run receipt. Historical ternary benchmarks do not validate this dense lean branch.
 
 After the data-ready and launch signals:

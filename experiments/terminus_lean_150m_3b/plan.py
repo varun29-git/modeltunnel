@@ -21,6 +21,7 @@ CONFIGS = HERE / "configs"
 TOKENIZER = ROOT / "tokenizer/tokenizer-65k.json"
 TOKENIZER_SHA256 = "c53e0e95cd19e2954a8c7114c0a580eeb16698b153fdf84c5d80a7187d778d29"
 SEQ_LEN = 4096
+LOCAL_WINDOW = 512
 GLOBAL_BATCH_TOKENS = 262_144
 NOMINAL_TOTAL_TOKENS = 3_000_000_000
 USABLE_TOTAL_TOKENS = (NOMINAL_TOTAL_TOKENS // SEQ_LEN) * SEQ_LEN
@@ -28,7 +29,8 @@ TOTAL_UPDATES = (USABLE_TOTAL_TOKENS + GLOBAL_BATCH_TOKENS - 1) // GLOBAL_BATCH_
 MIDPOINT_UPDATES = TOTAL_UPDATES // 2
 MIDPOINT_TOKENS = MIDPOINT_UPDATES * GLOBAL_BATCH_TOKENS
 SHAPE = {"dim": 640, "n_layers": 25, "n_heads": 5, "n_kv_heads": 1,
-         "ffn_dim": 1664, "global_attention_every": 5, "max_seq_len": SEQ_LEN}
+         "ffn_dim": 1664, "global_attention_every": 5,
+         "local_attention_window": LOCAL_WINDOW, "max_seq_len": SEQ_LEN}
 EXPECTED_COUNT = 146_423_680
 
 
@@ -65,6 +67,7 @@ def render(microbatch: int):
         "gradient_accumulation_steps": accumulation,
         "data_parallel_world_size": 1,
         "sequence_length": SEQ_LEN,
+        "local_attention_window": LOCAL_WINDOW,
         "evaluation": "dense midpoint and final held-out loss/tasks; no QAT in this run",
         "hyperparameters": "BitCPM4 pilot LR is a direct trial setting, not a validated 146M optimum",
     }
@@ -88,7 +91,8 @@ def verify(configs, plan):
         raise ValueError("production fusion or FP8 activations disabled")
     if model.vocab_size != 65536 or model.pad_token_id != 3 or model.weight_mode != "dense":
         raise ValueError("frozen tokenizer or dense geometry changed")
-    if model.use_subln or model.qk_norm_mode != "none" or model.n_layers != 25 or model.global_attention_every != 5:
+    if (model.use_subln or model.qk_norm_mode != "none" or model.n_layers != 25
+            or model.global_attention_every != 5 or model.local_attention_window != LOCAL_WINDOW):
         raise ValueError("lean cuts or layer schedule changed")
     if (config["optimizer"]["muon_lr"], config["optimizer"]["adamw_lr"],
         config["optimizer"]["norm_lr"]) != (.01, .01, .01):

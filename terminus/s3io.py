@@ -153,13 +153,15 @@ class LocalCache:
     def _target(self, key):
         return self.root / hashlib.sha1(key.encode()).hexdigest()
 
-    def _evict(self):
+    def _evict(self, protect=None):
         total = sum(entry["size"] for entry in self.index.values())
         if total <= self.capacity_bytes:
             return
         for key, entry in sorted(self.index.items(), key=lambda kv: kv[1]["atime"]):
             if total <= self.capacity_bytes:
                 break
+            if key == protect:
+                continue  # never evict the file a caller is about to read
             path = self._target(key)
             if path.exists():
                 path.unlink()
@@ -197,7 +199,7 @@ class LocalCache:
             raise ValueError(f"downloaded size mismatch for {uri}")
         self.index[key] = {"size": size, "sha256": digest.hexdigest(),
                            "etag": response["ETag"].strip('"'), "atime": time.time()}
-        self._evict()
+        self._evict(protect=key)
         self._save()
         return target
 

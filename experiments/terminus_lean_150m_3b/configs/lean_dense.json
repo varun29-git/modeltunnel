@@ -12,7 +12,7 @@
     "fused_qkv": true,
     "global_attention_every": 5,
     "linear_backend": "deepgemm",
-    "local_attention_window": 1024,
+    "local_attention_window": 512,
     "loss_backend": "triton",
     "loss_chunk_size": 4096,
     "max_seq_len": 4096,
