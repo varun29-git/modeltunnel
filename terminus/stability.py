@@ -25,13 +25,28 @@ def _stats(values):
 
 
 def _numbers(value):
-    if isinstance(value, dict):
-        return {key: _numbers(item) for key, item in value.items()}
-    if isinstance(value, torch.Tensor):
-        return _numbers(value.item())
-    if isinstance(value, float) and not math.isfinite(value):
-        return None
-    return value
+    tensors = []
+
+    def collect(item):
+        if isinstance(item, dict):
+            for child in item.values():
+                collect(child)
+        elif isinstance(item, torch.Tensor):
+            tensors.append(item.detach().float().reshape(()))
+
+    collect(value)
+    values = iter(torch.stack(tensors).cpu().tolist() if tensors else [])
+
+    def convert(item):
+        if isinstance(item, dict):
+            return {key: convert(child) for key, child in item.items()}
+        if isinstance(item, torch.Tensor):
+            item = next(values)
+        if isinstance(item, float) and not math.isfinite(item):
+            return None
+        return item
+
+    return convert(value)
 
 
 class StabilityMonitor:

@@ -54,9 +54,38 @@ class TrainingTests(unittest.TestCase):
 
     def test_bad_training_configs(self):
         for options in ({"dtype": "fp16"}, {"grad_clip": math.nan}, {"gradient_accumulation_steps": 0},
-                        {"log_interval": 0}, {"final_lr_fraction": math.nan}, {"warmup_tokens": -1}):
+                        {"log_interval": 0}, {"stability_log_interval": -1},
+                        {"final_lr_fraction": math.nan}, {"warmup_tokens": -1}):
             with self.subTest(options=options), self.assertRaises(ValueError):
                 TrainConfig(**options)
+
+    def test_opt_in_stability_records_and_midpoint_resume(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fixture(root / "dataset", examples=8, batch_size=2, accumulation=2)
+            config_path = root / "dataset/config.json"
+            config = json.loads(config_path.read_text())
+            config["model"]["weight_mode"] = "dense"
+            config["training"].update(stability_log_interval=1, checkpoint_interval=100)
+            config_path.write_text(json.dumps(config))
+            arguments = (config_path, root / "dataset/manifest.json", root / "dataset", root / "run")
+            midpoint = run_training(*arguments, stop_after_updates=1)
+            self.assertEqual(midpoint["updates"], 1)
+            final = run_training(*arguments, resume=root / "run/checkpoints")
+            self.assertEqual(final["updates"], 2)
+            receipts = sorted((root / "run/checkpoints").glob("step_*.json"))
+            self.assertEqual([path.stem for path in receipts], ["step_00000001", "step_00000002"])
+            records = [json.loads(line) for line in (root / "run/stability.jsonl").read_text().splitlines()]
+            self.assertEqual([record["updates"] for record in records], [1, 2])
+            self.assertIn("layer_00.attention_sample", records[0]["probes"])
+            self.assertIn("layers.0.attn.q_proj.fp8_input", records[0]["probes"])
+            events = [json.loads(line) for line in (root / "run/events.jsonl").read_text().splitlines()]
+            training = [event for event in events if event["event"] == "train"]
+            self.assertEqual(len(training), 2)
+            validation_updates = [event["updates"] for event in events if event["event"] == "validation"]
+            self.assertEqual(validation_updates, [1, 2])
+            self.assertIn("grad_clip_coefficient", training[0])
+            self.assertIn("optimizer_group_lr_max", training[0])
 
     def test_optimizer_group_coverage_and_frozen_parameter(self):
         model = BitNetLlama(tiny_config())

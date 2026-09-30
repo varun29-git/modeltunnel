@@ -150,6 +150,10 @@ class CheckpointScoringTests(unittest.TestCase):
             model, model_config, state, receipt = load_verified_model(
                 root / "dataset/config.json", root / "run/checkpoints")
             self.assertEqual(state["updates"], 3)  # 9 examples, bs 2, accum 2: 2 full + 1 partial
+            exact_model, _, exact_state, exact_receipt = load_verified_model(
+                root / "dataset/config.json", root / "run/checkpoints/step_00000002.pt")
+            self.assertEqual(exact_state["updates"], 2)
+            self.assertEqual(exact_receipt["file"], "step_00000002.pt")
             tokenizer = type("T", (), {"encode": lambda self, t, out_type=int:
                                        [ord(c) % 30 + 1 for c in t]})()
             items = [TaskItem(task="toy", item_id="1", prompt="ab", reference="cd")]
@@ -198,3 +202,25 @@ class RunnablePlanTests(unittest.TestCase):
                       tokens=1000, microbatch=4, accumulation=4, seq_len=8)
             with self.assertRaisesRegex(ValueError, "microbatch"):
                 validate_job_manifest(bad, manifest)
+
+
+class NestedBudgetTests(unittest.TestCase):
+    def test_smaller_budget_is_exact_prefix_of_larger(self):
+        """The 3B/6B sets are prefixes of the 10B schedule, not new data."""
+        from terminus.data import TokenBatcher, TokenManifest
+        from terminus.remix import remix_manifest
+        with tempfile.TemporaryDirectory() as root:
+            config, manifest = fixture(Path(root) / "dataset")
+            data_root = Path(root) / "dataset"
+            model_config = tiny_config(max_seq_len=8)
+            half = remix_manifest(data_root / "manifest.json", data_root, model_config,
+                                  total_train_tokens=36, name="half", development_mode=True)
+            full_batches, half_batches = [], []
+            for path, limit in ((data_root / "manifest.json", 4), (half["path"], 2)):
+                batcher = TokenBatcher(TokenManifest.load(path), root=data_root, rank=0,
+                                       world_size=1, device="cpu")
+                for step in range(limit):
+                    _, inputs, targets = batcher.train_batch(step)
+                    (full_batches if limit == 4 else half_batches).append(
+                        (inputs.tolist(), targets.tolist()))
+            self.assertEqual(full_batches[:2], half_batches)

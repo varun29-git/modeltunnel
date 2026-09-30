@@ -34,15 +34,18 @@ from terminus.train import load_config
 
 def load_verified_model(config_path, checkpoint_dir):
     model_config, training, _ = load_config(config_path)
-    run_file = Path(checkpoint_dir).parent / "run.json"
+    checkpoint_path = Path(checkpoint_dir)
+    run_file = (checkpoint_path.parent if checkpoint_path.is_dir() else checkpoint_path.parent.parent) / "run.json"
     if not run_file.exists():
-        raise ValueError("checkpoint directory lacks a run.json contract")
+        raise ValueError("checkpoint location lacks a run.json contract")
     contract = json.loads(run_file.read_text())["contract"]
     payload = load_checkpoint(checkpoint_dir, contract)
     model = BitNetLlama(model_config)
     model.load_state_dict(payload["model"])
     model.eval()
-    receipt = json.loads((Path(checkpoint_dir) / "latest.json").read_text())
+    receipt_path = (checkpoint_path / "latest.json" if checkpoint_path.is_dir()
+                    else checkpoint_path.with_suffix(".json"))
+    receipt = json.loads(receipt_path.read_text())
     return model, model_config, payload["state"], receipt
 
 
@@ -50,7 +53,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-dir")
     parser.add_argument("--config", required=True)
-    parser.add_argument("--checkpoint", required=True, help="run checkpoints directory")
+    parser.add_argument("--checkpoint", required=True, help="run checkpoints directory or exact step_*.pt file")
     parser.add_argument("--tokenizer", required=True)
     parser.add_argument("--eval-manifest", required=True)
     parser.add_argument("--eval-root", required=True)
