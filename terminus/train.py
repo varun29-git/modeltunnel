@@ -428,15 +428,6 @@ def run_training(config_path, manifest_path, data_root, output_dir, *, resume=No
                     loss.backward()
                 if monitor is not None:
                     monitor.active = False
-            if sampled:
-                monitor.gradients_before_clip()
-            try:
-                grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), training.grad_clip or float("inf"), error_if_nonfinite=True, foreach=True)
-            except Exception as exc:
-                if rank == 0:
-                    append_record(output_dir / "incidents.jsonl", {"event": "gradient_failure", "state": state,
-                                  "error": f"{type(exc).__name__}: {exc}"})
-                raise
             elapsed = time.monotonic() - started
             stop = should_stop[0] or (training.time_limit_seconds is not None and elapsed >= training.time_limit_seconds)
             summary = torch.stack((local_loss_sum, local_loss_sum.new_tensor(float(stop))))
@@ -447,6 +438,15 @@ def run_training(config_path, manifest_path, data_root, output_dir, *, resume=No
                 if rank == 0:
                     append_record(output_dir / "incidents.jsonl", {"event": "nonfinite_loss", "state": state})
                 raise FloatingPointError("nonfinite global training loss; optimizer update was not applied")
+            if sampled:
+                monitor.gradients_before_clip()
+            try:
+                grad_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), training.grad_clip or float("inf"), error_if_nonfinite=True, foreach=True)
+            except Exception as exc:
+                if rank == 0:
+                    append_record(output_dir / "incidents.jsonl", {"event": "gradient_failure", "state": state,
+                                  "error": f"{type(exc).__name__}: {exc}"})
+                raise
             if sampled:
                 monitor.before_step()
             optimizer.step()

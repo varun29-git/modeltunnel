@@ -238,9 +238,11 @@ class TrainingTests(unittest.TestCase):
                 output["loss_sum"] = output["loss_sum"] * float("nan")
                 return output
 
-            with patch.object(BitNetLlama, "forward", broken_forward), self.assertRaises(RuntimeError):
+            with patch.object(BitNetLlama, "forward", broken_forward), self.assertRaises(FloatingPointError):
                 run_training(root / "dataset/config.json", root / "dataset/manifest.json", root / "dataset", root / "run")
             self.assertFalse((root / "run/checkpoints/latest.json").exists())
+            incidents = [json.loads(line) for line in (root / "run/incidents.jsonl").read_text().splitlines()]
+            self.assertEqual(incidents[0]["event"], "nonfinite_loss")
 
     @unittest.skipUnless(torch.distributed.is_available(), "distributed unavailable")
     def test_two_process_ddp_matches_single_process_with_empty_tail_rank(self):
