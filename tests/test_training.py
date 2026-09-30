@@ -87,6 +87,23 @@ class TrainingTests(unittest.TestCase):
             self.assertIn("grad_clip_coefficient", training[0])
             self.assertIn("optimizer_group_lr_max", training[0])
 
+    def test_checkpoint_survives_boundary_validation_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            fixture(root / "dataset", examples=8, batch_size=2, accumulation=2)
+            config_path = root / "dataset/config.json"
+            config = json.loads(config_path.read_text())
+            config["training"]["checkpoint_interval"] = 100
+            config["training"]["validation_interval"] = 100
+            config_path.write_text(json.dumps(config))
+            with patch("terminus.train.evaluate", side_effect=RuntimeError("validation failed")):
+                with self.assertRaisesRegex(RuntimeError, "validation failed"):
+                    run_training(config_path, root / "dataset/manifest.json", root / "dataset",
+                                 root / "run", stop_after_updates=1)
+            self.assertTrue((root / "run/checkpoints/step_00000001.json").is_file())
+            incidents = [json.loads(line) for line in (root / "run/incidents.jsonl").read_text().splitlines()]
+            self.assertEqual(incidents[-1]["event"], "run_failure")
+
     def test_optimizer_group_coverage_and_frozen_parameter(self):
         model = BitNetLlama(tiny_config())
         model.layers[0].ffn.up_proj.weight.requires_grad_(False)

@@ -469,12 +469,12 @@ def run_training(config_path, manifest_path, data_root, output_dir, *, resume=No
                              "allocated_memory_bytes": torch.cuda.memory_allocated(device) if device.type == "cuda" else None,
                              "reserved_memory_bytes": torch.cuda.memory_reserved(device) if device.type == "cuda" else None})
                 last_log, last_log_tokens = now, state["tokens_seen"]
+            if state["updates"] % training.checkpoint_interval == 0 or stopped or complete:
+                collective_checkpoint(output_dir / "checkpoints", model, optimizer, state, contract, rank, world_size)
             if state["updates"] % training.validation_interval == 0 or stopped or complete:
                 results = evaluate(model, manifest, data_root, device, amp_dtype, training.validation_batches_per_language, rank, world_size)
                 if rank == 0:
                     append_event(output_dir / "events.jsonl", {"event": "validation", **state, "languages": results})
-            if state["updates"] % training.checkpoint_interval == 0 or stopped or complete:
-                collective_checkpoint(output_dir / "checkpoints", model, optimizer, state, contract, rank, world_size)
             if stopped or complete:
                 if rank == 0:
                     append_event(output_dir / "events.jsonl", {"event": "complete" if complete else "stopped", **state,
