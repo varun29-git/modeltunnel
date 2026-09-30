@@ -70,9 +70,9 @@ cat runs/smoke/smoke_receipt.json
   `python -m terminus.transition --parent-run <run> --config <qat.json> ...` —
   run it on the training host with the final world size (contracts bind runtime).
 - **Native-GPU gates before any production FP8 run:** `python -m terminus.preflight
-  --config <cfg> --output <report>` on the H100 host, plus the dense-FP8 linear
-  validation in `terminus/fp8_validation.py` extended with `weight_mode="dense"`
-  cases (the dense DeepGEMM path has only emulated coverage so far).
+  --config <cfg> --output <report>` on the H100 host for both dense and QAT
+  configs. The dense-FP8 cases in `terminus/fp8_validation.py` now use dense
+  weights and references; they still need an actual SM90 execution receipt.
 
 ## 4. What was actually executed
 
@@ -131,7 +131,7 @@ faster but unmeasured — measure, don't extrapolate, before costing the campaig
 
 1. **Native FP8/FA3 numerics not run here** (no SM90 on this host). The dense
    DeepGEMM path and the new Triton dense quantizer are CPU-emulated only;
-   run `preflight` + the fp8_validation dense cases on the H100 before any
+   run `preflight` including the fp8_validation dense cases on the H100 before any
    production dense-FP8 run. The dense stage's *quality* behavior vs BF16 is
    unmeasured — that is a stage-3 search question, not a settled fact.
 2. **Tokenizer Gate 1** (piece parity with the original Sarvam model) is not

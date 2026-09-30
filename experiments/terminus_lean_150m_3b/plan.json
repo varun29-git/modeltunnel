@@ -1,0 +1,21 @@
+{
+  "data_parallel_world_size": 1,
+  "dense_stop_after_updates": 6867,
+  "dense_tokens_per_variant": 1800142848,
+  "device": "single Azure H100 NVL (SM90)",
+  "evaluation": "paired dense and post-QAT held-out loss/tasks at equal tokens and GPU-hours",
+  "global_batch_tokens": 262144,
+  "gradient_accumulation_steps": 2,
+  "hyperparameters": "provisional; do not infer an optimum from this plan",
+  "microbatch_per_gpu": 32,
+  "model_parameters": {
+    "control": 146423730,
+    "lean": 146423680
+  },
+  "nominal_total_tokens_per_variant": 3000000000,
+  "qat_tokens_per_variant": 1199853568,
+  "sequence_length": 4096,
+  "status": "prepared_not_launched",
+  "tokenizer_sha256": "c53e0e95cd19e2954a8c7114c0a580eeb16698b153fdf84c5d80a7187d778d29",
+  "usable_total_tokens_per_variant": 2999996416
+}
