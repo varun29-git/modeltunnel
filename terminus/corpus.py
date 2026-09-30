@@ -107,6 +107,7 @@ class DedupStore:
                               "PRIMARY KEY (source, doc_id))")
         self.database.execute("CREATE TABLE IF NOT EXISTS text_hashes (digest TEXT PRIMARY KEY)")
         self.database.execute("CREATE TABLE IF NOT EXISTS minhash (band INTEGER, key BLOB, uid TEXT)")
+        self.database.execute("CREATE INDEX IF NOT EXISTS minhash_band_key ON minhash (band, key)")
         self.database.execute("CREATE TABLE IF NOT EXISTS signatures (uid TEXT PRIMARY KEY, signature BLOB)")
         self.bands = near_duplicate_bands
         self.threshold = near_duplicate_threshold
