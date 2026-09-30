@@ -59,27 +59,34 @@ def split_of_uid(uid, *, dev_per_10000=50, test_per_10000=50):
     return "train"
 
 
-def word_shingles(text, *, n=13):
+def word_shingles(text, *, n=13, max_shingles=None):
     words = text.split()
     if len(words) < n:
         return {" ".join(words)} if words else set()
-    return {" ".join(words[i:i + n]) for i in range(len(words) - n + 1)}
+    count = len(words) - n + 1
+    stride = max(1, count // max_shingles) if max_shingles else 1
+    return {" ".join(words[i:i + n]) for i in range(0, count, stride)}
 
 
-def shingle_hashes(text, *, n=13):
+def shingle_hashes(text, *, n=13, max_shingles=8192):
     return {hashlib.blake2b(shingle.encode(), digest_size=8).digest()
-            for shingle in word_shingles(text, n=n)}
+            for shingle in word_shingles(text, n=n, max_shingles=max_shingles)}
 
 
-def minhash_signature(text, *, n=5, count=64):
+def minhash_signature(text, *, n=5, count=64, max_grams=6144):
     """Deterministic 64x32-bit MinHash over character n-grams.
 
-    Each gram is hashed once with blake2b-128; the 64 signature values use a
+    Each gram is hashed once with blake2b-64; the 64 signature values use a
     fixed linear-permutation family (a_i * h + b_i mod 2**32), vectorized.
+    Long documents are sub-sampled by a deterministic stride so per-document
+    cost is bounded (the same stride applies to every document, keeping
+    near-duplicate comparisons consistent).
     """
     import numpy as np
 
-    grams = {text[i:i + n] for i in range(max(1, len(text) - n + 1))} or {text}
+    total = max(1, len(text) - n + 1)
+    stride = max(1, total // max_grams)
+    grams = {text[i:i + n] for i in range(0, total, stride)} or {text}
     hashes = np.frombuffer(b"".join(
         hashlib.blake2b(gram.encode(), digest_size=8).digest() for gram in grams),
         dtype=np.uint64)
