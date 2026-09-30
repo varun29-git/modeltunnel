@@ -373,6 +373,9 @@ class BitNetAttention(nn.Module):
         offset = 0
         if cache is not None:
             key, value, offset = cache.attention_inputs(key, value)
+        probe = getattr(self, "stability_probe", None)
+        if probe is not None and probe.active and cache is None:
+            probe.record_attention(self.stability_layer, query, key, self.is_global_layer)
         output = attention(query, key, value, backend=self.config.attention_backend,
                            local_window=None if self.is_global_layer else self.config.local_attention_window,
                            query_position_offset=offset, attention_mask=attention_mask,
