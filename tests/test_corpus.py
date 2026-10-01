@@ -3,9 +3,11 @@
 from __future__ import annotations
 
 import io
+import hashlib
 import json
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 import pyarrow as pa
@@ -176,6 +178,23 @@ class CorpusBuilderTests(unittest.TestCase):
         for path in (self.root / "out").glob("records.fixture.*.jsonl"):
             total += len(path.read_text().splitlines())
         self.assertEqual(total, 12)
+
+    def test_decoded_text_cap_stops_mid_object_and_resumes_without_duplication(self):
+        spec = replace(self.spec(), max_output_text_bytes=100,
+                       object_selection_seed="sample-v1")
+        builder = self.make_builder(near_duplicates=False)
+        selected = [obj["key"] for obj in builder._source_objects(spec)]
+        self.assertEqual(selected, sorted(self.objects, key=lambda key: hashlib.blake2b(
+            f"sample-v1\0fixture\0{key}".encode(), digest_size=16).digest()))
+        builder.build_source(spec)
+        self.assertEqual(builder.stats["fixture"]["documents"], 1)
+        report = builder.finish([spec], {})
+        self.assertEqual(report["partial_objects"]["fixture"]["reason"],
+                         "max_output_text_bytes")
+        builder2 = self.make_builder(near_duplicates=False)
+        builder2.build_source(spec)
+        self.assertEqual(builder2.stats["fixture"]["documents"], 1)
+        builder2.dedup.close()
 
 
 if __name__ == "__main__":

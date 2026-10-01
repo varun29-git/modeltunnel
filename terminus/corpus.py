@@ -201,6 +201,8 @@ class SourceSpec:
     prefer_over: tuple = ()      # translation families: ids here win over these sources
     skip_ids_from: tuple = ()    # drop doc_ids already emitted by these sources
     max_bytes: int = None        # bound for smoke samples
+    max_output_text_bytes: int = None  # stop after this much accepted NFC text
+    object_selection_seed: str = None # hash-order objects before a bounded build
     max_objects: int = None
     max_rows: int = None         # bound rows read per object (streams instead of caching)
     notes: str = ""
@@ -296,6 +298,10 @@ class CorpusBuilder:
         if spec.adapter == "translation":
             # only the committed translations; never quarantine manifests or audits
             objects = [o for o in objects if o["key"].endswith("translated_documents.parquet")]
+        if spec.object_selection_seed:
+            objects.sort(key=lambda obj: hashlib.blake2b(
+                f"{spec.object_selection_seed}\0{spec.name}\0{obj['key']}".encode(),
+                digest_size=16).digest())
         if spec.max_objects:
             objects = objects[:spec.max_objects]
         if spec.max_bytes:
@@ -314,12 +320,22 @@ class CorpusBuilder:
         objects = self._source_objects(spec)
         manifest_objects = []
         for obj in objects:
+            if (spec.max_output_text_bytes is not None
+                    and self.stats.get(spec.name, {}).get("bytes_text", 0) >= spec.max_output_text_bytes):
+                break
             if obj["key"] in completed:
                 continue
-            self._process_object(spec, adapter, obj)
-            completed.append(obj["key"])
-            manifest_objects.append({"key": obj["key"], "size": obj["size"], "etag": obj["etag"]})
+            stopped_at = self._process_object(spec, adapter, obj)
+            if stopped_at is None:
+                completed.append(obj["key"])
+                manifest_objects.append({"key": obj["key"], "size": obj["size"], "etag": obj["etag"]})
+            else:
+                self.cursor.setdefault("partial_objects", {})[spec.name] = {
+                    "key": obj["key"], "etag": obj["etag"], "next_row": stopped_at,
+                    "reason": "max_output_text_bytes"}
             self._save_cursor()
+            if stopped_at is not None:
+                break
         return manifest_objects
 
     def _writer(self, source, split):
@@ -387,8 +403,13 @@ class CorpusBuilder:
                 stats.setdefault("quarantine_manifest_missing", 0)
                 stats["quarantine_manifest_missing"] += 1
         writers = {}
+        stopped_at = None
         try:
             for index, row in enumerate(self._iter_rows(spec, obj)):
+                if (spec.max_output_text_bytes is not None
+                        and stats["bytes_text"] >= spec.max_output_text_bytes):
+                    stopped_at = index
+                    break
                 docs = adapter(row, source=spec.name, language=spec.language,
                                quarantined=quarantined)
                 if not docs and str(row.get("document_id")) in quarantined:
@@ -443,12 +464,14 @@ class CorpusBuilder:
             for writer in writers.values():
                 writer.close()
         self.dedup.database.commit()
+        return stopped_at
 
     def finish(self, source_specs, raw_manifest):
         self._save_cursor()
         self.dedup.close()
         report = {"scope": self.config.scope_name, "stats": self.stats,
                   "contamination_flagged": self.guard.flagged,
+                  "partial_objects": self.cursor.get("partial_objects", {}),
                   "sources": {spec.name: raw_manifest.get(spec.name) for spec in source_specs}}
         write_json_atomic(self.output_dir / "corpus_report.json", report)
         return report

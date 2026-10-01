@@ -48,6 +48,22 @@ SOURCES = {
     "fineweb2-ben": ("fineweb2", "bn", f"{BUCKET}/datasets/fineweb2-indic/ben_Beng/", 3 * 2**30),
 }
 
+# Input objects are compressed Parquet, so their byte counts cannot predict
+# tokenizer output. These limits apply to *accepted decoded UTF-8 text*.
+# Measured sample fertility (tokens/text byte) leaves about 15-35% headroom
+# above the 10B mixture requirements; the final pack gate checks actual tokens.
+TARGET_TEXT_BYTES = {
+    "climbmix": 25_000_000_000,
+    "nemotron-cc-math-4plus": 2_000_000_000,
+    "nemotron-cc-math-4plus-mind": 2_000_000_000,
+    "code-concepts": 3_000_000_000,
+    "scientific-coding": 1_500_000_000,
+    **{f"sangraha-verified-{lang}": 4_000_000_000
+       for lang in ("hin", "mar", "kan", "tel", "tam", "guj", "ben")},
+    **{f"fineweb2-{lang}": 1_500_000_000
+       for lang in ("hin", "mar", "kan", "tel", "tam", "guj", "ben")},
+}
+
 LICENSES = {"text_id": "CC-BY-4.0 (NVIDIA; verify card)", "sangraha": "CC-BY-4.0 (AI4Bharat Sangraha)",
             "fineweb2": "ODC-By-1.0 (FineWeb2)"}
 LICENSES_BY_SOURCE = {"climbmix": "CC-BY-4.0 (NVIDIA; verify card)"}
@@ -73,7 +89,9 @@ def main():
                             contamination_texts=guard_texts)
     spec = SourceSpec(name=args.source, adapter=adapter,
                       license=LICENSES_BY_SOURCE.get(args.source, LICENSES[adapter]),
-                      role="language", prefix=prefix, language=language, max_bytes=target)
+                      role="language", prefix=prefix, language=language, max_bytes=target,
+                      max_output_text_bytes=TARGET_TEXT_BYTES[args.source],
+                      object_selection_seed="terminus-tokensets-20261001-v1")
     objects = builder.build_source(spec)
     report = builder.finish([spec], {args.source: {"objects": len(objects),
                                                    "license": spec.license}})
