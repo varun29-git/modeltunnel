@@ -22,7 +22,8 @@ from .tokenizer import load_tokenizer, tokenizer_contract
 
 
 def pack_token_streams(output_dir, tokenizer_path, *, source_mix, total_train_tokens,
-                       seq_len, batch_size, scope, languages_by_stream, split_names=("train", "val")):
+                       seq_len, batch_size, scope, languages_by_stream, split_names=("train", "val"),
+                       document_dedup="id_exact_minhash_v1"):
     """Assemble manifest.json from {stream}.{split}.{index:05d}.bin + .json sidecars."""
     output_dir = Path(output_dir)
     tokenizer = load_tokenizer(tokenizer_path)
@@ -59,12 +60,15 @@ def pack_token_streams(output_dir, tokenizer_path, *, source_mix, total_train_to
                                                    for k, v in inventory.items() if k.endswith("/val")),
                              token_dtype="uint16", source_mix=source_mix)
     provenance = {"normalization": "NFC", "packing": "continuous_eos",
-                  "document_dedup": "id_exact_minhash_v1",
+                  "document_dedup": document_dedup,
                   "document_separator_id": 4, "scope": scope,
                   "licenses": json.loads((output_dir / "licenses.json").read_text())
                   if (output_dir / "licenses.json").exists() else {},
                   "token_inventory": inventory,
                   "tokenized_by": "scripts/tokenize_parallel.py"}
+    shuffle_receipt = output_dir / "shuffle_receipt.json"
+    if shuffle_receipt.exists():
+        provenance["document_shuffle"] = json.loads(shuffle_receipt.read_text())
     manifest = TokenManifest(config, shards, contract, provenance)
     manifest_scope(manifest)
     TrainingTokenRouter(manifest, root=output_dir)

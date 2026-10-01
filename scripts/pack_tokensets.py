@@ -9,6 +9,7 @@ construction (same shards, mixture, seq_len; only the budget differs).
 from __future__ import annotations
 
 import json
+import math
 import os
 import sys
 from pathlib import Path
@@ -24,18 +25,24 @@ from terminus.remix import remix_manifest
 
 def main():
     work = Path(os.environ.get("WORK_DIR") or sys.argv[sys.argv.index("--work") + 1])
-    mix = {"math": 0.1, "code": 0.1}
-    for lang in CAMPAIGN_LANGUAGES:
-        if lang != "en":
-            mix[lang] = 0.043
-    mix["en"] = 1.0 - sum(mix.values())  # 0.499; English takes the residual
+    # The router schedules whole 4096-token examples in a 1000-example cycle,
+    # so seven Indic shares cannot each be exactly 3/70. Give six 4.3% and
+    # Kannada 4.2% (the smallest listed native corpus): exactly 30% combined.
+    mix = {"en": 0.5, "code": 0.1, "math": 0.1,
+           "hi": 0.043, "mr": 0.043, "kn": 0.042, "te": 0.043,
+           "ta": 0.043, "gu": 0.043, "bn": 0.043}
+    if set(mix) != set(CAMPAIGN_LANGUAGES) | set(CAMPAIGN_DOMAINS):
+        raise ValueError("token-set mixture omits a campaign language or domain")
+    if not math.isclose(sum(mix[lang] for lang in CAMPAIGN_LANGUAGES if lang != "en"), 0.3, abs_tol=1e-12):
+        raise ValueError("Indic total must be 30%")
     scope = {"name": CAMPAIGN_SCOPE_V1, "languages": list(CAMPAIGN_LANGUAGES),
              "domains": list(CAMPAIGN_DOMAINS)}
     languages = {**{lang: lang for lang in CAMPAIGN_LANGUAGES}, "math": "en", "code": "en"}
     manifest = pack_token_streams(work / "packed", "tokenizer/tokenizer-65k.json",
                                   source_mix=mix, total_train_tokens=10_000_000_000,
                                   seq_len=4096, batch_size=8, scope=scope,
-                                  languages_by_stream=languages)
+                                  languages_by_stream=languages,
+                                  document_dedup="id_exact_guard_v1")  # near-dup MinHash off for these sets
     model_config = BitNetLlamaConfig(vocab_size=65536, max_seq_len=4096, pad_token_id=3,
                                      attention_backend="sdpa_reference")
     report = validate_manifest(manifest, work / "packed", model_config, development_mode=False)

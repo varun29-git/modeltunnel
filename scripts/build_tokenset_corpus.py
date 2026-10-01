@@ -59,12 +59,15 @@ def main():
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--cache-dir", required=True)
     parser.add_argument("--eval-root", default="eval")
+    parser.add_argument("--near-dup", action="store_true",
+                        help="enable MinHash near-duplicate detection (off for token-set runs)")
     args = parser.parse_args()
     adapter, language, prefix, target = SOURCES[args.source]
     guard_paths = sorted(Path(args.eval_root).glob("scalingbench/*/data.jsonl"))
     guard_texts = task_text_hashes(guard_paths, max_rows_per_file=2000) if guard_paths else []
     config = CorpusBuildConfig(scope_name=CAMPAIGN_SCOPE_V1, split_salt=CAMPAIGN_SCOPE_V1,
-                               dev_per_10000=50, test_per_10000=50)
+                               dev_per_10000=50, test_per_10000=50,
+                               near_duplicates=args.near_dup)
     builder = CorpusBuilder(config, args.output_dir,
                             cache_dir=Path(args.cache_dir) / args.source,
                             contamination_texts=guard_texts)

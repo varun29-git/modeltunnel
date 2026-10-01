@@ -102,6 +102,10 @@ class DedupStore:
 
     def __init__(self, path, *, near_duplicate_bands=16, near_duplicate_threshold=0.875):
         self.database = sqlite3.connect(path)
+        # WAL + NORMAL: crash-safe across process kills, far fewer fsyncs than
+        # the default rollback journal under parallel writers.
+        self.database.execute("PRAGMA journal_mode=WAL")
+        self.database.execute("PRAGMA synchronous=NORMAL")
         self.database.execute("CREATE TABLE IF NOT EXISTS doc_ids "
                               "(source TEXT NOT NULL, doc_id TEXT NOT NULL, "
                               "PRIMARY KEY (source, doc_id))")
@@ -115,7 +119,7 @@ class DedupStore:
 
     def _commit_maybe(self):
         self._pending += 1
-        if self._pending % 5000 == 0:
+        if self._pending % 20000 == 0:
             self.database.commit()
 
     def seen_id(self, source, doc_id):
@@ -153,9 +157,10 @@ class DedupStore:
                 return True
         blob = bytes().join(value.to_bytes(4, "little") for value in signature)
         self.database.execute("INSERT OR REPLACE INTO signatures VALUES (?, ?)", (uid, blob))
-        for band in range(self.bands):
-            key = blob[band * band_size * 4:(band + 1) * band_size * 4]
-            self.database.execute("INSERT INTO minhash VALUES (?, ?, ?)", (band, key, uid))
+        self.database.executemany(
+            "INSERT INTO minhash VALUES (?, ?, ?)",
+            [(band, blob[band * band_size * 4:(band + 1) * band_size * 4], uid)
+             for band in range(self.bands)])
         self._commit_maybe()
         return False
 
