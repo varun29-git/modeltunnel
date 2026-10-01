@@ -49,6 +49,8 @@ class HopperCandidateTests(unittest.TestCase):
                         if a is not None:
                             self.assertTrue(torch.equal(a[0].float(), b[0].float()))
                             self.assertTrue(torch.equal(a[1], b[1]))
+                    if transposed and rows % 128:
+                        self.assertEqual(torch.count_nonzero(actual[1][0][:, rows:]).item(), 0)
 
     def test_norm_grid_large_rows_matches_reference(self):
         for gain in ("scalar", "channel"):

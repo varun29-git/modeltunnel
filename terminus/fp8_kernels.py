@@ -136,12 +136,18 @@ def quantize_directions(values, *, rowwise=True, transposed=False, eps=1e-5, sep
             values.stride(0), values.stride(1), 0, column_scales.stride(1),
             padded_rows, False, True, eps, 128, 32,
             num_warps=4, enable_fp_fusion=False)
+        if rows != padded_rows:
+            # Triton 3.4's transposed store can leave some masked-input lanes
+            # unwritten. The padded operand must be zero for native GEMM.
+            secondary[0][:, rows:].zero_()
         return primary, secondary
     _quantize_directions_kernel[(triton.cdiv(rows, block_rows), width // 128)](
         values, row_codes, row_scales, column_codes, column_scales, rows, width,
         values.stride(0), values.stride(1), row_scales.stride(1), column_scales.stride(1),
         padded_rows, rowwise, transposed, eps, block_rows, 128,
         num_warps=8 if transposed else 4, enable_fp_fusion=False)
+    if transposed and rows != padded_rows:
+        secondary[0][:, rows:].zero_()
     return primary, secondary
 
 
