@@ -6,7 +6,8 @@
 set -euo pipefail
 WORK=${1:?work dir}
 DEST=${2:?s3 destination prefix}
-PY=~/venv/bin/python
+export PATH="$HOME/test7-cpu-venv/bin:$PATH"
+PY=${PYTHON:-$HOME/test7-cpu-venv/bin/python}
 REPO=$(cd "$(dirname "$0")/.." && pwd)
 cd "$REPO"
 
@@ -26,7 +27,8 @@ done
 wait
 
 # 2. merge streams with cross-source exact dedup
-$PY scripts/merge_tokenset_records.py --build-root "$WORK/corpus_build" --output-dir "$WORK/merged"
+$PY scripts/merge_tokenset_records.py --build-root "$WORK/corpus_build" \
+    --output-dir "$WORK/merged" --shuffle-seed terminus-tokensets-20261001-v1
 
 # 3. parallel tokenize (chunks are ordered; output is byte-identical to serial)
 $PY scripts/tokenize_parallel.py --records "$WORK/merged/records_map.json" \
@@ -35,6 +37,7 @@ $PY scripts/tokenize_parallel.py --records "$WORK/merged/records_map.json" \
 
 # 4. pack + validate + nested budgets (3B and 6B are exact prefixes of 10B)
 cp "$WORK/merged/licenses.json" "$WORK/packed/licenses.json"
+cp "$WORK/merged/shuffle_receipt.json" "$WORK/packed/shuffle_receipt.json"
 export WORK_DIR="$WORK"
 $PY scripts/pack_tokensets.py
 
