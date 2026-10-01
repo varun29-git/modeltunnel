@@ -1,4 +1,22 @@
-# Token-set launch receipt, 2026-10-01
+# Token-set launch history, 2026-10-01
+
+## Active AWS run
+
+The Azure launch below was stopped after the owner pointed out that it was
+oversized and in the wrong cloud. Azure `tok64` was **deallocated** before
+merge/tokenization/upload. Its temporary work volume is not an output set.
+
+- AWS EC2 `i-0be4f12ac9f0c1094`, `i4i.2xlarge`, `us-east-1a`: 8 vCPUs,
+  64 GiB memory, and 1.875 TB local NVMe mounted at `/data`.
+- In-region S3 source and destination: no cross-cloud source transfer.
+- Corpus concurrency: `SOURCE_WORKERS=6`; tokenization: `WORKERS=7`.
+- Pipeline PID 27339 started about 05:55 UTC. Log: `/data/tokenization.log`.
+- Frozen tokenizer SHA, shuffle seed, training mix, source text-volume caps,
+  and S3 destination are the same as below.
+- No completed token sets were claimed at launch; upload follows the 10B
+  pack/validation gate and nested 3B/6B manifest generation.
+
+## Aborted Azure launch and data-cap correction
 
 - VM: Azure `H100_GROUP/tok64`, `Standard_D96ads_v7` (96 vCPUs, 377 GiB RAM).
 - Work volume: RAID0 across six temporary NVMe disks, XFS at `/data` (5.2 TiB usable).
@@ -9,9 +27,9 @@
 - Training-document shuffle: seeded BLAKE2b-128 bucket sort after split and
   deduplication, seed `terminus-tokensets-20261001-v1`. Validation and test
   document order is left stable. The 3B and 6B manifests are nested in 10B.
-- Execution: 19 concurrent source builders, then 88 tokenizer workers. Job
-  launched on VM as PID 5480 at approximately 05:37 UTC; log at
-  `/data/tokenization.log`, work at `/data/work`.
+- Execution before deallocation: 19 concurrent source builders; the planned
+  tokenizer stage (88 workers) was never reached. The revised Azure job had
+  launched as PID 5480 at approximately 05:37 UTC.
 
 The first attempt was stopped during corpus preparation and its incomplete
 derived output retained at `/data/work_aborted_20261001_0528`. It revealed a
