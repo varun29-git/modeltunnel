@@ -1,0 +1,20 @@
+[Unit]
+Description=Verify Terminus Lean 10B artifacts in Azure Blob, then deallocate H100
+Wants=network-online.target
+After=network-online.target terminus-lean-10b.service
+RequiresMountsFor=/srv/terminus-10b
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=azureuserboss
+Group=azureuserboss
+WorkingDirectory=/home/azureuserboss/terminus-modeltunnelv2-run
+ExecStart=/usr/bin/python3 /home/azureuserboss/terminus-modeltunnelv2-run/experiments/terminus_lean_150m_10b/finalize_blob_and_deallocate.py --run-root /srv/terminus-10b/runs/lean_dense_10b_20261001 --blob-url https://t3logse388e1b8d9e3.blob.core.windows.net/runs/terminus_lean_150m_10b_run_20261001/ --vm-resource-id /subscriptions/6ac11955-aa2f-4cf9-a693-e388e1b8d9e3/resourceGroups/H100_GROUP/providers/Microsoft.Compute/virtualMachines/h100 --train-service terminus-lean-10b.service --ops-log /srv/terminus-10b/ops/finalizer.log
+Restart=on-failure
+RestartSec=300
+StandardOutput=append:/srv/terminus-10b/ops/finalizer.log
+StandardError=append:/srv/terminus-10b/ops/finalizer.log
+
+[Install]
+WantedBy=multi-user.target

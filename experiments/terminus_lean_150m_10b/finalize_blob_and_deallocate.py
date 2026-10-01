@@ -17,6 +17,7 @@ import os
 import subprocess
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
@@ -177,12 +178,46 @@ def request_deallocation(vm_resource_id: str) -> int:
         headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"},
     )
     with urllib.request.urlopen(request, timeout=60) as response:
-        if response.status not in (200, 202, 204):
-            raise ValueError(f"Azure rejected VM deallocation: HTTP {response.status}")
-        return response.status
+        status = response.status
+        operation_url = response.headers.get("Azure-AsyncOperation")
+    if status not in (200, 202, 204):
+        raise ValueError(f"Azure rejected VM deallocation: HTTP {status}")
+    if status != 202:
+        return status
+    # Usually the VM powers off while this is being polled. If Azure reports a
+    # failed operation while the VM remains up, fail the service so it retries.
+    deadline = time.monotonic() + 30 * 60
+    while time.monotonic() < deadline:
+        time.sleep(15)
+        if operation_url:
+            poll_url = operation_url
+        else:
+            poll_url = ("https://management.azure.com" + vm_resource_id.rstrip("/")
+                        + "/instanceView?api-version=" + ARM_API_VERSION)
+        poll = urllib.request.Request(
+            poll_url, headers={"Authorization": "Bearer " + token,
+                               "Content-Type": "application/json"},
+        )
+        try:
+            with urllib.request.urlopen(poll, timeout=30) as response:
+                result = json.load(response)
+        except (TimeoutError, urllib.error.URLError):
+            continue
+        if operation_url:
+            state = result.get("status")
+            if state == "Succeeded":
+                return status
+            if state in ("Failed", "Canceled"):
+                raise RuntimeError(f"Azure deallocation operation {state.lower()}: {result}")
+        else:
+            states = {item.get("code") for item in result.get("statuses", [])}
+            if "PowerState/deallocated" in states:
+                return status
+    raise TimeoutError("Azure did not confirm VM deallocation within 30 minutes")
 
 
-def finalize(root: Path, blob_url: str, vm_resource_id: str, train_service: str) -> None:
+def finalize(root: Path, blob_url: str, vm_resource_id: str, train_service: str,
+             ops_log: Path | None = None) -> None:
     if not service_completed(train_service):
         raise ValueError("training service has not completed successfully")
     validate_completed_run(root)
@@ -228,9 +263,19 @@ def finalize(root: Path, blob_url: str, vm_resource_id: str, train_service: str)
     if not service_completed(train_service):
         raise ValueError("training service restarted after Blob verification")
     validate_completed_run(root)
-    log("final audit, checkpoints, all logs, Blob inventory and receipt verified; requesting VM deallocation")
-    status = request_deallocation(vm_resource_id)
-    log(f"Azure deallocation request accepted: HTTP {status}")
+    log("final audit, all run files and receipt verified; uploading finalizer log before deallocation")
+    if ops_log is not None:
+        if not ops_log.is_file():
+            raise ValueError(f"finalizer log is missing: {ops_log}")
+        log_record = file_record(ops_log.parent, ops_log)
+        azcopy("copy", str(ops_log), blob_url.rstrip("/") + "/operations/finalizer.log",
+               "--put-md5", "--overwrite=true")
+        verify_blob(blob_url.rstrip("/") + "/operations", log_record,
+                    managed_identity_token("https://storage.azure.com/"))
+    assert_snapshot_unchanged(root, records)
+    if not service_completed(train_service):
+        raise ValueError("training service restarted before deallocation")
+    request_deallocation(vm_resource_id)
 
 
 def main() -> None:
@@ -240,6 +285,7 @@ def main() -> None:
     parser.add_argument("--vm-resource-id", required=True)
     parser.add_argument("--train-service", default="terminus-lean-10b.service")
     parser.add_argument("--poll-seconds", type=int, default=60)
+    parser.add_argument("--ops-log", type=Path, help="also verify the finalizer's own log in Blob")
     parser.add_argument("--status", action="store_true", help="check completion gate only")
     args = parser.parse_args()
     if not args.blob_url.startswith("https://") or ".blob.core.windows.net/" not in args.blob_url:
@@ -261,7 +307,8 @@ def main() -> None:
                 raise RuntimeError("training service exited but final audit is incomplete") from exc
             break
         time.sleep(args.poll_seconds)
-    finalize(args.run_root, args.blob_url, args.vm_resource_id, args.train_service)
+    finalize(args.run_root, args.blob_url, args.vm_resource_id, args.train_service,
+             args.ops_log)
 
 
 if __name__ == "__main__":

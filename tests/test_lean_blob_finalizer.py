@@ -70,17 +70,54 @@ class BlobFinalizerTests(unittest.TestCase):
         deallocate.assert_not_called()
 
     def test_shutdown_only_after_full_verification_and_receipt(self):
+        ops_temp = tempfile.TemporaryDirectory()
+        self.addCleanup(ops_temp.cleanup)
+        ops_log = Path(ops_temp.name) / "finalizer.log"
+        ops_log.write_text("verification started\n")
         with (mock.patch.object(finalizer, "service_completed", return_value=True),
               mock.patch.object(finalizer, "azcopy") as upload,
               mock.patch.object(finalizer, "managed_identity_token", return_value="token"),
               mock.patch.object(finalizer, "verify_blob") as verify,
               mock.patch.object(finalizer, "request_deallocation", return_value=202) as deallocate):
-            finalizer.finalize(self.root, self.url, self.vm_id, "train.service")
-        self.assertEqual(upload.call_count, 2)
+            finalizer.finalize(self.root, self.url, self.vm_id, "train.service", ops_log)
+        self.assertEqual(upload.call_count, 3)
         self.assertGreater(verify.call_count, len(finalizer.REQUIRED_FILES))
         receipt = json.loads((self.root / "blob_verified.json").read_text())
         self.assertEqual(receipt["result"], "verified")
         deallocate.assert_called_once_with(self.vm_id)
+
+    def test_missing_finalizer_log_blocks_shutdown(self):
+        with (mock.patch.object(finalizer, "service_completed", return_value=True),
+              mock.patch.object(finalizer, "azcopy"),
+              mock.patch.object(finalizer, "managed_identity_token", return_value="token"),
+              mock.patch.object(finalizer, "verify_blob"),
+              mock.patch.object(finalizer, "request_deallocation") as deallocate):
+            with self.assertRaisesRegex(ValueError, "finalizer log is missing"):
+                finalizer.finalize(self.root, self.url, self.vm_id, "train.service",
+                                   self.root.parent / "missing-finalizer.log")
+        deallocate.assert_not_called()
+
+    def test_deallocation_waits_for_azure_operation_success(self):
+        class Response:
+            def __init__(self, status, body=b"{}", headers=None):
+                self.status, self.body, self.headers = status, body, headers or {}
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_):
+                return False
+
+            def read(self, *_):
+                return self.body
+
+        responses = [Response(202, headers={"Azure-AsyncOperation": "https://management.azure.com/op"}),
+                     Response(200, body=b'{"status":"Succeeded"}')]
+        with (mock.patch.object(finalizer, "managed_identity_token", return_value="token"),
+              mock.patch.object(finalizer.urllib.request, "urlopen", side_effect=responses) as open_url,
+              mock.patch.object(finalizer.time, "sleep")):
+            self.assertEqual(finalizer.request_deallocation(self.vm_id), 202)
+        self.assertEqual(open_url.call_count, 2)
 
 
 if __name__ == "__main__":
