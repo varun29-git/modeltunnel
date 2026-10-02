@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from dataclasses import asdict
 from pathlib import Path
 
 from terminus.data import TokenDataConfig, TokenManifest, TokenShardSpec, TrainingTokenRouter
@@ -12,7 +13,8 @@ from experiments.terminus_lean_150m_qat_2b.plan import (
     MICROBATCH, PARENT_CHECKPOINT_SHA256, PARENT_TOKENS, PARENT_UPDATES,
     QAT_MIX, SEQ_LEN, TOTAL_TOKENS, render, verify,
 )
-from experiments.terminus_lean_150m_qat_2b.prepare_views import build_view
+from experiments.terminus_lean_150m_qat_2b.prepare_views import build_view, dense_manifest_fingerprint
+from terminus.integrity import fingerprint
 from experiments.terminus_lean_150m_qat_2b.finalize_blob_and_deallocate import (
     REQUIRED_FILES, validate_completed_run,
 )
@@ -40,6 +42,9 @@ class LeanQATTests(unittest.TestCase):
         dense = TokenManifest(TokenDataConfig(seq_len=SEQ_LEN, batch_size=MICROBATCH,
                               total_train_tokens=10_000_000_000, source_mix=dense_mix),
                               shards, {"sha256": "tokenizer"})
+        legacy_payload = asdict(dense)
+        del legacy_payload["config"]["source_start_examples"]
+        self.assertEqual(dense_manifest_fingerprint(dense), fingerprint(legacy_payload))
         receipt = {"sha256": PARENT_CHECKPOINT_SHA256,
                    "state": {"tokens_seen": PARENT_TOKENS, "updates": PARENT_UPDATES}}
         view, result = build_view(dense, dense, receipt)

@@ -21,6 +21,14 @@ from experiments.terminus_lean_150m_qat_2b.plan import (  # noqa: E402
 )
 
 
+def dense_manifest_fingerprint(manifest: TokenManifest) -> str:
+    """Reproduce the immutable parent hash from before source offsets existed."""
+    payload = asdict(manifest)
+    if not payload["config"]["source_start_examples"]:
+        del payload["config"]["source_start_examples"]
+    return fingerprint(payload)
+
+
 def build_view(base: TokenManifest, dense_view: TokenManifest, parent_receipt: dict) -> tuple[TokenManifest, dict]:
     state = parent_receipt["state"]
     if (parent_receipt["sha256"] != PARENT_CHECKPOINT_SHA256
@@ -49,7 +57,7 @@ def build_view(base: TokenManifest, dense_view: TokenManifest, parent_receipt: d
     provenance = {**base.provenance, "qat_transition": {
         "parent_checkpoint_sha256": PARENT_CHECKPOINT_SHA256,
         "parent_tokens_seen": PARENT_TOKENS,
-        "dense_manifest_sha256": fingerprint(asdict(dense_view)),
+        "dense_manifest_sha256": dense_manifest_fingerprint(dense_view),
         "source_start_examples": source_start_examples,
         "fresh_token_policy": "continue_each_source_at_its_first_unused_4096_token_example",
     }}
@@ -61,7 +69,7 @@ def build_view(base: TokenManifest, dense_view: TokenManifest, parent_receipt: d
     }
     receipt = {
         "parent_checkpoint_sha256": PARENT_CHECKPOINT_SHA256,
-        "parent_dense_manifest_sha256": fingerprint(asdict(dense_view)),
+        "parent_dense_manifest_sha256": dense_manifest_fingerprint(dense_view),
         "source_start_examples": source_start_examples,
         "source_start_tokens": {source: examples * SEQ_LEN for source, examples in source_start_examples.items()},
         "qat_source_tokens": exposure,
@@ -86,7 +94,7 @@ def main() -> None:
     dense_view = TokenManifest.load(args.dense_manifest)
     parent_run = Path(args.parent_run)
     parent_contract = json.loads((parent_run / "run.json").read_text())["contract"]
-    if parent_contract["data"]["manifest_sha256"] != fingerprint(asdict(dense_view)):
+    if parent_contract["data"]["manifest_sha256"] != dense_manifest_fingerprint(dense_view):
         raise ValueError("dense view does not match the parent checkpoint contract")
     parent_receipt = json.loads((parent_run / "checkpoints/step_00025432.json").read_text())
     view, receipt = build_view(base, dense_view, parent_receipt)
