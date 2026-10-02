@@ -87,7 +87,7 @@ def verify(config: dict, plan: dict) -> None:
     if any(config["optimizer"][key] != dense["optimizer"][key] / 2
            for key in ("muon_lr", "adamw_lr", "norm_lr")):
         raise ValueError("QAT peak base learning rates must be half of dense")
-    if sum(QAT_MIX.values()) != 1.0:
+    if not math.isclose(sum(QAT_MIX.values()), 1.0, rel_tol=0, abs_tol=1e-9):
         raise ValueError("QAT source mixture must sum to one")
     if plan["total_qat_updates"] != TOTAL_UPDATES:
         raise ValueError("QAT update count changed")
