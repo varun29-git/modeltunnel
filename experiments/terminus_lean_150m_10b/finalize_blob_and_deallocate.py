@@ -217,14 +217,21 @@ def request_deallocation(vm_resource_id: str) -> int:
 
 
 def finalize(root: Path, blob_url: str, vm_resource_id: str, train_service: str,
-             ops_log: Path | None = None) -> None:
+             ops_log: Path | None = None, *, validator=None,
+             checkpoint_paths: dict[str, str] | None = None) -> None:
+    validator = validator or validate_completed_run
+    checkpoint_paths = checkpoint_paths or {
+        "midpoint_checkpoint_sha256": "dense/checkpoints/step_00012716.pt",
+        "final_checkpoint_sha256": "dense/checkpoints/step_00025432.pt",
+    }
     if not service_completed(train_service):
         raise ValueError("training service has not completed successfully")
-    validate_completed_run(root)
+    audit = validator(root)
     (root / "blob_verified.json").unlink(missing_ok=True)
     records = [file_record(root, path) for path in run_files(root)]
     inventory = {
-        "schema": 1, "training_updates": FINAL_UPDATES, "tokens_seen": FINAL_TOKENS,
+        "schema": 1, "training_updates": audit.get("training_updates", FINAL_UPDATES),
+        "tokens_seen": audit.get("tokens_seen", FINAL_TOKENS),
         "blob_url": blob_url.rstrip("/"), "files": records,
         "file_count": len(records), "total_bytes": sum(item["size_bytes"] for item in records),
     }
@@ -248,10 +255,8 @@ def finalize(root: Path, blob_url: str, vm_resource_id: str, train_service: str,
         "blob_url": blob_url.rstrip("/"), "file_count": len(all_records),
         "total_bytes": inventory["total_bytes"] + inventory_record["size_bytes"],
         "inventory_sha256": inventory_record["sha256"],
-        "midpoint_checkpoint_sha256": next(item["sha256"] for item in records
-                                              if item["path"] == "dense/checkpoints/step_00012716.pt"),
-        "final_checkpoint_sha256": next(item["sha256"] for item in records
-                                           if item["path"] == "dense/checkpoints/step_00025432.pt"),
+        **{label: next(item["sha256"] for item in records if item["path"] == path)
+           for label, path in checkpoint_paths.items()},
     }
     receipt_path = root / "blob_verified.json"
     write_json_atomic(receipt_path, receipt)
@@ -262,7 +267,7 @@ def finalize(root: Path, blob_url: str, vm_resource_id: str, train_service: str,
     assert_snapshot_unchanged(root, records)
     if not service_completed(train_service):
         raise ValueError("training service restarted after Blob verification")
-    validate_completed_run(root)
+    validator(root)
     log("final audit, all run files and receipt verified; uploading finalizer log before deallocation")
     if ops_log is not None:
         if not ops_log.is_file():
