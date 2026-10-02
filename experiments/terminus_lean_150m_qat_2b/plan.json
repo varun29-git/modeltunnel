@@ -1,0 +1,42 @@
+{
+  "activation_quantization": "fp8_e4m3",
+  "data_parallel_world_size": 1,
+  "data_policy": "restart_at_fresh_source_offsets",
+  "global_batch_tokens": 393216,
+  "gradient_accumulation_steps": 2,
+  "microbatch": 48,
+  "nominal_qat_tokens": 2000000000,
+  "note": "2B QAT is the requested duration. The completed dense run also had a 2B decay; twice that decay would be 4B.",
+  "parent_checkpoint_sha256": "3d116e88048c93a0403ab2920b1680b066a9f29cbc07fa8ae1c2c67f2144684b",
+  "parent_tokens_seen": 9999998976,
+  "parent_updates": 25432,
+  "peak_base_learning_rates": {
+    "adamw_lr": 0.005,
+    "muon_lr": 0.005,
+    "norm_lr": 0.005
+  },
+  "schedule": {
+    "decay_tokens": 400000000,
+    "final_lr_fraction": 0.1,
+    "stable_tokens": 1400000000,
+    "warmup_tokens": 200000000
+  },
+  "source_mix": {
+    "bn": 0.053,
+    "code": 0.13,
+    "en": 0.37,
+    "gu": 0.053,
+    "hi": 0.053,
+    "kn": 0.053,
+    "math": 0.13,
+    "mr": 0.053,
+    "ta": 0.053,
+    "te": 0.052
+  },
+  "source_mix_reason": "The packed corpus has 2.890B unused tokens, but only 748M unused English; a fresh 2B QAT stage cannot retain the dense 50% English mix.",
+  "status": "authorized_qat_continuation",
+  "tokenizer_sha256": "c53e0e95cd19e2954a8c7114c0a580eeb16698b153fdf84c5d80a7187d778d29",
+  "total_qat_updates": 5087,
+  "usable_qat_tokens": 1999998976,
+  "weight_mode": "ternary"
+}
