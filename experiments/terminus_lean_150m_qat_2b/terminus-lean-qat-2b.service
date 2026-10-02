@@ -10,9 +10,9 @@ StartLimitBurst=3
 Type=simple
 User=azureuserboss
 Group=azureuserboss
-WorkingDirectory=/home/azureuserboss/terminus-modeltunnelv2-run
+WorkingDirectory=/home/azureuserboss/terminus-modeltunnelv2-qat
 Environment=PYTHON=/home/azureuserboss/1bit_llm_advanced/.venv_test13/bin/python
-Environment=PYTHONPATH=/home/azureuserboss/terminus-modeltunnelv2-run:/home/azureuserboss/terminus-optimization-20260910/runtime/fa3-site
+Environment=PYTHONPATH=/home/azureuserboss/terminus-modeltunnelv2-qat:/home/azureuserboss/terminus-optimization-20260910/runtime/fa3-site
 Environment=CUDA_HOME=/usr/local/cuda-13.2
 Environment=DG_JIT_CACHE_DIR=/home/azureuserboss/terminus-optimization-20260910/runtime/deepgemm-jit
 Environment=XDG_CACHE_HOME=/srv/terminus-10b/cache
@@ -21,7 +21,7 @@ Environment=DATA_ROOT=/srv/terminus-10b/data/packed
 Environment=PARENT_ROOT=/srv/terminus-10b/runs/lean_dense_10b_20261001
 Environment=RUN_ROOT=/srv/terminus-10b/runs/lean_ternary_qat_2b_20261002
 Environment=S3_RUN_URI=s3://quark-research-repository-storage/data/terminus_lean_150m_qat_2b_run_20261002
-ExecStart=/bin/bash /home/azureuserboss/terminus-modeltunnelv2-run/experiments/terminus_lean_150m_qat_2b/launch.sh
+ExecStart=/bin/bash /home/azureuserboss/terminus-modeltunnelv2-qat/experiments/terminus_lean_150m_qat_2b/launch.sh
 Restart=on-failure
 RestartSec=30
 TimeoutStopSec=300
