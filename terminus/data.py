@@ -42,6 +42,7 @@ class TokenDataConfig:
     prefix_source: str = ""
     source_mix: Dict[str, float] = field(default_factory=dict)
     phase_source_mixes: List[Dict[str, object]] = field(default_factory=list)
+    source_start_examples: Dict[str, int] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         for name in ("seq_len", "batch_size", "total_train_tokens", "cosmopedia_stories_prefix_tokens", "validation_tokens"):
@@ -62,6 +63,14 @@ class TokenDataConfig:
             raise ValueError("validation_tokens must be non-negative")
         if self.token_dtype not in DTYPE_BY_NAME:
             raise ValueError(f"unsupported token_dtype: {self.token_dtype}")
+        if not isinstance(self.source_start_examples, dict) or any(
+            not isinstance(source, str) or not source or isinstance(start, bool)
+            or not isinstance(start, int) or start < 0
+            for source, start in self.source_start_examples.items()
+        ):
+            raise ValueError("source_start_examples must map source names to nonnegative example offsets")
+        if self.source_start_examples and not (self.source_mix or self.phase_source_mixes):
+            raise ValueError("source_start_examples requires an explicit source mixture")
         if self.source_mix:
             if self.cosmopedia_stories_prefix_tokens:
                 raise ValueError("source_mix cannot be combined with a prefix curriculum")
@@ -329,7 +338,12 @@ class TrainingTokenRouter:
                 raise ValueError(
                     f"phase_source_mixes refer to unknown train sources: {missing_sources}"
                 )
-            phase_source_examples_needed: Dict[str, int] = {source: 0 for source in requested_sources}
+            unknown_starts = set(self.config.source_start_examples) - requested_sources
+            if unknown_starts:
+                raise ValueError(f"source_start_examples refer to unknown phase sources: {sorted(unknown_starts)}")
+            phase_source_examples_needed: Dict[str, int] = {
+                source: self.config.source_start_examples.get(source, 0) for source in requested_sources
+            }
             phase_specs: List[Dict[str, object]] = []
             phase_start_example = 0
             remaining_examples = self.config.total_examples
@@ -370,7 +384,8 @@ class TrainingTokenRouter:
                     root=root,
                 )
                 required_examples = int(phase_source_examples_needed[source])
-                span.assert_budget(required_examples * self.config.seq_len, name=source)
+                span.assert_budget(required_examples * self.config.seq_len +
+                                   int(bool(self.config.source_start_examples)), name=source)
                 self.mixed_spans[source] = span
             self.phase_specs = phase_specs
             self.main = None
@@ -384,6 +399,9 @@ class TrainingTokenRouter:
                     f"source_mix keys {sorted(requested_sources)} do not match train sources "
                     f"{sorted(available_sources)}"
                 )
+            unknown_starts = set(self.config.source_start_examples) - requested_sources
+            if unknown_starts:
+                raise ValueError(f"source_start_examples refer to unknown train sources: {sorted(unknown_starts)}")
             self.mix_schedule = self._weighted_schedule(self.config.source_mix)
             total_examples = self.config.total_examples
             for source in sorted(requested_sources):
@@ -391,8 +409,10 @@ class TrainingTokenRouter:
                     [spec for spec in train_specs if spec.source == source],
                     root=root,
                 )
-                required_examples = self._source_count_before(source, total_examples, self.mix_schedule)
-                span.assert_budget(required_examples * self.config.seq_len, name=source)
+                required_examples = (self.config.source_start_examples.get(source, 0) +
+                                     self._source_count_before(source, total_examples, self.mix_schedule))
+                span.assert_budget(required_examples * self.config.seq_len +
+                                   int(bool(self.config.source_start_examples)), name=source)
                 self.mixed_spans[source] = span
             self.main = None
             return
@@ -477,7 +497,8 @@ class TrainingTokenRouter:
                 raise ValueError("mixed-source token offsets must align to seq_len")
             example_index = token_offset // self.config.seq_len
             source = self.mix_schedule[example_index % len(self.mix_schedule)]
-            source_example_index = self._source_count_before(source, example_index, self.mix_schedule)
+            source_example_index = (self.config.source_start_examples.get(source, 0) +
+                                    self._source_count_before(source, example_index, self.mix_schedule))
             return self.mixed_spans[source], source_example_index * self.config.seq_len
         if self.prefix is not None and token_offset < self.config.prefix_effective_tokens:
             return self.prefix, token_offset

@@ -22,8 +22,9 @@ Data policies:
 - "phase_mix": the child manifest uses phase_source_mixes whose phase boundary
   must equal the parent's tokens_seen, so the router switches mixture exactly
   at the transition.
-- "restart": the data cursor (and optionally RNG) is reset; the receipt
-  records this as an intentional reset.
+- "restart": the data and update counters (and optionally RNG) are reset;
+  the receipt records this as an intentional reset. A manifest may start each
+  source at the exact unused example offset, so this can avoid repetition.
 """
 
 from __future__ import annotations
@@ -106,19 +107,27 @@ def convert_checkpoint(parent_run_dir, qat_config_path, qat_manifest_path, qat_d
 
     model = BitNetLlama(model_config)
     optimizer = build_optimizer(model, optimizer_config)
+    child_base_lrs = [group["base_lr"] for group in optimizer.param_groups]
     model.load_state_dict(parent_payload["model"])  # strict: shapes must match
     resets_done = []
     if "optimizer" in resets:
         resets_done.append("optimizer")
     else:
         optimizer.load_state_dict(parent_payload["optimizer"])
+        if len(optimizer.param_groups) != len(child_base_lrs):
+            raise ValueError("parent optimizer groups do not match QAT optimizer groups")
+        # Loading moments also restores the dense phase's param-group rates.
+        # Keep moments but apply the child phase's explicitly configured rates.
+        for group, child_lr in zip(optimizer.param_groups, child_base_lrs):
+            group["base_lr"] = child_lr
+            group["lr"] = child_lr
     total_tokens = manifest.config.usable_train_tokens
     micro_tokens = manifest.config.tokens_per_step * world_size
     total_micro_steps = -(-manifest.config.total_examples //
                           (manifest.config.batch_size * world_size))
     if "data_cursor" in resets:
-        state = {"next_micro_step": 0, "tokens_seen": 0, "updates": parent_state["updates"]}
-        resets_done.append("data_cursor")
+        state = {"next_micro_step": 0, "tokens_seen": 0, "updates": 0}
+        resets_done.extend(("data_cursor", "update_counter"))
     else:
         state = dict(parent_state)
         if state["tokens_seen"] % micro_tokens:

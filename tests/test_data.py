@@ -52,6 +52,26 @@ class DataTests(unittest.TestCase):
                 for actual, expected in zip(restored.block_at_token_offset(index * 4), router.block_at_token_offset(index * 4)):
                     torch.testing.assert_close(actual, expected)
 
+    def test_mixed_source_offsets_start_at_unused_examples(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name, offset in (("en", 0), ("hi", 1000)):
+                np.arange(offset, offset + 100, dtype=np.uint16).tofile(root / (name + ".bin"))
+            shards = [TokenShardSpec(name + ".bin", name, "train", 100) for name in ("en", "hi")]
+            config = TokenDataConfig(seq_len=4, batch_size=2, total_train_tokens=40,
+                                     source_mix={"en": .5, "hi": .5},
+                                     source_start_examples={"en": 12, "hi": 8})
+            router = TrainingTokenRouter(TokenManifest(config, shards), root=root)
+            positions = {"en": [], "hi": []}
+            for index in range(config.total_examples):
+                span, offset = router._span_and_offset(index * config.seq_len)
+                source = span.shards[0].spec.source
+                positions[source].append(offset)
+            self.assertEqual(positions["en"], [48, 52, 56, 60, 64])
+            self.assertEqual(positions["hi"], [32, 36, 40, 44, 48])
+            with self.assertRaisesRegex(ValueError, "needs at least"):
+                TrainingTokenRouter(TokenManifest(replace(config, source_start_examples={"en": 23, "hi": 8}), shards), root=root)
+
     def test_phase_mix_does_not_repeat_source_offsets(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

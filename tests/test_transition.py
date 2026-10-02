@@ -126,6 +126,12 @@ class TransitionTests(unittest.TestCase):
             receipt = self.convert(out="qat_restart", data_policy="restart")
             self.assertEqual(receipt["child"]["state"]["tokens_seen"], 0)
             self.assertIn("data_cursor", receipt["intentional_resets"])
+            self.assertIn("update_counter", receipt["intentional_resets"])
+            self.assertEqual(receipt["child"]["state"]["updates"], 0)
+            restarted = run_training(self.root / "qat_restart/qat_config.json", self.manifest,
+                                     self.data_root, self.root / "qat_restart",
+                                     resume=self.root / "qat_restart/checkpoints")
+            self.assertEqual(restarted["tokens_seen"], 72)
             # non-ternary child config is refused
             write_config(self.root / "dense2.json", weight_mode="dense")
             with self.assertRaisesRegex(ValueError, "ternary"):
@@ -148,6 +154,29 @@ class TransitionTests(unittest.TestCase):
             # fresh-directory protection
             with self.assertRaises(FileExistsError):
                 self.convert(out="qat_restart")
+
+    def test_transition_keeps_moments_but_uses_child_base_learning_rates(self):
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.train_dense(updates=1)
+            dense = checkpoint_payload(self.root / "dense_run")
+            config = json.loads((self.root / "qat.json").read_text())
+            config["optimizer"]["adamw_lr"] /= 2
+            config["optimizer"]["norm_lr"] /= 2
+            (self.root / "qat_half_lr.json").write_text(json.dumps(config))
+            receipt = convert_checkpoint(self.root / "dense_run", self.root / "qat_half_lr.json",
+                                         self.manifest, self.data_root, self.root / "qat_half_lr")
+            child = checkpoint_payload(self.root / "qat_half_lr")
+            self.assertEqual(receipt["parent"]["state"]["tokens_seen"], 32)
+            for key, old_state in dense["optimizer"]["state"].items():
+                for name, old_value in old_state.items():
+                    new_value = child["optimizer"]["state"][key][name]
+                    if isinstance(old_value, torch.Tensor):
+                        torch.testing.assert_close(new_value, old_value, rtol=0, atol=0)
+                    else:
+                        self.assertEqual(new_value, old_value)
+            old_rates = [group["base_lr"] for group in dense["optimizer"]["param_groups"]]
+            new_rates = [group["base_lr"] for group in child["optimizer"]["param_groups"]]
+            self.assertEqual(new_rates, [rate / 2 for rate in old_rates])
 
     def test_parent_integrity_is_verified(self):
         with contextlib.redirect_stdout(io.StringIO()):
