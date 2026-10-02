@@ -7,6 +7,8 @@ import tempfile
 import unittest
 from dataclasses import asdict
 from pathlib import Path
+from subprocess import CompletedProcess
+from unittest.mock import patch
 
 from terminus.data import TokenDataConfig, TokenManifest, TokenShardSpec, TrainingTokenRouter
 from experiments.terminus_lean_150m_qat_2b.plan import (
@@ -16,12 +18,58 @@ from experiments.terminus_lean_150m_qat_2b.plan import (
 from experiments.terminus_lean_150m_qat_2b.prepare_views import build_view, dense_manifest_fingerprint
 from terminus.integrity import fingerprint
 from experiments.terminus_lean_150m_qat_2b.finalize_blob_and_deallocate import (
-    REQUIRED_FILES, validate_completed_run,
+    REQUIRED_FILES, validate_completed_run, verify_s3,
 )
 from experiments.terminus_lean_150m_qat_2b.plan import TOTAL_UPDATES, USABLE_TOKENS
 
 
 class LeanQATTests(unittest.TestCase):
+    def test_shutdown_s3_gate_checks_logs_checkpoints_and_receipt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "qat/checkpoints").mkdir(parents=True)
+            (root / "qat/checkpoints/step_00000000.pt").write_bytes(b"checkpoint")
+            (root / "qat/events.jsonl").write_text("training event\n")
+            (root / "mirror.log").write_text("mirror complete\n")
+            (root / "qat/.run.lock").write_text("not an artifact")
+            calls = []
+
+            def aws_command(args, **kwargs):
+                calls.append(args)
+                if args[:3] != ["aws", "s3api", "head-object"]:
+                    return CompletedProcess(args, 0)
+                key = args[args.index("--key") + 1]
+                path = root / key.removeprefix("trial/")
+                head = {"ContentLength": path.stat().st_size, "ChecksumCRC64NVME": "verified"}
+                return CompletedProcess(args, 0, stdout=json.dumps(head))
+
+            with patch("experiments.terminus_lean_150m_qat_2b.finalize_blob_and_deallocate.subprocess.run",
+                       side_effect=aws_command):
+                receipt = verify_s3(root, "s3://bucket/trial")
+            self.assertEqual(receipt["file_count"], 3)
+            self.assertEqual({item["key"] for item in receipt["files"]}, {
+                "trial/qat/checkpoints/step_00000000.pt", "trial/qat/events.jsonl", "trial/mirror.log"})
+            self.assertTrue((root / "s3_verified.json").is_file())
+            self.assertTrue(any(args[:3] == ["aws", "s3", "cp"] and "mirror.log" in args[3]
+                                for args in calls))
+
+    def test_shutdown_s3_gate_rejects_missing_remote_checksum(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "mirror.log").write_text("mirror complete\n")
+
+            def aws_command(args, **kwargs):
+                if args[:3] == ["aws", "s3api", "head-object"]:
+                    return CompletedProcess(args, 0, stdout=json.dumps({
+                        "ContentLength": (root / "mirror.log").stat().st_size}))
+                return CompletedProcess(args, 0)
+
+            with patch("experiments.terminus_lean_150m_qat_2b.finalize_blob_and_deallocate.subprocess.run",
+                       side_effect=aws_command):
+                with self.assertRaisesRegex(ValueError, "no stored checksum"):
+                    verify_s3(root, "s3://bucket/trial")
+            self.assertFalse((root / "s3_verified.json").exists())
+
     def test_model_and_optimizer_contract(self):
         config, plan = render()
         verify(config, plan)
