@@ -1,5 +1,5 @@
 [Unit]
-Description=Verify Terminus Lean ternary QAT artifacts in Blob, then deallocate H100
+Description=Verify Terminus Lean ternary QAT artifacts in S3 and Blob, then deallocate H100
 Wants=network-online.target
 After=network-online.target terminus-lean-qat-2b.service
 RequiresMountsFor=/srv/terminus-10b
@@ -10,7 +10,7 @@ Type=simple
 User=azureuserboss
 Group=azureuserboss
 WorkingDirectory=/home/azureuserboss/terminus-modeltunnelv2-qat
-ExecStart=/home/azureuserboss/1bit_llm_advanced/.venv_test13/bin/python /home/azureuserboss/terminus-modeltunnelv2-qat/experiments/terminus_lean_150m_qat_2b/finalize_blob_and_deallocate.py --run-root /srv/terminus-10b/runs/lean_ternary_qat_2b_20261002 --blob-url https://t3logse388e1b8d9e3.blob.core.windows.net/runs/terminus_lean_150m_qat_2b_run_20261002/ --vm-resource-id /subscriptions/6ac11955-aa2f-4cf9-a693-e388e1b8d9e3/resourceGroups/H100_GROUP/providers/Microsoft.Compute/virtualMachines/h100 --train-service terminus-lean-qat-2b.service --ops-log /srv/terminus-10b/ops/qat/finalizer.log
+ExecStart=/home/azureuserboss/1bit_llm_advanced/.venv_test13/bin/python /home/azureuserboss/terminus-modeltunnelv2-qat/experiments/terminus_lean_150m_qat_2b/finalize_blob_and_deallocate.py --run-root /srv/terminus-10b/runs/lean_ternary_qat_2b_20261002 --s3-run-uri s3://quark-research-repository-storage/data/terminus_lean_150m_qat_2b_run_20261002 --blob-url https://t3logse388e1b8d9e3.blob.core.windows.net/runs/terminus_lean_150m_qat_2b_run_20261002/ --vm-resource-id /subscriptions/6ac11955-aa2f-4cf9-a693-e388e1b8d9e3/resourceGroups/H100_GROUP/providers/Microsoft.Compute/virtualMachines/h100 --train-service terminus-lean-qat-2b.service --ops-log /srv/terminus-10b/ops/qat/finalizer.log --poll-seconds 10
 Restart=on-failure
 RestartSec=300
 StandardOutput=append:/srv/terminus-10b/ops/qat/finalizer.log
