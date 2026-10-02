@@ -1,0 +1,5 @@
+# Transient XeLaTeX build files; source and archival PDF are tracked.
+FINAL_RUN_ANALYSIS.aux
+FINAL_RUN_ANALYSIS.log
+FINAL_RUN_ANALYSIS.out
+FINAL_RUN_ANALYSIS.toc
