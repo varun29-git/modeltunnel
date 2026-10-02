@@ -26,6 +26,8 @@ Each validation event scored **1,572,864 held-out tokens per source** for Englis
 | 9.005B | 22,900 | 2.6190 | 2.9477 | 3.1157 | 0.7606 | 1.3442 |
 | 10.000B | 25,432 | **2.4194** | **2.7597** | **2.8525** | **0.6389** | **1.1989** |
 
+The first validation, at 39.3M training tokens, was 5.8878 overall. The first and last individual training-batch losses were 11.5818 and 2.4190; individual batches are noisy and are not directly comparable to held-out validation points.
+
 The weighted loss fell 0.265 between the end of warmup and roughly 8B tokens, then **0.337 in the 2B-token decay**. English fell 0.320 during decay. Every Indic stream improved by 0.417–0.461 over that interval. The lowest recorded weighted validation was 2.41845 at update 25,400; the final value is only 0.00093 higher, well within the small variation visible in adjacent checks. There is no sustained late validation reversal.
 
 ![Full and zoomed weighted loss](figures/loss_overall.png)
