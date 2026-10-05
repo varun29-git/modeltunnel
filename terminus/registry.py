@@ -64,7 +64,7 @@ def make_run_config(width, *, weight_mode, schedule, warmup_tokens, decay_tokens
              "linear_backend": linear_backend, "fp8_backward": fp8_backward,
              "fp8_quantizer": fp8_quantizer, "fp8_cache_weights": True,
              "loss_backend": "triton", "fused_pointwise": True, "fuse_projections": True,
-             "residual_dtype": "bf16", "fused_mlp": True, "fused_qkv": True,
+             "residual_dtype": "bf16", "fused_mlp": True, "fused_qkv": False,
              "weight_mode": weight_mode}
     model.update(extra_model or {})
     return {

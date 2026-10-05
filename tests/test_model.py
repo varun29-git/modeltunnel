@@ -181,14 +181,17 @@ class ModelTests(unittest.TestCase):
             self.assertTrue(torch.isfinite(norm.weight.grad).all())
             self.assertGreater(float(norm.weight.grad.abs().sum()), 0)
 
-    def test_learned_qk_norm_fused_qkv_flag_keeps_pre_rope_gains(self):
+    def test_learned_qk_norm_keeps_gains_before_rope(self):
         from terminus.model import BitNetAttention, apply_rotary
 
+        with self.assertRaisesRegex(ValueError, "fused_qkv=False"):
+            tiny_config(qk_norm_mode="learned_rms", fuse_projections=True,
+                        fused_pointwise=True, fused_qkv=True)
         config = tiny_config(qk_norm_mode="learned_rms", use_subln=False,
-                             fuse_projections=True, fused_pointwise=True, fused_qkv=True)
+                             fuse_projections=True, fused_pointwise=True, fused_qkv=False)
         attention = BitNetAttention(config, layer_index=0)
-        # The CUDA pointwise kernel is unavailable on CPU; this checks the
-        # learned-mode routing when the packed-QKV flag is enabled.
+        # The CUDA pointwise kernel is unavailable on CPU; check the algebra
+        # and ordering with the same norm module's CPU reference path.
         attention.q_norm.fused = attention.k_norm.fused = False
         with torch.no_grad():
             attention.q_norm.weight.copy_(torch.linspace(.5, 1.8, config.head_dim))

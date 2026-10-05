@@ -113,6 +113,8 @@ class BitNetLlamaConfig:
             raise ValueError("unsupported initialization or FFN activation")
         if self.qk_norm_mode not in {"learned_rms", "unit_rms", "none"}:
             raise ValueError("Q/K normalization must be learned_rms, unit_rms or none")
+        if self.qk_norm_mode == "learned_rms" and self.fused_qkv:
+            raise ValueError("learned Q/K gains require fused_qkv=False until the packed kernel supports gain gradients")
         if self.pad_token_id is not None and not 0 <= self.pad_token_id < self.vocab_size:
             raise ValueError("pad_token_id is outside the vocabulary")
         if self.weight_scale_layout not in {"rowwise", "blockwise"} or self.linear_backend not in {"torch", "deepgemm"}:
@@ -350,7 +352,7 @@ class BitNetAttention(nn.Module):
 
     def forward(self, hidden, cos, sin, attention_mask=None, cache=None):
         batch, length, _ = hidden.shape
-        if self.config.fused_qkv and self.config.qk_norm_mode != "learned_rms":
+        if self.config.fused_qkv:
             from .pointwise import packed_qkv_rope
 
             query, key, value = packed_qkv_rope(self.qkv_proj(hidden), cos, sin,

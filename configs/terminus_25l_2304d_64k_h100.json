@@ -27,7 +27,7 @@
     "fuse_projections": true,
     "residual_dtype": "bf16",
     "fused_mlp": true,
-    "fused_qkv": true
+    "fused_qkv": false
   },
   "training": {
     "device": "cuda",

@@ -26,6 +26,7 @@ class WidthFamilyTests(unittest.TestCase):
                                      warmup_tokens=100, decay_tokens=200,
                                      muon_lr=.003, adamw_lr=.003)
             self.assertEqual(config["model"]["qk_norm_mode"], "learned_rms")
+            self.assertFalse(config["model"]["fused_qkv"])
             self.assertEqual(config["optimizer"]["qk_norm_lr"], .0001)
             self.assertLess(config["optimizer"]["qk_norm_lr"], config["optimizer"]["norm_lr"])
 
