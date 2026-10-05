@@ -274,5 +274,40 @@
       "effective_rms_ratio": 0.6583824083986641,
       "zero_fraction": 0.3123466413909314
     }
+  },
+  "optional_depth_comparator": {
+    "width": 2048,
+    "ffn": 5632,
+    "query_heads": 16,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "layers": 30,
+    "projection_parameters": 1352663040,
+    "embedding_parameters": 134217728,
+    "main_norm_parameters": 124928,
+    "qk_norm_parameters": 7680,
+    "total_parameters": 1487013376,
+    "embedding_fraction": 0.09025993320990813,
+    "learned_ternary_block_scales": 82560,
+    "total_with_learned_block_scales": 1487095936,
+    "theoretical_export_bytes_2bit_codes_bf16_embedding": 607461888,
+    "bf16_weight_bytes": 2974026752,
+    "row_group_export": {
+      "32": {
+        "scale_count": 42270720,
+        "fp16_scale_bits_per_projection_weight": 0.5,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 691673088
+      },
+      "64": {
+        "scale_count": 21135360,
+        "fp16_scale_bits_per_projection_weight": 0.25,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 649402368
+      },
+      "128": {
+        "scale_count": 10567680,
+        "fp16_scale_bits_per_projection_weight": 0.125,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 628267008
+      }
+    }
   }
 }

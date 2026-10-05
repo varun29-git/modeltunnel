@@ -1,0 +1,40 @@
+{
+  "scope": "untrained width-512 reference model; FP32 arithmetic; random IDs; not real-data loss",
+  "seed": 1337,
+  "shape": [
+    2,
+    32
+  ],
+  "parameters": 118783744,
+  "input_residual_rms": 0.9909997582435608,
+  "uniform_nll": 11.090354888959125,
+  "readout_comparisons": [
+    {
+      "name": "unscaled",
+      "multiplier": 1.0,
+      "random_target_nll": 19.60993194580078,
+      "mean_entropy": 0.00738721527159214,
+      "mean_current_token_logit": 19.7454776763916,
+      "mean_current_token_probability": 0.9996553063392639,
+      "maximum_absolute_logit": 21.554203033447266
+    },
+    {
+      "name": "c_logit_1",
+      "multiplier": 0.044194173824159216,
+      "random_target_nll": 11.085382461547852,
+      "mean_entropy": 11.08936882019043,
+      "mean_current_token_logit": 0.8726350665092468,
+      "mean_current_token_probability": 3.65015584975481e-05,
+      "maximum_absolute_logit": 0.9525701999664307
+    },
+    {
+      "name": "c_logit_2",
+      "multiplier": 0.08838834764831843,
+      "random_target_nll": 11.08239459991455,
+      "mean_entropy": 11.086368560791016,
+      "mean_current_token_logit": 1.7452701330184937,
+      "mean_current_token_probability": 8.724877261556685e-05,
+      "maximum_absolute_logit": 1.9051403999328613
+    }
+  ]
+}

@@ -12,7 +12,7 @@
 
 4. **Large changes to latent weights can be normal at ternary precision.** ParetoQ distinguishes low-bit representation reconstruction from the smaller compensation seen at 3–4 bits. The Terminus increase in latent RMS and zeros does not, alone, prove failed learning. Held-out loss, task results, and matched controls remain the functional evidence. [S5]
 
-5. **Muon and μP are not categorically incompatible.** Published Muon scaling and the 2026 step-by-step transfer work support studying coherent parameterization and transfer rules. They do not validate mixing arbitrary μP readout multipliers with Terminus's current Muon rule. The latter paper is mainly MoE, with a dense appendix; its width and token-horizon transfer conditions matter. [S7–S9]
+5. **Muon and $\mu$P are not categorically incompatible.** Published Muon scaling and the 2026 step-by-step transfer work support studying coherent parameterization and transfer rules. They do not validate mixing arbitrary $\mu$P readout multipliers with Terminus's current Muon rule. The latter paper is mainly MoE, with a dense appendix; its width and token-horizon transfer conditions matter. [S7–S9]
 
 6. **Normalization has different jobs in different locations.** Qwen3 uses pre-RMSNorm and learned Q/K normalization. OLMo2 uses a different output-normalized design, Q/K normalization, embedding-decay changes, and z-loss. Neither implies that Terminus should stack all of those choices. Learned Q/K normalization is a targeted attention-logit control; SubLN and residual-branch normalization are separate changes. [S10–S12]
 
@@ -31,6 +31,12 @@ The script [audit_architecture_evidence.py](audit_architecture_evidence.py) reha
 
 The fixed-code row is a diagnostic: recomputing nearest ternary codes using its new scale would change the assignments. Alternating calibration recomputes assignments with the final scale. Smaller row groups improve this weight-space metric modestly; better language-model quality remains unmeasured. The extra FP8 encoding required for finer ternary groups is not included in this table.
 
+## Initialization diagnostic for the proposed parameterization
+
+[probe_initial_parameterization.py](probe_initial_parameterization.py) applies the proposed width-512 block equations with the existing CPU reference modules, including learned Q/K gains initialized to one, runtime residual scaling, and scaled tied embeddings. It uses random token IDs and FP32 arithmetic; it is not a training or task-quality experiment. Its count is exactly 118,783,744 parameters, matching the proposed proxy.
+
+An unscaled tied readout assigned an average 99.97% probability to the current token because its embedding remains in the residual stream. Scaling the readout by `2/sqrt(width)` gave entropy 11.086 nats, near the uniform 65K entropy of 11.090. This caught an initialization issue in the draft parameterization; it does **not** identify a bug in the old trained model. [initialization_diagnostic.json](initialization_diagnostic.json) records all comparisons. The corrected readout factor is part of the parameterization to test jointly with Muon and auxiliary-LR transfer, not a proven optimum.
+
 ## Primary-source reading map
 
 **[S1] MiniCPM4** — [paper](https://arxiv.org/abs/2506.07900), Sections 2.3 and 3.3. ModelTunnelv2 uses task-conditioned loss; MTP and FP8 are engineering components. BitCPM4 uses a trained dense parent, LR re-warmup, and weight-only ternary QAT. The 5M/2B fixed-total pilot's >40% QAT observation concerns approaching ternary-from-start loss, not a guarantee of dense parity or a universal final token budget. FP8 activations in Terminus remain a deliberate requirement. Its 350B reported QAT budget is not transferable by arithmetic alone.
@@ -47,9 +53,9 @@ The fixed-code row is a diagnostic: recomputing nearest ternary codes using its 
 
 **[S7] Muon is Scalable** — [paper](https://arxiv.org/abs/2502.16982), Section 2.2. It explicitly connects growing weight/activation RMS to precision concerns and motivates weight decay and RMS-matched updates. This makes Muon LR, weight decay, and runtime branch scale a coherent group of tuning variables.
 
-**[S8] Tensor Programs V / μP** — [paper](https://arxiv.org/abs/2203.03466). Parameterization and width-transfer rules are a package; optimal LR transfer is not guaranteed by applying one readout factor.
+**[S8] Tensor Programs V / $\mu$P** — [paper](https://arxiv.org/abs/2203.03466). Parameterization and width-transfer rules are a package; optimal LR transfer is not guaranteed by applying one readout factor.
 
-**[S9] Let's Scale Step by Step** — [paper](https://arxiv.org/abs/2608.20061), methods, Appendix A and dense-model Appendix C. Uses Muon and separates width transfer from token-horizon transfer. Useful counterevidence to a blanket “Muon cannot use μP” claim. Its MoE setting and complete scaling prescription cannot be silently substituted for our dense family.
+**[S9] Let's Scale Step by Step** — [paper](https://arxiv.org/abs/2608.20061), methods, Appendix A and dense-model Appendix C. Uses Muon and separates width transfer from token-horizon transfer. Useful counterevidence to a blanket “Muon cannot use $\mu$P” claim. Its MoE setting and complete scaling prescription cannot be silently substituted for our dense family.
 
 **[S10] Qwen3** — [paper](https://arxiv.org/abs/2505.09388), architecture section; [1.7B-Base config](https://huggingface.co/Qwen/Qwen3-1.7B-Base/blob/ea980cb0a6c2ae4b936e82123acc929f1cec04c1/config.json). Supports a bias-free GQA/SwiGLU/pre-RMSNorm backbone and learned Q/K normalization. Its model/data/tokenizer and full training recipe differ.
 

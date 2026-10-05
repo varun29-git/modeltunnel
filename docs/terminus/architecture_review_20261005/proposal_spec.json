@@ -1,0 +1,374 @@
+{
+  "status": "research_proposal_only_not_loadable_by_current_trainer",
+  "date": "2026-10-05",
+  "main_run_decision": null,
+  "architecture": {
+    "layers": 25,
+    "dim": 2048,
+    "ffn_dim": 7168,
+    "query_heads": 16,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "local_window_including_current": 512,
+    "global_layer_indices_one_based": [
+      5,
+      10,
+      15,
+      20,
+      25
+    ],
+    "initial_context": 4096,
+    "rope_theta": 10000,
+    "vocab_size": 65536,
+    "tie_embeddings": true,
+    "bias": false,
+    "dropout": 0,
+    "activation": "swiglu",
+    "main_norm": "pre_rmsnorm_learned_channel_gain",
+    "qk_norm": "learned_head_dim_rmsnorm_before_rope_shared_across_heads",
+    "qk_gain_init": 1,
+    "norm_eps": 1e-05,
+    "subln": false,
+    "embedding_projection": false
+  },
+  "parameterization": {
+    "projection_init_std": "1/sqrt(fan_in), including O and down",
+    "runtime_attention_residual_factor": "c/sqrt(2*layers)",
+    "runtime_ffn_residual_factor": "c/sqrt(2*layers)",
+    "residual_c_start": 1,
+    "additional_o_down_init_scale": 1,
+    "embedding_init_std": "1/sqrt(dim)",
+    "input_embedding_multiplier": "sqrt(dim)",
+    "muP_transfer_status": "unvalidated; compare coherent width rules",
+    "readout_multiplier": "c_logit/sqrt(dim)",
+    "c_logit_start": 2
+  },
+  "precision": {
+    "activation_fp8": "E4M3, per-token groups of 128",
+    "dense_weight_fp8": "E4M3, 128x128 blockwise absmax",
+    "master_weights": "fp32",
+    "weight_gradients": "fp32",
+    "optimizer_states": "fp32",
+    "attention_operands": "bf16",
+    "norm_reductions": "fp32",
+    "residual_storage_start": "bf16",
+    "residual_storage_control": "fp32",
+    "loss_reductions": "fp32 or higher"
+  },
+  "qat": {
+    "preferred_new_branch": "row_group_64_statistical_ternary_then_fp8_weight_encoding",
+    "ternary_codes": [
+      -1,
+      0,
+      1
+    ],
+    "group_axis": "adjacent input coordinates within each output row",
+    "statistical_scale": "mean absolute value per ternary group",
+    "fp8_compute_tile": [
+      128,
+      128
+    ],
+    "forward": "Q_FP8(Q_ternary(W_master))",
+    "backward_transpose": "transpose effective weights from original ternary groups; do not re-ternarize W^T",
+    "controls": [
+      "current_128x128_absmean",
+      "row_group_128",
+      "row_group_32",
+      "calibrated_or_learned_scale_at_fixed_group"
+    ],
+    "scale_learning": "optional, requires explicit STE and separate optimizer group",
+    "activations_remain_fp8": true,
+    "qat_token_budget": null,
+    "qat_target_lr": null
+  },
+  "proxy_start_optimizer": {
+    "reference_width": 512,
+    "muon_base_lr": 0.003,
+    "muon_momentum": 0.95,
+    "matrix_weight_decay": 0.1,
+    "embedding_adamw_lr": 0.001,
+    "embedding_weight_decay": 0,
+    "main_norm_lr": 0.0003,
+    "final_norm_lr": 0.0003,
+    "qk_norm_lr": 0.0003,
+    "norm_weight_decay": 0,
+    "adamw_betas": [
+      0.9,
+      0.95
+    ],
+    "adamw_eps": 1e-08,
+    "target_width_rates": null,
+    "logical_muon_groups": [
+      "q",
+      "k",
+      "v",
+      "o",
+      "gate",
+      "up",
+      "down"
+    ]
+  },
+  "search": {
+    "dense_muon_base_lr": [
+      0.0015,
+      0.003,
+      0.006
+    ],
+    "residual_c": [
+      0.5,
+      1,
+      2
+    ],
+    "norm_lr": [
+      0.0001,
+      0.0003,
+      0.001
+    ],
+    "embedding_lr": [
+      0.0003,
+      0.001,
+      0.003
+    ],
+    "width_correction_exponent": [
+      0,
+      0.5,
+      1
+    ],
+    "qat_peak_ratio": [
+      0.25,
+      0.5,
+      1
+    ],
+    "initial_effective_batch_tokens": [
+      131072,
+      262144,
+      524288
+    ],
+    "strategy": "staged paired comparisons, not Cartesian product; final ternary quality and measured GPU-hours",
+    "c_logit": [
+      1,
+      2,
+      4
+    ]
+  },
+  "counts": {
+    "width": 2048,
+    "ffn": 7168,
+    "query_heads": 16,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "layers": 25,
+    "projection_parameters": 1363148800,
+    "embedding_parameters": 134217728,
+    "main_norm_parameters": 104448,
+    "qk_norm_parameters": 6400,
+    "total_parameters": 1497477376,
+    "embedding_fraction": 0.08962921921299197,
+    "learned_ternary_block_scales": 83200,
+    "total_with_learned_block_scales": 1497560576,
+    "theoretical_export_bytes_2bit_codes_bf16_embedding": 609998848,
+    "bf16_weight_bytes": 2994954752,
+    "row_group_export": {
+      "32": {
+        "scale_count": 42598400,
+        "fp16_scale_bits_per_projection_weight": 0.5,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 694862848
+      },
+      "64": {
+        "scale_count": 21299200,
+        "fp16_scale_bits_per_projection_weight": 0.25,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 652264448
+      },
+      "128": {
+        "scale_count": 10649600,
+        "fp16_scale_bits_per_projection_weight": 0.125,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 630965248
+      }
+    }
+  },
+  "family": {
+    "512": {
+      "width": 512,
+      "ffn": 1792,
+      "query_heads": 4,
+      "kv_heads": 1,
+      "head_dim": 128,
+      "layers": 25,
+      "projection_parameters": 85196800,
+      "embedding_parameters": 33554432,
+      "main_norm_parameters": 26112,
+      "qk_norm_parameters": 6400,
+      "total_parameters": 118783744,
+      "embedding_fraction": 0.28248336742105046,
+      "learned_ternary_block_scales": 5200,
+      "total_with_learned_block_scales": 118788944,
+      "theoretical_export_bytes_2bit_codes_bf16_embedding": 88558912,
+      "bf16_weight_bytes": 237567488,
+      "row_group_export": {
+        "32": {
+          "scale_count": 2662400,
+          "fp16_scale_bits_per_projection_weight": 0.5,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 93862912
+        },
+        "64": {
+          "scale_count": 1331200,
+          "fp16_scale_bits_per_projection_weight": 0.25,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 91200512
+        },
+        "128": {
+          "scale_count": 665600,
+          "fp16_scale_bits_per_projection_weight": 0.125,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 89869312
+        }
+      }
+    },
+    "1024": {
+      "width": 1024,
+      "ffn": 3584,
+      "query_heads": 8,
+      "kv_heads": 2,
+      "head_dim": 128,
+      "layers": 25,
+      "projection_parameters": 340787200,
+      "embedding_parameters": 67108864,
+      "main_norm_parameters": 52224,
+      "qk_norm_parameters": 6400,
+      "total_parameters": 407954688,
+      "embedding_fraction": 0.1645007790669144,
+      "learned_ternary_block_scales": 20800,
+      "total_with_learned_block_scales": 407975488,
+      "theoretical_export_bytes_2bit_codes_bf16_embedding": 219732224,
+      "bf16_weight_bytes": 815909376,
+      "row_group_export": {
+        "32": {
+          "scale_count": 10649600,
+          "fp16_scale_bits_per_projection_weight": 0.5,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 240948224
+        },
+        "64": {
+          "scale_count": 5324800,
+          "fp16_scale_bits_per_projection_weight": 0.25,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 230298624
+        },
+        "128": {
+          "scale_count": 2662400,
+          "fp16_scale_bits_per_projection_weight": 0.125,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 224973824
+        }
+      }
+    },
+    "1536": {
+      "width": 1536,
+      "ffn": 5376,
+      "query_heads": 12,
+      "kv_heads": 3,
+      "head_dim": 128,
+      "layers": 25,
+      "projection_parameters": 766771200,
+      "embedding_parameters": 100663296,
+      "main_norm_parameters": 78336,
+      "qk_norm_parameters": 6400,
+      "total_parameters": 867519232,
+      "embedding_fraction": 0.11603580910584355,
+      "learned_ternary_block_scales": 46800,
+      "total_with_learned_block_scales": 867566032,
+      "theoretical_export_bytes_2bit_codes_bf16_embedding": 393545536,
+      "bf16_weight_bytes": 1735038464,
+      "row_group_export": {
+        "32": {
+          "scale_count": 23961600,
+          "fp16_scale_bits_per_projection_weight": 0.5,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 441281536
+        },
+        "64": {
+          "scale_count": 11980800,
+          "fp16_scale_bits_per_projection_weight": 0.25,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 417319936
+        },
+        "128": {
+          "scale_count": 5990400,
+          "fp16_scale_bits_per_projection_weight": 0.125,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 405339136
+        }
+      }
+    },
+    "2048": {
+      "width": 2048,
+      "ffn": 7168,
+      "query_heads": 16,
+      "kv_heads": 4,
+      "head_dim": 128,
+      "layers": 25,
+      "projection_parameters": 1363148800,
+      "embedding_parameters": 134217728,
+      "main_norm_parameters": 104448,
+      "qk_norm_parameters": 6400,
+      "total_parameters": 1497477376,
+      "embedding_fraction": 0.08962921921299197,
+      "learned_ternary_block_scales": 83200,
+      "total_with_learned_block_scales": 1497560576,
+      "theoretical_export_bytes_2bit_codes_bf16_embedding": 609998848,
+      "bf16_weight_bytes": 2994954752,
+      "row_group_export": {
+        "32": {
+          "scale_count": 42598400,
+          "fp16_scale_bits_per_projection_weight": 0.5,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 694862848
+        },
+        "64": {
+          "scale_count": 21299200,
+          "fp16_scale_bits_per_projection_weight": 0.25,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 652264448
+        },
+        "128": {
+          "scale_count": 10649600,
+          "fp16_scale_bits_per_projection_weight": 0.125,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 630965248
+        }
+      }
+    }
+  },
+  "implementation_required": [
+    "runtime residual/input/readout scales",
+    "learned fused QK gains",
+    "named auxiliary and logical optimizer LR groups",
+    "decoupled ternary grid and FP8 encoding",
+    "transition effective-settings and RNG-reset fixes",
+    "valid-label normalization when masked training is added"
+  ],
+  "optional_depth_comparator": {
+    "width": 2048,
+    "ffn": 5632,
+    "query_heads": 16,
+    "kv_heads": 4,
+    "head_dim": 128,
+    "layers": 30,
+    "projection_parameters": 1352663040,
+    "embedding_parameters": 134217728,
+    "main_norm_parameters": 124928,
+    "qk_norm_parameters": 7680,
+    "total_parameters": 1487013376,
+    "embedding_fraction": 0.09025993320990813,
+    "learned_ternary_block_scales": 82560,
+    "total_with_learned_block_scales": 1487095936,
+    "theoretical_export_bytes_2bit_codes_bf16_embedding": 607461888,
+    "bf16_weight_bytes": 2974026752,
+    "row_group_export": {
+      "32": {
+        "scale_count": 42270720,
+        "fp16_scale_bits_per_projection_weight": 0.5,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 691673088
+      },
+      "64": {
+        "scale_count": 21135360,
+        "fp16_scale_bits_per_projection_weight": 0.25,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 649402368
+      },
+      "128": {
+        "scale_count": 10567680,
+        "fp16_scale_bits_per_projection_weight": 0.125,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 628267008
+      }
+    }
+  }
+}

@@ -97,6 +97,7 @@ def main():
     args=parser.parse_args();torch.set_num_threads(4)
     result={'scope':'proposed shape arithmetic; offline quantization only; no task or training quality measured',
             'family':{str(d):shape(d,7*d//2,d//128,d//512) for d in (512,1024,1536,2048)},
+            'optional_depth_comparator':shape(2048,5632,16,4,layers=30),
             'historical_150m':shape(640,1664,5,1,qk_gain=False),
             'historical_2304_geometry_without_subln':shape(2304,5760,18,6,qk_gain=False),
             'attention':{str(s):attention_cost(s) for s in (4096,32768)},

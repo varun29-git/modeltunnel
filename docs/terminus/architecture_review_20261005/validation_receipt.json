@@ -1,0 +1,31 @@
+{
+  "date": "2026-10-05",
+  "status": "passed",
+  "scope": "Research artifacts only; no production model edits or GPU run",
+  "checks": [
+    "Python scripts parse",
+    "Exact target and proxy parameter arithmetic",
+    "Family geometry and count sums",
+    "Local Markdown links resolve",
+    "PDF figure captions and formerly clipped paragraphs present",
+    "All-page PDF text within inspected content bounds",
+    "Figures and selected PDF math/table/layout pages visually inspected",
+    "Offline checkpoint and initialization diagnostics executed as recorded in their own receipts"
+  ],
+  "pdf_pages": 23,
+  "main_proposal_words": 9692,
+  "limitations": [
+    "Offline quantization error excludes extra FP8 encoding",
+    "No new trained-model loss or task-quality result",
+    "Candidate architecture and LR transfer unvalidated",
+    "Storage and attention-pair arithmetic are not measured throughput"
+  ],
+  "sha256": {
+    "ARCHITECTURE_AND_TUNING_PROPOSAL.md": "e6becab87bde284e9dbec1ca992d3337131ad9abe7e34ba463562e803899da9c",
+    "RESEARCH_EVIDENCE.md": "be4bbee7551b9fb59fad707c4366ab2357534803a7dd9f8088d00089a9e3adb5",
+    "TERMINUS_ARCHITECTURE_RESEARCH.pdf": "92d40d13b0abebfe71b43a7e34c87ae13b4aa75a3461cbeef0923a1c18f54da8",
+    "proposal_spec.json": "114a974fdfe0d306fecfa12f71d7d8215107025806d3f4b82ecc5f7a5e4be709",
+    "design_measurements.json": "cb20974e7c6dd9bf9f6377a1b830a6346f97bec789f45d36fce5b4ba3e935ea4",
+    "initialization_diagnostic.json": "ad600f14817c28bd3e7186c9d964c5b1c4d1d175907bca159c1b4e31861ce19f"
+  }
+}
