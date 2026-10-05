@@ -117,6 +117,21 @@ class TrainingTests(unittest.TestCase):
             if any(id(parameter) in norm_ids for parameter in group["params"]):
                 self.assertEqual(group["weight_decay"], 0)
 
+    def test_learned_qk_norm_has_own_zero_decay_learning_rate(self):
+        model = BitNetLlama(tiny_config(qk_norm_mode="learned_rms"))
+        config = OptimizerConfig(kind="adamw", adamw_lr=.003, norm_lr=.0003,
+                                 qk_norm_lr=.0001, weight_decay=.1)
+        optimizer = build_optimizer(model, config)
+        qk_parameters = {id(norm.weight) for block in model.layers
+                         for norm in (block.attn.q_norm, block.attn.k_norm)}
+        groups = [group for group in optimizer.param_groups
+                  if any(id(parameter) in qk_parameters for parameter in group["params"])]
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(groups[0]["name"], "qk_norm")
+        self.assertEqual({id(parameter) for parameter in groups[0]["params"]}, qk_parameters)
+        self.assertEqual(groups[0]["lr"], .0001)
+        self.assertEqual(groups[0]["weight_decay"], 0)
+
     def test_muon_scale_accounts_for_upstream_aspect_ratio(self):
         for outputs, inputs in ((16, 4), (4, 16), (8, 8)):
             parameter = torch.nn.Parameter(torch.empty(outputs, inputs))

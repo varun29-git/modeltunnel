@@ -111,8 +111,8 @@ class BitNetLlamaConfig:
             raise ValueError("production attention requires head_dim 64, 128 or 256")
         if self.weight_init not in {"normal", "orthogonal"} or self.ffn_activation not in {"swiglu", "relu2"}:
             raise ValueError("unsupported initialization or FFN activation")
-        if self.qk_norm_mode not in {"unit_rms", "none"}:
-            raise ValueError("Q/K normalization must be unit_rms or none")
+        if self.qk_norm_mode not in {"learned_rms", "unit_rms", "none"}:
+            raise ValueError("Q/K normalization must be learned_rms, unit_rms or none")
         if self.pad_token_id is not None and not 0 <= self.pad_token_id < self.vocab_size:
             raise ValueError("pad_token_id is outside the vocabulary")
         if self.weight_scale_layout not in {"rowwise", "blockwise"} or self.linear_backend not in {"torch", "deepgemm"}:
@@ -343,13 +343,14 @@ class BitNetAttention(nn.Module):
             self.k_proj = make_linear(config, config.dim, config.n_kv_heads * config.head_dim)
             self.v_proj = make_linear(config, config.dim, config.n_kv_heads * config.head_dim)
         self.o_proj = make_linear(config, config.dim, config.dim, residual=True)
-        self.q_norm = RMSNorm(config.head_dim, config.rms_norm_eps, gain="none", fused=config.fused_pointwise) if config.qk_norm_mode == "unit_rms" else nn.Identity()
-        self.k_norm = RMSNorm(config.head_dim, config.rms_norm_eps, gain="none", fused=config.fused_pointwise) if config.qk_norm_mode == "unit_rms" else nn.Identity()
+        norm_gain = "channel" if config.qk_norm_mode == "learned_rms" else "none"
+        self.q_norm = RMSNorm(config.head_dim, config.rms_norm_eps, gain=norm_gain, fused=config.fused_pointwise) if config.qk_norm_mode != "none" else nn.Identity()
+        self.k_norm = RMSNorm(config.head_dim, config.rms_norm_eps, gain=norm_gain, fused=config.fused_pointwise) if config.qk_norm_mode != "none" else nn.Identity()
         self.attn_sub_norm = RMSNorm(config.dim, config.rms_norm_eps, gain="scalar", fused=config.fused_pointwise) if config.attention_subln_enabled else nn.Identity()
 
     def forward(self, hidden, cos, sin, attention_mask=None, cache=None):
         batch, length, _ = hidden.shape
-        if self.config.fused_qkv:
+        if self.config.fused_qkv and self.config.qk_norm_mode != "learned_rms":
             from .pointwise import packed_qkv_rope
 
             query, key, value = packed_qkv_rope(self.qkv_proj(hidden), cos, sin,

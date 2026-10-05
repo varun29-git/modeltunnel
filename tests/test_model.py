@@ -157,6 +157,61 @@ class ModelTests(unittest.TestCase):
         second, _ = model.forward_cached(ids[:, 4:], cache=cache)
         torch.testing.assert_close(torch.cat((first["logits"], second["logits"]), dim=1), full)
 
+    def test_learned_qk_norm_initial_equivalence_and_gradients(self):
+        base = tiny_config(qk_norm_mode="unit_rms", use_subln=False, fuse_projections=True)
+        learned = replace(base, qk_norm_mode="learned_rms")
+        torch.manual_seed(91)
+        fixed_model = BitNetLlama(base)
+        torch.manual_seed(91)
+        learned_model = BitNetLlama(learned)
+        self.assertEqual(learned_model.count_parameters()["total"] - fixed_model.count_parameters()["total"],
+                         2 * learned.n_layers * learned.head_dim)
+        ids = torch.randint(0, learned.vocab_size, (2, 9))
+        torch.testing.assert_close(learned_model(ids)["logits"], fixed_model(ids)["logits"])
+        with torch.no_grad():
+            learned_model.layers[0].attn.q_norm.weight.fill_(1.7)
+            learned_model.layers[0].attn.k_norm.weight.fill_(.8)
+        changed = learned_model(ids)["logits"]
+        self.assertGreater(float((changed - fixed_model(ids)["logits"]).detach().abs().max()), 1e-6)
+        learned_model(ids, ids, return_logits=False)["loss"].backward()
+        for norm in (learned_model.layers[0].attn.q_norm, learned_model.layers[0].attn.k_norm):
+            self.assertIsNotNone(norm.weight.grad)
+            self.assertTrue(torch.isfinite(norm.weight.grad).all())
+            self.assertGreater(float(norm.weight.grad.abs().sum()), 0)
+
+    def test_learned_qk_norm_fused_qkv_flag_keeps_pre_rope_gains(self):
+        from terminus.model import BitNetAttention, apply_rotary
+
+        config = tiny_config(qk_norm_mode="learned_rms", use_subln=False,
+                             fuse_projections=True, fused_pointwise=True, fused_qkv=True)
+        attention = BitNetAttention(config, layer_index=0)
+        # The CUDA pointwise kernel is unavailable on CPU; this checks the
+        # learned-mode routing when the packed-QKV flag is enabled.
+        attention.q_norm.fused = attention.k_norm.fused = False
+        with torch.no_grad():
+            attention.q_norm.weight.copy_(torch.linspace(.5, 1.8, config.head_dim))
+            attention.k_norm.weight.copy_(torch.linspace(1.6, .7, config.head_dim))
+        hidden = torch.randn(1, 5, config.dim)
+        cos = torch.randn(1, 1, 5, config.head_dim // 2)
+        sin = torch.randn_like(cos)
+        packed = attention.qkv_proj(hidden)
+        q, k, _ = packed.split((config.dim, config.n_kv_heads * config.head_dim,
+                                config.n_kv_heads * config.head_dim), dim=-1)
+        q = q.view(1, 5, config.n_heads, config.head_dim).transpose(1, 2)
+        k = k.view(1, 5, config.n_kv_heads, config.head_dim).transpose(1, 2)
+        expected = (apply_rotary(attention.q_norm(q), cos, sin),
+                    apply_rotary(attention.k_norm(k), cos, sin))
+        captured = {}
+
+        def capture(query, key, value, **kwargs):
+            captured["query"], captured["key"] = query, key
+            return torch.zeros_like(query)
+
+        with patch("terminus.model.attention", side_effect=capture):
+            attention(hidden, cos, sin)
+        torch.testing.assert_close(captured["query"], expected[0])
+        torch.testing.assert_close(captured["key"], expected[1])
+
     def test_cache_chunking_and_storage(self):
         model = BitNetLlama(tiny_config()).eval()
         inputs = torch.randint(0, 32, (2, 16))

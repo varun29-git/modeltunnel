@@ -16,6 +16,7 @@ class OptimizerConfig:
     kind: str = "adamw"
     adamw_lr: float = 3e-4
     norm_lr: float = 1e-4
+    qk_norm_lr: float = 1e-4
     muon_lr: float = 3e-3
     weight_decay: float = 0.1
     betas: tuple[float, float] = (0.9, 0.95)
@@ -27,7 +28,7 @@ class OptimizerConfig:
     def __post_init__(self):
         if self.kind not in {"adamw", "muon"}:
             raise ValueError("optimizer must be adamw or muon")
-        for name in ("adamw_lr", "norm_lr", "muon_lr", "eps"):
+        for name in ("adamw_lr", "norm_lr", "qk_norm_lr", "muon_lr", "eps"):
             if not math.isfinite(getattr(self, name)) or getattr(self, name) <= 0:
                 raise ValueError(f"{name} must be finite and positive")
         if not math.isfinite(self.weight_decay) or self.weight_decay < 0:
@@ -87,7 +88,7 @@ def build_optimizer(model, config=None):
         if hasattr(module, "weight"):
             matrices.add(id(module.weight))
     groups, logical_rows = [], []
-    adam_matrices, norms = [], []
+    adam_matrices, norms, qk_norms = [], [], []
     for name, parameter in model.named_parameters():
         if not parameter.requires_grad:
             continue
@@ -98,13 +99,21 @@ def build_optimizer(model, config=None):
                            "weight_decay": config.weight_decay / scale,
                            "momentum": config.momentum, "use_muon": True})
             logical_rows.append(logical_muon_rows(name, parameter, model))
+        elif name.endswith((".attn.q_norm.weight", ".attn.k_norm.weight")):
+            if parameter.ndim != 1:
+                raise ValueError("learned Q/K norm gain must be a channel vector")
+            qk_norms.append(parameter)
         elif parameter.ndim < 2:
             norms.append(parameter)
         else:
             adam_matrices.append(parameter)
-    for parameters, learning_rate, decay in ((adam_matrices, config.adamw_lr, config.weight_decay), (norms, config.norm_lr, 0.0)):
+    for parameters, learning_rate, decay in ((adam_matrices, config.adamw_lr, config.weight_decay),
+                                            (norms, config.norm_lr, 0.0),
+                                            (qk_norms, config.qk_norm_lr, 0.0)):
         if parameters:
             group = {"params": parameters, "lr": learning_rate, "weight_decay": decay, "betas": tuple(config.betas), "eps": config.eps}
+            if parameters is qk_norms:
+                group["name"] = "qk_norm"
             if config.kind == "muon":
                 group["use_muon"] = False
             groups.append(group)
@@ -125,6 +134,6 @@ def build_optimizer(model, config=None):
         use_cuda = all(parameter.is_cuda for parameter in model.parameters())
         optimizer = torch.optim.AdamW(groups, fused=use_cuda, foreach=not use_cuda)
     for index, group in enumerate(optimizer.param_groups):
-        group["name"] = f"{config.kind}_{index}"
+        group.setdefault("name", f"{config.kind}_{index}")
         group["base_lr"] = group["lr"]
     return optimizer
