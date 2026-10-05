@@ -1,0 +1,394 @@
+{
+  "retrieved_date": "2026-10-05",
+  "purpose": "read-only primary-source research; raw downloads cached outside git",
+  "sources": [
+    {
+      "id": "minicpm4",
+      "url": "https://arxiv.org/html/2506.07900",
+      "resolved_url": "https://arxiv.org/html/2506.07900",
+      "title": "MiniCPM4: Ultra-Efficient LLMs on End Devices",
+      "sha256": "8041c9406a0980472378533225d391fc7bd03eacd286c8d8a8f97f110df9ebc1",
+      "bytes": 568013,
+      "status": "ok",
+      "arxiv_version": "2506.07900v2"
+    },
+    {
+      "id": "minicpm",
+      "url": "https://arxiv.org/html/2404.06395",
+      "resolved_url": "https://arxiv.org/html/2404.06395",
+      "title": "MiniCPM: Unveiling the Potential of Small Language Models with Scalable Training Strategies",
+      "sha256": "6929d6b12e0340edfc7bb46895fb4319809a2f21974083779cf9824b16ce8599",
+      "bytes": 493318,
+      "status": "ok",
+      "arxiv_version": "2404.06395v3"
+    },
+    {
+      "id": "paretoq",
+      "url": "https://arxiv.org/html/2502.02631",
+      "resolved_url": "https://arxiv.org/html/2502.02631",
+      "title": "ParetoQ: Improving Scaling Laws in Extremely Low-bit LLM Quantization",
+      "sha256": "bb1340636304e976ea5bfbc79971fa40de5da7e99275204070b1f8bea1787762",
+      "bytes": 583996,
+      "status": "ok",
+      "arxiv_version": "2502.02631v2"
+    },
+    {
+      "id": "continual_qat",
+      "url": "https://arxiv.org/html/2502.11895",
+      "resolved_url": "https://arxiv.org/html/2502.11895",
+      "title": "Continual Quantization-Aware Pre-Training: When to transition from 16-bit to 1.58-bit pre-training for BitNet language models?",
+      "sha256": "151f01ec7facd65460c47776e2c53fc4401586dcb4c57d0f9dd43e6f9f63aed0",
+      "bytes": 145411,
+      "status": "ok",
+      "arxiv_version": "2502.11895v1"
+    },
+    {
+      "id": "muon",
+      "url": "https://arxiv.org/html/2502.16982",
+      "resolved_url": "https://arxiv.org/html/2502.16982",
+      "title": "Muon is Scalable for LLM Training",
+      "sha256": "271babfa46b63c8836969b0dc3ba6441a2d9220512a48b67d8dae2454905819b",
+      "bytes": 311718,
+      "status": "ok",
+      "arxiv_version": "2502.16982v1"
+    },
+    {
+      "id": "deepseekv3",
+      "url": "https://arxiv.org/html/2412.19437",
+      "resolved_url": "https://arxiv.org/html/2412.19437",
+      "title": "DeepSeek-V3 Technical Report",
+      "sha256": "0768b63dd7e9cb632e71002c823275cf018a49dd3053ea9663c9c5a58eaee4a2",
+      "bytes": 549949,
+      "status": "ok",
+      "arxiv_version": "2412.19437v2"
+    },
+    {
+      "id": "gemma3",
+      "url": "https://arxiv.org/html/2503.19786",
+      "resolved_url": "https://arxiv.org/html/2503.19786",
+      "title": "Gemma 3 Technical Report",
+      "sha256": "77f6cf62fc469ece9904b22f909745ae8a4d4f59ac5f2c6c567b27c1b014c7e6",
+      "bytes": 372355,
+      "status": "ok",
+      "arxiv_version": "2503.19786v1"
+    },
+    {
+      "id": "qwen3",
+      "url": "https://arxiv.org/html/2505.09388",
+      "resolved_url": "https://arxiv.org/html/2505.09388",
+      "title": "Qwen3 Technical Report",
+      "sha256": "cf5c79d6f4795f74228ebbc7c8be8872bf1fdb03c5a7c856a89cde915691f0d7",
+      "bytes": 986155,
+      "status": "ok",
+      "arxiv_version": "2505.09388v1"
+    },
+    {
+      "id": "olmo2",
+      "url": "https://arxiv.org/html/2501.00656",
+      "resolved_url": "https://arxiv.org/html/2501.00656",
+      "title": "2 OLMo 2 Furious",
+      "sha256": "e490acda07ad9be4bdb133ea3307883883fa8f9b5ceaa14fa62348636932d1c7",
+      "bytes": 1105851,
+      "status": "ok",
+      "arxiv_version": "2501.00656v3"
+    },
+    {
+      "id": "bitnet2b4t",
+      "url": "https://arxiv.org/html/2504.12285",
+      "resolved_url": "https://arxiv.org/html/2504.12285",
+      "title": "BitNet b1.58 2B4T Technical Report",
+      "sha256": "05817c3592eda848298568db784c44ef3a95e9d90fc8ae1001743b7da3be58db",
+      "bytes": 194185,
+      "status": "ok",
+      "arxiv_version": "2504.12285v2"
+    },
+    {
+      "id": "quarot",
+      "url": "https://arxiv.org/html/2404.00456",
+      "resolved_url": "https://arxiv.org/html/2404.00456",
+      "title": "QuaRot: Outlier-Free 4-Bit Inference in Rotated LLMs",
+      "sha256": "16d9f7b9b86b850d1004c4ee14cc0065872cda885739be4c175954c18e1be2dc",
+      "bytes": 505472,
+      "status": "ok",
+      "arxiv_version": "2404.00456v2"
+    },
+    {
+      "id": "spinquant",
+      "url": "https://arxiv.org/html/2405.16406",
+      "resolved_url": "https://arxiv.org/html/2405.16406",
+      "title": "SpinQuant: LLM Quantization with Learned Rotations",
+      "sha256": "73d59375494a336bef6ac2e26afac41db6a376b5c88ac866dcd929f1ea48c4e2",
+      "bytes": 762179,
+      "status": "ok",
+      "arxiv_version": "2405.16406v4"
+    },
+    {
+      "id": "instability",
+      "url": "https://arxiv.org/html/2309.14322",
+      "resolved_url": "https://arxiv.org/html/2309.14322",
+      "title": "Small-scale proxies for large-scale Transformer training instabilities",
+      "sha256": "399798ca4a017d9d693cef20190d9d524a90c43e722ded59035f9bd484520772",
+      "bytes": 237610,
+      "status": "ok",
+      "arxiv_version": "2309.14322v2"
+    },
+    {
+      "id": "massive_activations",
+      "url": "https://arxiv.org/html/2402.17762",
+      "resolved_url": "https://arxiv.org/html/2402.17762",
+      "title": "Massive Activations in Large Language Models",
+      "sha256": "ba06ef3f8acbfd8c6dbd8d35d6812fe752f8a493d352d7175f3e11ae4bccafe1",
+      "bytes": 295622,
+      "status": "ok",
+      "arxiv_version": "2402.17762v2"
+    },
+    {
+      "id": "coat_repo",
+      "url": "https://raw.githubusercontent.com/NVlabs/COAT/main/README.md",
+      "resolved_url": "https://raw.githubusercontent.com/NVlabs/COAT/main/README.md",
+      "title": "<p align=\"center\" style=\"border-radius: 10px\">\n  <img src=\"docs/figs/COAT.png\" width=\"30%\"",
+      "sha256": "8953adfc776a2d0084b0850b419542ecdb6b39b6f8ed4c7fdaa67b0696aeae0f",
+      "bytes": 15486,
+      "status": "ok"
+    },
+    {
+      "id": "gram_ns",
+      "url": "https://raw.githubusercontent.com/Dao-AILab/gram-newton-schulz/main/README.md",
+      "resolved_url": "https://raw.githubusercontent.com/Dao-AILab/gram-newton-schulz/main/README.md",
+      "title": "# Gram Newton-Schulz: A Fast, Hardware-Aware Newton-Schulz Algorithm for Muon\n\nAuthors: Ja",
+      "sha256": "c87017278998e3c5dd3782663d74d320342293543724ca7d08e87393d67bf99f",
+      "bytes": 6479,
+      "status": "ok"
+    },
+    {
+      "id": "minicpm4_config",
+      "url": "https://huggingface.co/openbmb/MiniCPM4-0.5B/resolve/main/config.json",
+      "resolved_url": "https://huggingface.co/api/resolve-cache/models/openbmb/MiniCPM4-0.5B/5253c7fcc5e29e1cf3eacb59a58adf1ba4df8630/config.json?%2Fopenbmb%2FMiniCPM4-0.5B%2Fresolve%2Fmain%2Fconfig.json=&etag=%22ef0ad7131d32574c5127b0061d37039dcbf7a792%22",
+      "title": "{\n    \"_name_or_path\": \"openbmb/MiniCPM4-0.5B\",\n    \"architectures\": [\n        \"MiniCPMFor",
+      "sha256": "610c5b519420a3633ec4950c15a26d83ad0e9be35ef9d00a9e3d2b621b325f72",
+      "bytes": 2403,
+      "status": "ok"
+    },
+    {
+      "id": "minicpm4_model",
+      "url": "https://huggingface.co/openbmb/MiniCPM4-0.5B/resolve/main/modeling_minicpm.py",
+      "resolved_url": "https://huggingface.co/api/resolve-cache/models/openbmb/MiniCPM4-0.5B/5253c7fcc5e29e1cf3eacb59a58adf1ba4df8630/modeling_minicpm.py?%2Fopenbmb%2FMiniCPM4-0.5B%2Fresolve%2Fmain%2Fmodeling_minicpm.py=&etag=%228e75a3c2204588a35f9bf1f6d43f672338ca250a%22",
+      "title": "# coding=utf-8\n# Copyright 2025 The OpenBMB Team. All rights reserved.\n#\n# Licensed under ",
+      "sha256": "c646022c44d0e1cc1d149fb80422a5d5f1ba6de66dd0f525f2be1e18d99994bf",
+      "bytes": 69994,
+      "status": "ok"
+    },
+    {
+      "id": "qwen3_config",
+      "url": "https://huggingface.co/Qwen/Qwen3-1.7B-Base/resolve/main/config.json",
+      "resolved_url": "https://huggingface.co/api/resolve-cache/models/Qwen/Qwen3-1.7B-Base/ea980cb0a6c2ae4b936e82123acc929f1cec04c1/config.json?%2FQwen%2FQwen3-1.7B-Base%2Fresolve%2Fmain%2Fconfig.json=&etag=%2278f3deadbfd84408806f8f8c46abbc9647f673d2%22",
+      "title": "{\n  \"architectures\": [\n    \"Qwen3ForCausalLM\"\n  ],\n  \"attention_bias\": false,\n  \"attention",
+      "sha256": "1bb33a92c3548fbc68b889b490e810440435253598835bd71dff0396060c12db",
+      "bytes": 727,
+      "status": "ok"
+    },
+    {
+      "id": "smollm3",
+      "url": "https://huggingface.co/blog/smollm3",
+      "resolved_url": "https://huggingface.co/blog/smollm3",
+      "title": "SmolLM3: smol, multilingual, long-context reasoner",
+      "sha256": "55775178e32724ed875b09f60e4c6bffb35f1ec9ecb1747528d6e32aa39a4133",
+      "bytes": 740453,
+      "status": "ok"
+    },
+    {
+      "id": "deepgemm",
+      "url": "https://raw.githubusercontent.com/deepseek-ai/DeepGEMM/main/README.md",
+      "resolved_url": "https://raw.githubusercontent.com/deepseek-ai/DeepGEMM/main/README.md",
+      "title": "# DeepGEMM\n\nDeepGEMM is a unified, high-performance tensor core kernel library that brings",
+      "sha256": "1112521165450d617bf0ff0cc06d8944f7b4548ecf4727e1d16143671014a4d2",
+      "bytes": 13257,
+      "status": "ok"
+    },
+    {
+      "id": "coat",
+      "url": "https://arxiv.org/html/2410.19313",
+      "resolved_url": "https://arxiv.org/html/2410.19313",
+      "sha256": "920115f1af1b8c10cc34ab6e796340ffeeed1c0c864bbdcfee8bf13ac82c2b5f",
+      "bytes": 358420,
+      "status": "ok",
+      "arxiv_version": "2410.19313v3"
+    },
+    {
+      "id": "mup",
+      "url": "https://arxiv.org/html/2203.03466",
+      "resolved_url": "https://arxiv.org/html/2203.03466",
+      "sha256": "624cc48633f330aabc03f31eec131075a5c25c296370d308a8adb3cc27c7fe34",
+      "bytes": 1099352,
+      "status": "ok",
+      "arxiv_version": "2203.03466v2"
+    },
+    {
+      "id": "step_by_step",
+      "url": "https://arxiv.org/html/2608.20061",
+      "resolved_url": "https://arxiv.org/html/2608.20061",
+      "sha256": "1805f1f7f38e80cdd001daec5d18eaa48397cf981cabf799ce2d439552de01b6",
+      "bytes": 303221,
+      "status": "ok",
+      "arxiv_version": "2608.20061v1"
+    },
+    {
+      "id": "user_may_paper",
+      "url": "https://arxiv.org/html/2605.19269",
+      "resolved_url": "https://arxiv.org/html/2605.19269",
+      "sha256": "47d7c189d59e24f75c1a3d04f8f2fdab658b24be090a5740a93ceb3f55b4266d",
+      "bytes": 903211,
+      "status": "ok",
+      "arxiv_version": "2605.19269v2"
+    },
+    {
+      "id": "regmix",
+      "url": "https://arxiv.org/html/2407.01492",
+      "resolved_url": "https://arxiv.org/html/2407.01492",
+      "sha256": "e1a03b0b609f5410b30e3e02dd68c1d8295fc5f57fe91d476120ccac2384479b",
+      "bytes": 666685,
+      "status": "ok",
+      "arxiv_version": "2407.01492v2"
+    },
+    {
+      "id": "doremi",
+      "url": "https://arxiv.org/html/2305.10429",
+      "resolved_url": "https://arxiv.org/html/2305.10429",
+      "sha256": "2511bdab80799e47af4a205f12217cf968dfc08a0dca1e8c270e1709e02ab68e",
+      "bytes": 363813,
+      "status": "ok",
+      "arxiv_version": "2305.10429v4"
+    },
+    {
+      "id": "dclm",
+      "url": "https://arxiv.org/html/2406.11794",
+      "resolved_url": "https://arxiv.org/html/2406.11794",
+      "sha256": "0285d37bd75814406aaa8b3e51e0e893a05c2e9b9655d91c92c669a044e338a9",
+      "bytes": 1132037,
+      "status": "ok",
+      "arxiv_version": "2406.11794v4"
+    },
+    {
+      "id": "fineweb",
+      "url": "https://arxiv.org/html/2406.17557",
+      "resolved_url": "https://arxiv.org/html/2406.17557",
+      "sha256": "059d9418f0a111cdc55c9057dc1595a03ba392abc5e2140832635a520192dc99",
+      "bytes": 314620,
+      "status": "ok",
+      "arxiv_version": "2406.17557v2"
+    },
+    {
+      "id": "paretoq_tree",
+      "url": "https://api.github.com/repos/facebookresearch/ParetoQ/git/trees/main?recursive=1",
+      "resolved_url": "https://api.github.com/repos/facebookresearch/ParetoQ/git/trees/main?recursive=1",
+      "sha256": "5537b032627d8514bb7b10add01f708386fc2e72780348f3c2e844dcc8c9444d",
+      "bytes": 4593,
+      "status": "ok"
+    },
+    {
+      "id": "minicpm_bit_models",
+      "url": "https://huggingface.co/api/models?author=openbmb&search=BitCPM&limit=20",
+      "resolved_url": "https://huggingface.co/api/models?author=openbmb&search=BitCPM&limit=20",
+      "sha256": "7540f55006bb04426bbe2e056916bd41d78f1ad2c7abffac2bca68162ad05440",
+      "bytes": 6697,
+      "status": "ok"
+    },
+    {
+      "id": "muon_pin",
+      "url": "https://raw.githubusercontent.com/KellerJordan/Muon/f98f1cacc0263b04290753e32be8d498c1efc806/muon.py",
+      "resolved_url": "https://raw.githubusercontent.com/KellerJordan/Muon/f98f1cacc0263b04290753e32be8d498c1efc806/muon.py",
+      "sha256": "2479665a90124f62e4df557816665851ca317e42fcfda2af1da02c1f44ab5f3d",
+      "bytes": 13205,
+      "status": "ok"
+    },
+    {
+      "id": "paretoq_quant",
+      "url": "https://raw.githubusercontent.com/facebookresearch/ParetoQ/main/models/utils_quant.py",
+      "resolved_url": "https://raw.githubusercontent.com/facebookresearch/ParetoQ/main/models/utils_quant.py",
+      "sha256": "70b7d7e6f91983df30b1c4a7a9ae70d35e208194792f1c6c430ef373466928f6",
+      "bytes": 9261,
+      "status": "ok"
+    },
+    {
+      "id": "bitcpm4_info",
+      "url": "https://huggingface.co/api/models/openbmb/BitCPM4-0.5B",
+      "resolved_url": "https://huggingface.co/api/models/openbmb/BitCPM4-0.5B",
+      "sha256": "5f39d0be7a27b3aca97ba9b8cc83fb67fded73358135a7449de528c206f9245d",
+      "bytes": 2044,
+      "status": "ok"
+    },
+    {
+      "id": "bitcpm4_readme",
+      "url": "https://huggingface.co/openbmb/BitCPM4-0.5B/resolve/main/README.md",
+      "resolved_url": "https://huggingface.co/api/resolve-cache/models/openbmb/BitCPM4-0.5B/4d0e4a9e2257ceb39d99b85bb946083467e8476f/README.md?%2Fopenbmb%2FBitCPM4-0.5B%2Fresolve%2Fmain%2FREADME.md=&etag=%22d3fd0d6a600d2cd1b3ec23440f42be93dbbefc75%22",
+      "sha256": "374fab14749e31e11f535b69c7316ff6970274196449e144fe5513d6afad055f",
+      "bytes": 6119,
+      "status": "ok"
+    },
+    {
+      "id": "bitcpm4_config",
+      "url": "https://huggingface.co/openbmb/BitCPM4-0.5B/resolve/main/config.json",
+      "resolved_url": "https://huggingface.co/api/resolve-cache/models/openbmb/BitCPM4-0.5B/4d0e4a9e2257ceb39d99b85bb946083467e8476f/config.json?%2Fopenbmb%2FBitCPM4-0.5B%2Fresolve%2Fmain%2Fconfig.json=&etag=%22ef0ad7131d32574c5127b0061d37039dcbf7a792%22",
+      "sha256": "610c5b519420a3633ec4950c15a26d83ad0e9be35ef9d00a9e3d2b621b325f72",
+      "bytes": 2403,
+      "status": "ok"
+    },
+    {
+      "id": "bitcpm4_model",
+      "url": "https://huggingface.co/openbmb/BitCPM4-0.5B/resolve/main/modeling_bitnet.py",
+      "status": "failed",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "id": "bitcpm_cann_readme",
+      "url": "https://huggingface.co/openbmb/BitCPM-CANN-1B/resolve/main/README.md",
+      "resolved_url": "https://huggingface.co/api/resolve-cache/models/openbmb/BitCPM-CANN-1B/f784def4a90c5337cb46e87bb40f165082584973/README.md?%2Fopenbmb%2FBitCPM-CANN-1B%2Fresolve%2Fmain%2FREADME.md=&etag=%22871c3c8f5bcf33d2b384cb6c2bcf5e036aa7ada7%22",
+      "sha256": "c46728f06dc9d070aa6dad262429a7115f9f2be66ba8bb4d201dbda582d7c018",
+      "bytes": 8854,
+      "status": "ok"
+    },
+    {
+      "id": "bitcpm_cann",
+      "url": "https://raw.githubusercontent.com/OpenBMB/MiniCPM/main/docs/BitCPM_CANN.pdf",
+      "resolved_url": "https://raw.githubusercontent.com/OpenBMB/MiniCPM/main/docs/BitCPM_CANN.pdf",
+      "sha256": "c421d0bc83f1792e8ddf85e79310885d3179354094cc95ad394a6f5ff6621c69",
+      "bytes": 1548454,
+      "status": "ok"
+    },
+    {
+      "id": "bitcpm4_model_verified",
+      "url": "https://huggingface.co/openbmb/BitCPM4-0.5B/resolve/4d0e4a9e2257ceb39d99b85bb946083467e8476f/modeling_minicpm.py",
+      "resolved_url": "https://huggingface.co/api/resolve-cache/models/openbmb/BitCPM4-0.5B/4d0e4a9e2257ceb39d99b85bb946083467e8476f/modeling_minicpm.py?%2Fopenbmb%2FBitCPM4-0.5B%2Fresolve%2F4d0e4a9e2257ceb39d99b85bb946083467e8476f%2Fmodeling_minicpm.py=&etag=%2223a37056a9d1fe0acf188e14b2d2197cc3bf3d09%22",
+      "sha256": "2ce8dd80aaacf1a1629bd9dbbac70afbfbe1c2388feaf540f235ac96e30738bb",
+      "bytes": 119169,
+      "status": "ok"
+    }
+  ],
+  "repository_heads_at_review": [
+    {
+      "repository": "deepseek-ai/DeepGEMM",
+      "commit": "057ca5964aae0879ff2e0eb71ee05a3cb0ba3df7",
+      "method": "git ls-remote after API rate limit"
+    },
+    {
+      "repository": "NVlabs/COAT",
+      "commit": "80ec99f47aaa09231b07ace1fd04c30a1e30ec18",
+      "method": "git ls-remote after API rate limit"
+    },
+    {
+      "repository": "Dao-AILab/gram-newton-schulz",
+      "commit": "e45d0aca7083cb275c9a303220c05c4abecd9187",
+      "method": "git ls-remote after API rate limit"
+    },
+    {
+      "repository": "facebookresearch/ParetoQ",
+      "commit": "7b36b8de958aada6508e620c8dc544e6ed6c39b4",
+      "method": "git ls-remote after API rate limit"
+    },
+    {
+      "repository": "OpenBMB/MiniCPM",
+      "commit": "316cfb1cea39f39cfa16b4f5703b77495c2340be",
+      "method": "git ls-remote after API rate limit"
+    }
+  ]
+}

@@ -1,0 +1,278 @@
+{
+  "scope": "proposed shape arithmetic; offline quantization only; no task or training quality measured",
+  "family": {
+    "512": {
+      "width": 512,
+      "ffn": 1792,
+      "query_heads": 4,
+      "kv_heads": 1,
+      "head_dim": 128,
+      "layers": 25,
+      "projection_parameters": 85196800,
+      "embedding_parameters": 33554432,
+      "main_norm_parameters": 26112,
+      "qk_norm_parameters": 6400,
+      "total_parameters": 118783744,
+      "embedding_fraction": 0.28248336742105046,
+      "learned_ternary_block_scales": 5200,
+      "total_with_learned_block_scales": 118788944,
+      "theoretical_export_bytes_2bit_codes_bf16_embedding": 88558912,
+      "bf16_weight_bytes": 237567488,
+      "row_group_export": {
+        "32": {
+          "scale_count": 2662400,
+          "fp16_scale_bits_per_projection_weight": 0.5,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 93862912
+        },
+        "64": {
+          "scale_count": 1331200,
+          "fp16_scale_bits_per_projection_weight": 0.25,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 91200512
+        },
+        "128": {
+          "scale_count": 665600,
+          "fp16_scale_bits_per_projection_weight": 0.125,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 89869312
+        }
+      }
+    },
+    "1024": {
+      "width": 1024,
+      "ffn": 3584,
+      "query_heads": 8,
+      "kv_heads": 2,
+      "head_dim": 128,
+      "layers": 25,
+      "projection_parameters": 340787200,
+      "embedding_parameters": 67108864,
+      "main_norm_parameters": 52224,
+      "qk_norm_parameters": 6400,
+      "total_parameters": 407954688,
+      "embedding_fraction": 0.1645007790669144,
+      "learned_ternary_block_scales": 20800,
+      "total_with_learned_block_scales": 407975488,
+      "theoretical_export_bytes_2bit_codes_bf16_embedding": 219732224,
+      "bf16_weight_bytes": 815909376,
+      "row_group_export": {
+        "32": {
+          "scale_count": 10649600,
+          "fp16_scale_bits_per_projection_weight": 0.5,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 240948224
+        },
+        "64": {
+          "scale_count": 5324800,
+          "fp16_scale_bits_per_projection_weight": 0.25,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 230298624
+        },
+        "128": {
+          "scale_count": 2662400,
+          "fp16_scale_bits_per_projection_weight": 0.125,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 224973824
+        }
+      }
+    },
+    "1536": {
+      "width": 1536,
+      "ffn": 5376,
+      "query_heads": 12,
+      "kv_heads": 3,
+      "head_dim": 128,
+      "layers": 25,
+      "projection_parameters": 766771200,
+      "embedding_parameters": 100663296,
+      "main_norm_parameters": 78336,
+      "qk_norm_parameters": 6400,
+      "total_parameters": 867519232,
+      "embedding_fraction": 0.11603580910584355,
+      "learned_ternary_block_scales": 46800,
+      "total_with_learned_block_scales": 867566032,
+      "theoretical_export_bytes_2bit_codes_bf16_embedding": 393545536,
+      "bf16_weight_bytes": 1735038464,
+      "row_group_export": {
+        "32": {
+          "scale_count": 23961600,
+          "fp16_scale_bits_per_projection_weight": 0.5,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 441281536
+        },
+        "64": {
+          "scale_count": 11980800,
+          "fp16_scale_bits_per_projection_weight": 0.25,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 417319936
+        },
+        "128": {
+          "scale_count": 5990400,
+          "fp16_scale_bits_per_projection_weight": 0.125,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 405339136
+        }
+      }
+    },
+    "2048": {
+      "width": 2048,
+      "ffn": 7168,
+      "query_heads": 16,
+      "kv_heads": 4,
+      "head_dim": 128,
+      "layers": 25,
+      "projection_parameters": 1363148800,
+      "embedding_parameters": 134217728,
+      "main_norm_parameters": 104448,
+      "qk_norm_parameters": 6400,
+      "total_parameters": 1497477376,
+      "embedding_fraction": 0.08962921921299197,
+      "learned_ternary_block_scales": 83200,
+      "total_with_learned_block_scales": 1497560576,
+      "theoretical_export_bytes_2bit_codes_bf16_embedding": 609998848,
+      "bf16_weight_bytes": 2994954752,
+      "row_group_export": {
+        "32": {
+          "scale_count": 42598400,
+          "fp16_scale_bits_per_projection_weight": 0.5,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 694862848
+        },
+        "64": {
+          "scale_count": 21299200,
+          "fp16_scale_bits_per_projection_weight": 0.25,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 652264448
+        },
+        "128": {
+          "scale_count": 10649600,
+          "fp16_scale_bits_per_projection_weight": 0.125,
+          "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 630965248
+        }
+      }
+    }
+  },
+  "historical_150m": {
+    "width": 640,
+    "ffn": 1664,
+    "query_heads": 5,
+    "kv_heads": 1,
+    "head_dim": 128,
+    "layers": 25,
+    "projection_parameters": 104448000,
+    "embedding_parameters": 41943040,
+    "main_norm_parameters": 32640,
+    "qk_norm_parameters": 0,
+    "total_parameters": 146423680,
+    "embedding_fraction": 0.28644984199277057,
+    "learned_ternary_block_scales": 6375,
+    "total_with_learned_block_scales": 146430055,
+    "theoretical_export_bytes_2bit_codes_bf16_embedding": 110154140,
+    "bf16_weight_bytes": 292847360,
+    "row_group_export": {
+      "32": {
+        "scale_count": 3264000,
+        "fp16_scale_bits_per_projection_weight": 0.5,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 116656640
+      },
+      "64": {
+        "scale_count": 1632000,
+        "fp16_scale_bits_per_projection_weight": 0.25,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 113392640
+      },
+      "128": {
+        "scale_count": 816000,
+        "fp16_scale_bits_per_projection_weight": 0.125,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 111760640
+      }
+    }
+  },
+  "historical_2304_geometry_without_subln": {
+    "width": 2304,
+    "ffn": 5760,
+    "query_heads": 18,
+    "kv_heads": 6,
+    "head_dim": 128,
+    "layers": 25,
+    "projection_parameters": 1349222400,
+    "embedding_parameters": 150994944,
+    "main_norm_parameters": 117504,
+    "qk_norm_parameters": 0,
+    "total_parameters": 1500334848,
+    "embedding_fraction": 0.10064082974629407,
+    "learned_ternary_block_scales": 82350,
+    "total_with_learned_block_scales": 1500417198,
+    "theoretical_export_bytes_2bit_codes_bf16_embedding": 640094904,
+    "bf16_weight_bytes": 3000669696,
+    "row_group_export": {
+      "32": {
+        "scale_count": 42163200,
+        "fp16_scale_bits_per_projection_weight": 0.5,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 724091904
+      },
+      "64": {
+        "scale_count": 21081600,
+        "fp16_scale_bits_per_projection_weight": 0.25,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 681928704
+      },
+      "128": {
+        "scale_count": 10540800,
+        "fp16_scale_bits_per_projection_weight": 0.125,
+        "total_weight_bytes_2bit_codes_bf16_embedding_fp16_scales": 660847104
+      }
+    }
+  },
+  "attention": {
+    "4096": {
+      "sequence": 4096,
+      "window": 512,
+      "causal_attention_pair_ratio": 0.38747864290944595,
+      "bf16_kv_bytes": 62914560,
+      "all_global_bf16_kv_bytes": 209715200
+    },
+    "32768": {
+      "sequence": 32768,
+      "window": 512,
+      "causal_attention_pair_ratio": 0.2248043120021972,
+      "bf16_kv_bytes": 356515840,
+      "all_global_bf16_kv_bytes": 1677721600
+    }
+  },
+  "initial_vs_nominal_peak_muon_update": {
+    "caveat": "nominal approximate update RMS at peak divided by initialization RMS; not a measured update ratio",
+    "base_peak_lr": 0.01,
+    "nominal_update_rms": 0.002,
+    "input_weight_initial_rms": 0.03952847075210474,
+    "o_initial_rms": 0.005565044070192358,
+    "down_initial_rms": 0.0034512938211177877
+  },
+  "dense_checkpoint_sha256": "3d116e88048c93a0403ab2920b1680b066a9f29cbc07fa8ae1c2c67f2144684b",
+  "offline_ternary_scale": {
+    "absmean": {
+      "parameters": 104448000,
+      "relative_rms_error": 0.5291333796464597,
+      "effective_rms_ratio": 0.651041809332936,
+      "zero_fraction": 0.31698096660539216
+    },
+    "fixed_codes_centroid": {
+      "parameters": 104448000,
+      "relative_rms_error": 0.4776615614154925,
+      "effective_rms_ratio": 0.8785439268456359,
+      "zero_fraction": 0.31698096660539216
+    },
+    "alternating_centroid_8": {
+      "parameters": 104448000,
+      "relative_rms_error": 0.4507565485107272,
+      "effective_rms_ratio": 0.8925973170873551,
+      "zero_fraction": 0.4760457931219363
+    },
+    "row32_absmean": {
+      "parameters": 104448000,
+      "relative_rms_error": 0.5135658415386225,
+      "effective_rms_ratio": 0.6660817385508896,
+      "zero_fraction": 0.30847369025735294
+    },
+    "row64_absmean": {
+      "parameters": 104448000,
+      "relative_rms_error": 0.5182600665118166,
+      "effective_rms_ratio": 0.6609655317012704,
+      "zero_fraction": 0.31105383540134807
+    },
+    "row128_absmean": {
+      "parameters": 104448000,
+      "relative_rms_error": 0.5206054475872689,
+      "effective_rms_ratio": 0.6583824083986641,
+      "zero_fraction": 0.3123466413909314
+    }
+  }
+}
