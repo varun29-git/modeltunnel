@@ -101,8 +101,10 @@ class ModelTests(unittest.TestCase):
     def test_reduced_model_numerical_preflight_reference(self):
         from terminus.preflight import model_numerical_preflight
 
-        result = model_numerical_preflight(tiny_config(), torch.device("cpu"))
-        self.assertLess(max(result["errors"].values()), 1e-4)
+        for mode in ("unit_rms", "learned_rms"):
+            with self.subTest(mode=mode):
+                result = model_numerical_preflight(tiny_config(qk_norm_mode=mode), torch.device("cpu"))
+                self.assertLess(max(result["errors"].values()), 1e-4)
 
     def test_loss_retention_benchmark(self):
         from terminus.benchmark import loss_memory_benchmark

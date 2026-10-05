@@ -9,6 +9,7 @@
     "max_seq_len": 4096,
     "local_attention_window": 1024,
     "global_attention_every": 5,
+    "qk_norm_mode": "learned_rms",
     "attention_backend": "fa3",
     "weight_init": "normal",
     "pad_token_id": null,
@@ -46,6 +47,7 @@
     "kind": "muon",
     "adamw_lr": 0.003,
     "norm_lr": 0.0002,
+    "qk_norm_lr": 0.0001,
     "weight_decay": 0.1,
     "eps": 1e-10,
     "muon_lr": 0.003

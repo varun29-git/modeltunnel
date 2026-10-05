@@ -108,7 +108,17 @@ def optimized_kernel_preflight(config, device):
         cos, sin = (torch.randn(1, 1, 17, config.head_dim // 2, device=device) for _ in range(2))
         reference = apply_rotary(RMSNorm(config.head_dim, config.rms_norm_eps, gain="none").to(device)(values), cos, sin)
         check("qk_norm_rope", qk_rope(values, cos, sin, config.rms_norm_eps), reference, (values,), (values,))
-        if config.fused_qkv:
+        if config.qk_norm_mode == "learned_rms":
+            native = RMSNorm(config.head_dim, config.rms_norm_eps, gain="channel", fused=True).to(device)
+            reference = RMSNorm(config.head_dim, config.rms_norm_eps, gain="channel", fused=False).to(device)
+            with torch.no_grad():
+                gains = torch.linspace(.5, 1.8, config.head_dim, device=device)
+                native.weight.copy_(gains)
+                reference.weight.copy_(gains)
+            check("learned_qk_norm_before_rope", apply_rotary(native(values), cos, sin),
+                  apply_rotary(reference(values), cos, sin),
+                  (values, native.weight), (values, reference.weight))
+        if config.fused_qkv and config.qk_norm_mode != "learned_rms":
             q, kv, dim = config.n_heads, config.n_kv_heads, config.head_dim
             packed = torch.randn(2, 17, (q + 2 * kv) * dim, device=device, dtype=torch.bfloat16, requires_grad=True)
             normalize_qk = config.qk_norm_mode == "unit_rms"

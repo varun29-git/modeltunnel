@@ -20,6 +20,15 @@ class WidthFamilyTests(unittest.TestCase):
                 **width_model_config(width, attention_backend="sdpa_reference")))
             self.assertEqual(model.count_parameters()["total"], expected, width)
 
+    def test_new_campaigns_use_learned_qk_norm_in_both_phases(self):
+        for mode in ("dense", "ternary"):
+            config = make_run_config("200m", weight_mode=mode, schedule="wsd",
+                                     warmup_tokens=100, decay_tokens=200,
+                                     muon_lr=.003, adamw_lr=.003)
+            self.assertEqual(config["model"]["qk_norm_mode"], "learned_rms")
+            self.assertEqual(config["optimizer"]["qk_norm_lr"], .0001)
+            self.assertLess(config["optimizer"]["qk_norm_lr"], config["optimizer"]["norm_lr"])
+
     def test_muon_lr_rules(self):
         torch = __import__("torch")
         parameter = torch.nn.Parameter(torch.empty(256, 1024))

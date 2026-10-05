@@ -29,7 +29,7 @@ WIDTH_FAMILY = {
     "1500m": {"dim": 2304, "n_heads": 18, "n_kv_heads": 6, "ffn_dim": 5760},
 }
 # Measured on the maintained 25-layer / 65,536-vocab Terminus architecture.
-EXPECTED_PARAM_COUNTS = {"200m": 200_284_466, "700m": 700_396_082, "1500m": 1_500_334_898}
+EXPECTED_PARAM_COUNTS = {"200m": 200_290_866, "700m": 700_402_482, "1500m": 1_500_341_298}
 
 FAILURE_CLASSES = ("completed", "oom", "nonfinite_loss", "data_depleted",
                    "contract_violation", "infrastructure", "interrupted", "unknown")
@@ -41,6 +41,7 @@ def width_model_config(width, **overrides):
     config = {"vocab_size": 65536, "n_layers": 25, "max_seq_len": 4096,
               "local_attention_window": 1024, "global_attention_every": 5,
               "attention_backend": "fa3", "weight_init": "normal", "pad_token_id": 3,
+              "qk_norm_mode": "learned_rms",
               "loss_chunk_size": 4096, "residual_init_scale": 2 ** -2.8284271247461903,
               **WIDTH_FAMILY[width], **overrides}
     return config
@@ -55,7 +56,7 @@ def count_width_parameters(width):
 
 def make_run_config(width, *, weight_mode, schedule, warmup_tokens, decay_tokens=None,
                     decay_style="cosine", final_lr_fraction=0.1, muon_lr, adamw_lr,
-                    norm_lr=2e-4, weight_decay=0.1, muon_lr_rule="sqrt_fan_in",
+                    norm_lr=2e-4, qk_norm_lr=1e-4, weight_decay=0.1, muon_lr_rule="sqrt_fan_in",
                     muon_fan_in_base=None, gradient_accumulation_steps=64, seed=1337,
                     linear_backend="deepgemm", fp8_backward="full", fp8_quantizer="triton_split",
                     extra_model=None):
@@ -77,7 +78,7 @@ def make_run_config(width, *, weight_mode, schedule, warmup_tokens, decay_tokens
                      "validation_batches_per_language": 8, "log_interval": 10,
                      "compile": False},
         "optimizer": {"kind": "muon", "muon_lr": muon_lr, "adamw_lr": adamw_lr,
-                      "norm_lr": norm_lr, "weight_decay": weight_decay,
+                      "norm_lr": norm_lr, "qk_norm_lr": qk_norm_lr, "weight_decay": weight_decay,
                       "muon_lr_rule": muon_lr_rule, "muon_fan_in_base": muon_fan_in_base},
     }
 
