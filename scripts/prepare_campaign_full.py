@@ -2,8 +2,8 @@
 
 Reads every committed campaign source object (read-only), cleans, dedups,
 splits deterministically, and writes record JSONL + a corpus report. Designed
-for an EC2 instance in us-east-1 (see docs/MODELTUNNELV2_HANDOFF.md for the
-exact VM recipe); outputs can be synced to S3 by the owner.
+for an in-region CPU worker with authorized S3 access; outputs can be synced
+to S3 by the owner. Replace the source-bucket placeholder before execution.
 
 This is the unbounded counterpart of scripts/prepare_campaign_sample.py:
 same adapters and guarantees, no row/object caps. Restartable via the cursor
@@ -28,7 +28,7 @@ from terminus.corpus import (CAMPAIGN_SOURCE_LANGS, FINEWEB2_SOURCE_LANGS, Corpu
 from terminus.integrity import CAMPAIGN_SCOPE_V1
 from terminus.task_eval import task_text_hashes
 
-BUCKET = "s3://nemotron-training-data-us-east-1"
+BUCKET = "s3://your-source-bucket"
 V4 = "translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v4-20260905"
 V5 = "translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v5-20260906"
 FACT = ("translations/Nemotron-Pretraining-Specialized-v1.2/Fact-Seeking/"

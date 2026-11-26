@@ -18,7 +18,7 @@ from terminus.corpus import CorpusBuildConfig, CorpusBuilder, SourceSpec
 from terminus.integrity import CAMPAIGN_SCOPE_V1
 from terminus.task_eval import task_text_hashes
 
-BUCKET = "s3://nemotron-training-data-us-east-1"
+BUCKET = "s3://your-source-bucket"
 
 # (name, adapter, language, prefix, target_bytes of raw text input objects)
 SOURCES = {

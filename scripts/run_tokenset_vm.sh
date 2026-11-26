@@ -2,7 +2,7 @@
 # Token-set pipeline for an in-region VM: corpus -> merge -> tokenize -> pack
 # -> validate -> 3 nested manifests (3B/6B/10B) -> upload. Tokenization only;
 # no training. Run from the repo root on the VM:
-#   bash scripts/run_tokenset_vm.sh /data/work s3://quark-research-repository-storage/data/modeltunnelv2_tokensets_20260930
+#   bash scripts/run_tokenset_vm.sh /data/work s3://your-research-bucket/data/modeltunnelv2_tokensets_20260930
 set -euo pipefail
 WORK=${1:?work dir}
 DEST=${2:?s3 destination prefix}

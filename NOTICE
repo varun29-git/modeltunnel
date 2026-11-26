@@ -1,0 +1,29 @@
+Terminus ModelTunnelv2
+Copyright 2026 Compact Intelligence Inc.
+
+The original Terminus source code, documentation, report generators, research
+reports, and subsequent original modifications in this repository are licensed
+under the Apache License, Version 2.0. See LICENSE. See SOURCE_PROVENANCE.md
+for the upstream snapshot identity and history.
+
+Third-party assets are not relicensed by this distribution:
+
+- tokenizer/tokenizer-65k.json is a modified derivative of Sarvam tokenizer
+  material. Licensed by Sarvam AI under the Sarvam AI Research License. The
+  upstream pieces and modifications are described in
+  tokenizer/tokenizer-65k-freeze.md. It is not an official Sarvam product.
+  The required license text is reproduced in
+  tokenizer/SARVAM_AI_RESEARCH_LICENSE.md from
+  https://huggingface.co/sarvamai/sarvam-1/blob/main/LICENSE.md
+  Its non-commercial research restrictions apply; commercial use and commercial
+  entity distribution require explicit written permission under its terms.
+- data/tokenizer/rwkv-7-world/rwkv_vocab_v20230424.txt is from BlinkDL/RWKV-LM
+  (RWKV-v7/rwkv_vocab_v20230424.txt), pinned at commit
+  aeda8a06fc4803655473c7e7359b1d7166e2c604. It is under Apache-2.0; the
+  Apache license text is included in LICENSE. Upstream source:
+  https://github.com/BlinkDL/RWKV-LM
+- Installed dependencies and externally obtained datasets, evaluation records,
+  checkpoints, logs, and research papers retain their respective terms.
+
+No third-party paper PDFs, raw training corpora, evaluation records, or model
+checkpoints are distributed as Apache-licensed parts of this repository.

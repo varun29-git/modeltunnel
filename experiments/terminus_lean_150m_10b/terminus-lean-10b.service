@@ -1,31 +1,31 @@
 [Unit]
-Description=Terminus Lean 150M dense-FP8 10B-token training
+Description=Terminus Lean 150M dense-FP8 10B-token training (sanitized template)
 Wants=network-online.target
 After=network-online.target
-RequiresMountsFor=/srv/terminus-10b
+RequiresMountsFor=/var/lib/terminus
 StartLimitIntervalSec=3600
 StartLimitBurst=3
 
 [Service]
 Type=simple
-User=azureuserboss
-Group=azureuserboss
-WorkingDirectory=/home/azureuserboss/terminus-modeltunnelv2-run
-Environment=PYTHON=/home/azureuserboss/1bit_llm_advanced/.venv_test13/bin/python
-Environment=PYTHONPATH=/home/azureuserboss/terminus-modeltunnelv2-run:/home/azureuserboss/terminus-optimization-20260910/runtime/fa3-site
+User=terminus
+Group=terminus
+WorkingDirectory=/opt/terminus-modeltunnelv2
+Environment=PYTHON=/opt/terminus-venv/bin/python
+Environment=PYTHONPATH=/opt/terminus-modeltunnelv2:/opt/terminus-native/fa3-site
 Environment=CUDA_HOME=/usr/local/cuda-13.2
-Environment=DG_JIT_CACHE_DIR=/home/azureuserboss/terminus-optimization-20260910/runtime/deepgemm-jit
-Environment=XDG_CACHE_HOME=/srv/terminus-10b/cache
+Environment=DG_JIT_CACHE_DIR=/var/cache/terminus/deepgemm-jit
+Environment=XDG_CACHE_HOME=/var/cache/terminus
 Environment=AWS_DEFAULT_REGION=us-east-1
-Environment=DATA_ROOT=/srv/terminus-10b/data/packed
-Environment=RUN_ROOT=/srv/terminus-10b/runs/lean_dense_10b_20261001
-Environment=S3_RUN_URI=s3://quark-research-repository-storage/data/terminus_lean_150m_10b_run_20261001
-ExecStart=/bin/bash /home/azureuserboss/terminus-modeltunnelv2-run/experiments/terminus_lean_150m_10b/launch.sh
+Environment=DATA_ROOT=/var/lib/terminus/data/packed
+Environment=RUN_ROOT=/var/lib/terminus/runs/lean_dense_10b_20261001
+Environment=S3_RUN_URI=s3://your-run-artifact-bucket/terminus_lean_150m_10b_run_20261001
+ExecStart=/bin/bash /opt/terminus-modeltunnelv2/experiments/terminus_lean_150m_10b/launch.sh
 Restart=on-failure
 RestartSec=30
 TimeoutStopSec=300
-StandardOutput=append:/srv/terminus-10b/runs/lean_dense_10b_20261001/service.log
-StandardError=append:/srv/terminus-10b/runs/lean_dense_10b_20261001/service.log
+StandardOutput=append:/var/lib/terminus/runs/lean_dense_10b_20261001/service.log
+StandardError=append:/var/lib/terminus/runs/lean_dense_10b_20261001/service.log
 
 [Install]
 WantedBy=multi-user.target

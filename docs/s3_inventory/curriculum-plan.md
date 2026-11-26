@@ -2,7 +2,7 @@
 
 Pretraining mix for a **1.2B-parameter dense decoder-only** model. English and Indic are in the same run. Data is already cleaned. The tokenizer is not chosen. Every billion below is the token count from Varun’s sheet, or an Indic figure marked as an assumption.
 
-The 27 September 2026 inventory (account `023894314260`) is used only for measured sizes, prefixes, and the translation-dedup rule. It is not the token budget. This plan does not use a 120B run.
+The 27 September 2026 inventory (account identifier redacted) is used only for measured sizes, prefixes, and the translation-dedup rule. It is not the token budget. This plan does not use a 120B run.
 
 No model checkpoint is in that inventory, so these tokens are a from-scratch run. If a 1.2B checkpoint already exists, stop and write a continued-pretraining plan instead.
 
@@ -77,7 +77,7 @@ Group totals inside the 710B: math `9+52+35+10+15` = 121B (17.04%), code `40+45`
 
 ### Where each English row sits in storage
 
-Bucket `nemotron-training-data-us-east-1` unless noted. “Not measured” means the inventory has no size for that source. Do not fill those cells with a public-dataset figure.
+Bucket `your-source-bucket` unless noted. “Not measured” means the inventory has no size for that source. Do not fill those cells with a public-dataset figure.
 
 | Sheet row | Inventory | Measured size | Tokens measured? |
 | --- | --- | --- | --- |
@@ -87,7 +87,7 @@ Bucket `nemotron-training-data-us-east-1` unless noted. “Not measured” means
 | Nemotron MIND 72B | `datasets/nemotron-cc-math-v1/4plus_MIND/` | 90,331,100,051 bytes, 84.13 GiB, 90 objects | No |
 | Math Textbooks 25B | `datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Math-Textbooks/` | 30,841,263,255 bytes, 28.72 GiB, 13 objects | No |
 | SwallowMath-v2 32B | No prefix | Not measured | No |
-| Nemotron-CC v2.1 HQ Synth | Counted pack `s3://quark-research-repository-storage/data/nemotron_cc_v2_hqsynth_tinyllama_15b_parallel_20260730T185305Z/` | Manifest: 15,000,000,001 train tokens and 50,000,001 validation tokens. Source `nvidia/Nemotron-CC-v2`, config `High-Quality-Synthetic`. `seq_len` 2048. Tokenizer `TinyLlama/TinyLlama-1.1B-Chat-v1.0`, `uint16`. | Yes, this pack only |
+| Nemotron-CC v2.1 HQ Synth | Counted pack `s3://your-research-bucket/data/nemotron_cc_v2_hqsynth_tinyllama_15b_parallel_20260730T185305Z/` | Manifest: 15,000,000,001 train tokens and 50,000,001 validation tokens. Source `nvidia/Nemotron-CC-v2`, config `High-Quality-Synthetic`. `seq_len` 2048. Tokenizer `TinyLlama/TinyLlama-1.1B-Chat-v1.0`, `uint16`. | Yes, this pack only |
 | CodeAlchemy 55B | No prefix | Not measured | No |
 | Nemotron Code v2 45B | No prefix | Not measured | No |
 | RQA 40B | `datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-RQA/` | 184,550,910,116 bytes, 171.88 GiB, 175 objects | No |
@@ -115,7 +115,7 @@ Specialized v1.1 subsets, all measured, summing to the 32.49 GiB prefix. Draw th
 
 One shard sample is not a corpus token count. Cited so the census knows what it is counting: Math 4+ `part_000000` has 3,289.1 uncompressed text bytes per row; MIND `part_000000` has 3,063.8; textbooks `part_000000` has 7,782.5; RQA `part_000000` has 25,604.7; Fact-Seeking `part_000000` averages about 264 text bytes per row (scaled from 590,209 of 8,000,000 rows); Code-Concepts `part_000000` has 1,806.1. Fact-Seeking is the short-document set. Its 15B allocation is the one most likely to surprise a token census. The census decides. This plan does not convert those byte-per-row figures into a corpus total.
 
-`quark-research-repository-storage/test16/nemotron_pretraining_fact_seeking_10b_tinyllama_tokenized_20260714.tar` is 20,000,071,680 bytes and was not unpacked. The `10b` in the filename is not a measured token count. Leave `test16/` out.
+`your-research-bucket/test16/nemotron_pretraining_fact_seeking_10b_tinyllama_tokenized_20260714.tar` is 20,000,071,680 bytes and was not unpacked. The `10b` in the filename is not a measured token count. Leave `test16/` out.
 
 ---
 
@@ -336,7 +336,7 @@ A cap is a maximum number of passes over the stored documents. When it binds, tr
 
 The sheet says 50B. Storage has one finished counted pack:
 
-`s3://quark-research-repository-storage/data/nemotron_cc_v2_hqsynth_tinyllama_15b_parallel_20260730T185305Z/`
+`s3://your-research-bucket/data/nemotron_cc_v2_hqsynth_tinyllama_15b_parallel_20260730T185305Z/`
 
 - Train tokens: 15,000,000,001
 - Validation tokens: 50,000,001 (held out of every phase)

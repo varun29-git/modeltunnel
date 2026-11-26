@@ -1,6 +1,6 @@
 # 1.2B dense decoder curriculum
 
-Inventory date: 27 September 2026. Account `023894314260`, caller `arn:aws:iam::023894314260:user/BedrockAPIKey-7qur`, CLI `/opt/homebrew/bin/aws`. Sizes are `ListObjects` sums. No object was downloaded in full, uploaded, deleted, or overwritten. Parquet token totals were not counted. Where a footer or a manifest gives a number, that number is labeled as measured. Where a figure is a planning choice, it is labeled as an assumption.
+Inventory date: 27 September 2026. Account and caller identifiers are redacted in this public snapshot. Sizes are `ListObjects` sums. No object was downloaded in full, uploaded, deleted, or overwritten. Parquet token totals were not counted. Where a footer or a manifest gives a number, that number is labeled as measured. Where a figure is a planning choice, it is labeled as an assumption.
 
 ## Assumption
 
@@ -18,15 +18,15 @@ Tokenizer is unset. Packs that already exist use `TinyLlama/TinyLlama-1.1B-Chat-
 
 | Bucket | Role in this plan |
 | --- | --- |
-| `nemotron-training-data-us-east-1` | Pretraining parquet, Cosmopedia snapshot, translation outputs |
-| `quark-research-repository-storage` | Counted token packs, OpenHermes SFT, papers, a small domain-classifier prefix |
-| `quark-research-repository-storage-eu` | Copies of the same research PDFs as the US bucket `data/` papers. Excluded. |
-| `bedrock-invocation-logs-023894314260-us-east-1` | Invocation logs. Excluded. |
-| `cdk-hnb659fds-assets-023894314260-us-east-1` | CDK zip/json assets. Excluded. |
+| `your-source-bucket` (sanitized) | Pretraining parquet, Cosmopedia snapshot, translation outputs |
+| `your-research-bucket` (sanitized) | Counted token packs, OpenHermes SFT, papers, a small domain-classifier prefix |
+| `your-research-bucket-eu` (sanitized) | Copies of the same research PDFs as the US bucket `data/` papers. Excluded. |
+| Invocation-log bucket (name redacted) | Invocation logs. Excluded. |
+| Deployment-asset bucket (name redacted) | Zip/json assets. Excluded. |
 
-Local scripts under the worker directory point at `s3://nemotron-training-data-us-east-1` for Cosmopedia, Nemotron-CC, and Fact-Seeking translation jobs. Those URIs match the prefixes below. Bucket names were taken from `aws s3 ls` and those scripts, not guessed.
+Local worker scripts pointed at `s3://your-source-bucket` for Cosmopedia, Nemotron-CC, and Fact-Seeking translation jobs. Those URIs match the prefixes below. Bucket identities are sanitized in this public snapshot.
 
-Top-level keys under `nemotron-training-data-us-east-1`: `artifacts/`, `bootstrap/`, `datasets/`, `source-snapshots/`, `translation-benchmark/`, `translation-staging/`, `translations/`. `bootstrap/` is worker code. `artifacts/` is one 1,574-byte sample parquet. `translation-benchmark/` is 30,258,432 bytes (3 objects). None of those three is a training mixture component.
+Top-level keys under `your-source-bucket`: `artifacts/`, `bootstrap/`, `datasets/`, `source-snapshots/`, `translation-benchmark/`, `translation-staging/`, `translations/`. `bootstrap/` is worker code. `artifacts/` is one 1,574-byte sample parquet. `translation-benchmark/` is 30,258,432 bytes (3 objects). None of those three is a training mixture component.
 
 ## Inventory
 
@@ -117,12 +117,12 @@ These are the only token totals in the inventory. They use `TinyLlama/TinyLlama-
 
 | Location | What the manifest counts |
 | --- | --- |
-| `s3://quark-research-repository-storage/data/nemotron_cc_v2_hqsynth_tinyllama_15b_parallel_20260730T185305Z/` | `data_manifest.json`: 15,000,000,001 stored train tokens and 50,000,001 stored validation tokens. Config target 15,000,000,000 train / 50,000,000 val. `seq_len` 2048. Source `nvidia/Nemotron-CC-v2` config `High-Quality-Synthetic`, text field `text`. 32 workers. Val partition: blake2b-64 of the document key, bucket 0, modulus 500. |
-| `s3://quark-research-repository-storage/openhermes25_assistant_sft_20260803/` | `MANIFEST.json`, format `assistant_only_sft_v1`, dataset `shreydan/OpenHermes-2.5-Simple600k-SFT`. Train: 251,398,213 tokens, 587,987 docs, 180,633,498 supervised tokens. Val: 5,145,272 tokens, 12,013 docs, 3,699,398 supervised tokens. Loss on assistant content and its trailing EOS only. Val if `SHA256("openhermes25-sft-v1" + id) mod 100 < 2`. Rejected records: 0. |
+| `s3://your-research-bucket/data/nemotron_cc_v2_hqsynth_tinyllama_15b_parallel_20260730T185305Z/` | `data_manifest.json`: 15,000,000,001 stored train tokens and 50,000,001 stored validation tokens. Config target 15,000,000,000 train / 50,000,000 val. `seq_len` 2048. Source `nvidia/Nemotron-CC-v2` config `High-Quality-Synthetic`, text field `text`. 32 workers. Val partition: blake2b-64 of the document key, bucket 0, modulus 500. |
+| `s3://your-research-bucket/openhermes25_assistant_sft_20260803/` | `MANIFEST.json`, format `assistant_only_sft_v1`, dataset `shreydan/OpenHermes-2.5-Simple600k-SFT`. Train: 251,398,213 tokens, 587,987 docs, 180,633,498 supervised tokens. Val: 5,145,272 tokens, 12,013 docs, 3,699,398 supervised tokens. Loss on assistant content and its trailing EOS only. Val if `SHA256("openhermes25-sft-v1" + id) mod 100 < 2`. Rejected records: 0. |
 
 `data/nemotron_cc_v2_hqsynth_tinyllama_15b_20260730T1840Z/` has `state.json` with status `running`, 986,891,321 train tokens toward a 15,000,000,001 target, and no token bin in that prefix. Leave it out.
 
-`quark-research-repository-storage/test16/` (58,480,544,328 bytes, 5 objects) was not unpacked:
+`your-research-bucket/test16/` (58,480,544,328 bytes, 5 objects) was not unpacked:
 
 | Key | Bytes |
 | --- | ---: |

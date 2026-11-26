@@ -26,7 +26,7 @@ from terminus.corpus import (CAMPAIGN_SOURCE_LANGS, FINEWEB2_SOURCE_LANGS, Corpu
 from terminus.integrity import CAMPAIGN_SCOPE_V1
 from terminus.task_eval import task_text_hashes
 
-BUCKET = "s3://nemotron-training-data-us-east-1"
+BUCKET = "s3://your-source-bucket"
 # License labels come from the dataset cards recorded in the inventory docs;
 # re-verify each card before full preparation.
 LICENSES = {"climbmix": "CC-BY-4.0 (NVIDIA Nemotron-CC family; verify card)",

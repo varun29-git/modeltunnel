@@ -1,8 +1,6 @@
 # ModelTunnelv2 pipeline — implementation handoff
 
-Date: 2026-09-29. Repository state: see commit history on `main` (milestone
-hashes at the end). This handoff reports what was actually built and executed;
-nothing below claims an unrun result.
+**Historical implementation handoff dated 2026-09-29.** Its CPU-only status and readiness gate describe that date, not the final release. Native H100 preflights and the completed 10B-token dense/2B-token QAT runs happened later; use `README.md`, `docs/RESULTS.md`, and `docs/REPRODUCIBILITY.md` for current evidence and reproduction boundaries. Private execution details are sanitized below.
 
 ## 1. What exists now (implementation map)
 
@@ -38,10 +36,9 @@ uv venv --python 3.13 .venv && uv pip install --python .venv/bin/python \
 # 1. evaluation tasks (pinned revision; writes eval/)
 .venv/bin/python scripts/fetch_eval_tasks.py --output-dir eval
 
-# 2. bounded corpus sample from S3 (read-only). Fast path: in-region VM.
-#    VM recipe actually used: AL2023 c6i.2xlarge in us-east-1, key tokenizer-65k,
-#    SSH-only SG scoped to the operator IP; scripts/vm_bootstrap.sh installs deps;
-#    the repo moves as a git bundle. Locally (slow over WAN) the same command works.
+# 2. bounded corpus sample from an authorized S3 source (read-only).
+#    The historical run used an in-region CPU worker with scripts/vm_bootstrap.sh.
+#    Access keys, network rules, and transfer details are intentionally omitted.
 .venv/bin/python scripts/prepare_campaign_sample.py \
   --output-dir sample/corpus --cache-dir sample/cache --max-rows 1200
 

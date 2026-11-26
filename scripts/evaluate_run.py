@@ -6,8 +6,8 @@ and an aggregate receipt with bootstrap CIs. Development tasks only unless
 --include-final is passed (the untouched final set stays protected).
 
 Example:
-  .venv/bin/python scripts/evaluate_run.py --run-dir runs/x --config runs/x/config.json \
-      --manifest data/manifest.json --data-root data --tokenizer data/tokenizer.json \
+  .venv/bin/python scripts/evaluate_run.py --config runs/x/config.json \
+      --checkpoint runs/x/dense/checkpoints --tokenizer tokenizer/tokenizer-65k.json \
       --eval-manifest eval/eval_manifest.json --eval-root eval --max-items 64 \
       --output runs/x/eval_receipt.json
 """

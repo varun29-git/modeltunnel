@@ -1,4 +1,6 @@
-# Terminus BitNet pretraining
+# Terminus BitNet pretraining — historical upstream README
+
+This is a dated provenance snapshot, not the current release guide. Its `reports/` links refer to files in the upstream source repository and are not bundled here. See the root `README.md` and `docs/RESULTS.md` for the implemented system and completed experiments.
 
 The maintained implementation is `terminus/`. The original 150M run remains in `archive/` and is **not a supported training entrypoint**. Its protection manifest already disagreed with six files when this audit began; the archive has not been edited.
 

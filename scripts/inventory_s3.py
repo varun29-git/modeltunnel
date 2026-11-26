@@ -1,6 +1,6 @@
 """Live, read-only inventory of the campaign S3 sources.
 
-Lists the campaign-relevant prefixes of s3://nemotron-training-data-us-east-1
+Lists the campaign-relevant prefixes of s3://your-source-bucket
 (plus explicit presence checks for named-but-maybe-absent sources), samples
 the schema and first rows of one Parquet object per source family, and writes
 a versioned JSON inventory. Sizes are ListObjects sums; row counts come from
@@ -24,7 +24,7 @@ import pyarrow.parquet as pq
 
 from terminus.s3io import S3RangeReader, list_prefix, s3_client
 
-BUCKET = "nemotron-training-data-us-east-1"
+BUCKET = "your-source-bucket"
 
 SANGRAHA_LANGS = {"eng": "en", "hin": "hi", "mar": "mr", "kan": "kn", "tel": "te",
                   "tam": "ta", "guj": "gu", "ben": "bn"}
@@ -118,7 +118,7 @@ def main():
                  "bucket": BUCKET, "method": "ListObjectsV2 sums; one Parquet footer + first batch per family",
                  "sources": {}, "sangraha": {}, "fineweb2_indic": {}, "translations": {},
                  "presence_checks": {}, "excluded_prefixes": ["translation-staging/", "translation-benchmark/",
-                                                              "quark-research-repository-storage TinyLlama packs"]}
+                                                              "your-research-bucket TinyLlama packs"]}
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     if out.exists():  # resume: keep sections already inventoried

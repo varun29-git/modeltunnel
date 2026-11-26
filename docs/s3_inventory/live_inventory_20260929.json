@@ -1,9 +1,9 @@
 {
- "bucket": "nemotron-training-data-us-east-1",
+ "bucket": "your-source-bucket",
  "excluded_prefixes": [
   "translation-staging/",
   "translation-benchmark/",
-  "quark-research-repository-storage TinyLlama packs"
+  "your-research-bucket TinyLlama packs"
  ],
  "fineweb2_indic": {
   "asm_Beng": {
@@ -61,7 +61,7 @@
       "url": "http://tech.priyo.com/news/business/2012/09/11/nbr5582.html"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/ben_Beng/train/000_00000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/fineweb2-indic/ben_Beng/train/000_00000.parquet",
     "schema": {
      "date": "string",
      "dump": "string",
@@ -156,7 +156,7 @@
       "url": "http://blog.gujaratilexicon.com/tag/%E0%AA%B0%E0%AB%82%E0%AA%AA%E0%AA%BF%E0%AA%AF%E0%AA%BE/"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/guj_Gujr/train/000_00000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/fineweb2-indic/guj_Gujr/train/000_00000.parquet",
     "schema": {
      "date": "string",
      "dump": "string",
@@ -215,7 +215,7 @@
       "url": "http://www.bhaskar.com/article/NAT-government-lost-rs-10-3003795.html?OTS="
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/hin_Deva/train/000_00000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/fineweb2-indic/hin_Deva/train/000_00000.parquet",
     "schema": {
      "date": "string",
      "dump": "string",
@@ -280,7 +280,7 @@
       "url": "http://vijaykarnataka.indiatimes.com/articleshow/17390896.cms"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/kan_Knda/train/000_00000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/fineweb2-indic/kan_Knda/train/000_00000.parquet",
     "schema": {
      "date": "string",
      "dump": "string",
@@ -393,7 +393,7 @@
       "url": "http://davbindu.wordpress.com/2009/07/05/%E0%A4%9C%E0%A4%AC-%E0%A4%B5%E0%A5%80-%E0%A4%AE%E0%A5%87%E0%A4%9F/"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/mar_Deva/train/000_00000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/fineweb2-indic/mar_Deva/train/000_00000.parquet",
     "schema": {
      "date": "string",
      "dump": "string",
@@ -566,7 +566,7 @@
       "url": "http://ta.wikipedia.org/wiki/%E0%AE%95%E0%AE%9F%E0%AF%8D%E0%AE%9F%E0%AE%B1%E0%AF%8D%E0%AE%B1_%E0%AE%B5%E0%AE%A3%E0%AE%BF%E0%AE%95%E0%AE%AE%E0%AF%8D"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/tam_Taml/train/000_00000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/fineweb2-indic/tam_Taml/train/000_00000.parquet",
     "schema": {
      "date": "string",
      "dump": "string",
@@ -631,7 +631,7 @@
       "url": "http://hyma1947.wordpress.com/2012/03/21/33/"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/fineweb2-indic/tel_Telu/train/000_00000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/fineweb2-indic/tel_Telu/train/000_00000.parquet",
     "schema": {
      "date": "string",
      "dump": "string",
@@ -714,7 +714,7 @@
       "text": "\nমাইপু, মেন্ডোজা\n\nমাইপু আর্জেন্টিনার মেন্ডোজা প্রদেশের একটি শহর। এটি মাইপু বিভাগের রাজধানী। এটি প্রাদেশিক রাজধানী মেন্ডোজা থেকে অল্প দূরে অবস্থিত।\nমাইপু একটি গুরুত্বপূর্ণ ওয়াইন উৎপাদনকারী অঞ্চলের কেন্দ্রে অবস্থিত এবং এখানে একটি ওয়াইন জাদুঘর রয়েছে। এর জনসংখ্যা 89,433 ()।\n\n"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/synthetic/ben_Beng/wiki_ben_Beng_0000_of_0063.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/synthetic/ben_Beng/wiki_ben_Beng_0000_of_0063.parquet",
     "schema": {
      "doc_id": "string",
      "text": "string"
@@ -756,7 +756,7 @@
       "text": "\nજેમ્સ હાર્ટ (ગાયક)\n\nજેમ્સ હાર્ટ (જન્મ 26 ઓગસ્ટ, 1979) એક અમેરિકન ગાયક છે, જે મેટલકોર બેન્ડના અગ્રણી અને સ્થાપક સભ્ય તરીકે જાણીતા છે. તેઓ 2007માં તેની શરૂઆતથી 2016માં છોડવામાં આવ્યા ત્યાં સુધી બેન્ડ બર્ન હાલોના સ્થાપક સભ્ય અને મુખ્ય ગાયક પણ હતા.\nપ્રારંભિક જીવન.\nહાર્ટનો જન્મ 26 ઓગસ્ટ, 1979ના રોજ શિકાગો, ઇલિનોઇસમાં થયો હતો. જ્યારે તેઓ 6 વર્ષના હતા ત્યારે તેમનો પરિવાર કેલિફોર્નિયા સ્થળાંતર થયો હતો. તેઓ મોટા થતા બેઝબોલ અને ફૂટબોલ ખૂબ રમતા હતા. તે પોતાને આજીવન શિકાગો શાવક માને છે અને શિકાગો રીંછનો ચાહક માને છે. જ્યારે તે 11 વર્ષનો હતો ત્યારે તેના માતાપિતા અલગ થઈ ગયા અને છૂટાછેડા લીધા, અને તેના પિતા...[+3430 chars]"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/synthetic/guj_Gujr/wiki_guj_Gujr_0000_of_0063.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/synthetic/guj_Gujr/wiki_guj_Gujr_0000_of_0063.parquet",
     "schema": {
      "doc_id": "string",
      "text": "string"
@@ -789,7 +789,7 @@
       "text": "\nएमएसएफएल प्रो लीग फुटबॉल\n\nएमएसएफएल प्रो लीग फुटबॉल 1988 का एक वीडियो गेम है जिसे माइक्रो स्पोर्ट्स, इंक द्वारा प्रकाशित किया गया है।\nखेल।\n\"एमएसएफएल प्रो लीग फुटबॉल\" एक ऐसा खेल है जिसमें खिलाड़ी अतीत, वर्तमान या काल्पनिक टीमों का उपयोग करके अमेरिकी फुटबॉल लीग बना और चला सकते हैं।\nस्वागत।\nजेम्स डी। हॉर्नफिशर ने \"कंप्यूटर गेमिंग की दुनिया\" के लिए खेल की समीक्षा की, और कहा कि \"एक बार जब खिलाड़ी कॉस्मेटिक खामियों (शुरुआती ग्राफिक्स अपठनीय रूप से उड़ते हैं) को पार कर जाते हैं और विचित्र इंटरफेस में महारत हासिल कर लेते हैं, तो एमएसएफएल का अपना एक जादू होता है।\"\n\n"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/synthetic/hin_Deva/wiki_hin_Deva_0000_of_0063.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/synthetic/hin_Deva/wiki_hin_Deva_0000_of_0063.parquet",
     "schema": {
      "doc_id": "string",
      "text": "string"
@@ -822,7 +822,7 @@
       "text": "\nಜೋ ಹ್ಯಾಮಿಲ್ಟನ್ (ಬಾಸ್ಕೆಟ್ಬಾಲ್)\n\nಜೇಮ್ಸ್ \"ಜೋ\" ಹ್ಯಾಮಿಲ್ಟನ್ ಜೂನಿಯರ್. (ಜನನ ಜುಲೈ 5,1948) ಅಮೆರಿಕದ ಮಾಜಿ ವೃತ್ತಿಪರ ಬ್ಯಾಸ್ಕೆಟ್ಬಾಲ್ ಆಟಗಾರ.\nಕಾಲೇಜು ವೃತ್ತಿ.\nಹ್ಯಾಮಿಲ್ಟನ್ ಅವರು ಡನ್ಬಾರ್ (ಲೆಕ್ಸಿಂಗ್ಟನ್, ಕೆಂಟಕಿ) ನಲ್ಲಿ ಪ್ರೌಢಶಾಲಾ ಬ್ಯಾಸ್ಕೆಟ್ಬಾಲ್ ಆಡಿದರು, ಅಲ್ಲಿ ಅವರು ಆಲ್-ಅಮೇರಿಕನ್ ಆಗಿದ್ದರು.\nಅವರು ಕ್ರಿಶ್ಚಿಯನ್ ಕಾಲೇಜ್ ಆಫ್ ದಿ ನೈಋತ್ಯದಲ್ಲಿ (ಹಾರ, ಟೆಕ್ಸಾಸ್) ಕಾಲೇಜು ಮಟ್ಟದಲ್ಲಿ ಆಡಿದರು, ಅಲ್ಲಿ ಅವರು ಎರಡು ಬಾರಿ ಜೂನಿಯರ್ ಕಾಲೇಜ್ನಲ್ಲಿ ಆಲ್ ಅಮೇರಿಕನ್ ಆಗಿದ್ದರು. ಅವರು 1968ರ ಒಲಿಂಪಿಕ್ಸ್ಗಾಗಿ ಯುನೈಟೆಡ್ ಸ್ಟೇಟ್ಸ್ ತಂಡದಲ್ಲಿ ಪರ್ಯಾಯ ಆಟಗಾರರಾಗಿದ್ದರು. ಅವರು 1968ರಲ್ಲಿ ಉತ್ತರ ಟೆಕ್ಸಾಸ್ ರಾಜ್ಯಕ್ಕೆ ವರ್ಗಾವಣೆಯಾದರು ಮತ್ತು ಎರಡು ಬಾರಿ ಆಲ್-ಮಿಸೌರಿ ವ್ಯಾಲಿ ಕಾನ್ಫರೆನ್ಸ್ ಆಟಗಾರರಾಗಿದ್ದರ...[+1821 chars]"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/synthetic/kan_Knda/wiki_kan_Knda_0000_of_0063.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/synthetic/kan_Knda/wiki_kan_Knda_0000_of_0063.parquet",
     "schema": {
      "doc_id": "string",
      "text": "string"
@@ -855,7 +855,7 @@
       "text": "\nस्केल्झी, वेनिस\n\nसांता मारिया डी नाझारेथ हे उत्तर इटलीतील वेनिस येथील एक रोमन कॅथलिक कार्मेलाइट चर्च आहे. याला चर्च ऑफ द स्केल्झी () असेही म्हणतात, कारण हे शहर कारमेलाइट्सच्या धार्मिक क्रमानुसार वेगळे आहे (इटालियनमध्ये याचा अर्थ 'अनवाणी'). व्हेनेझिया सांता लुसिया रेल्वे स्थानकाजवळ कॅनारेजिओच्या सेस्टियरमध्ये स्थित, हे 17 व्या शतकाच्या मध्यात बाल्डासरे लॉन्घेनाच्या रचनेनुसार बांधले गेले आणि त्या शतकाच्या शेवटच्या दशकांमध्ये पूर्ण झाले.\nबाह्य.\nव्हेनेशियन लेट बारोक शैलीतील दर्शनी भागाला, 1672 ते 1680 पर्यंत, अभिजात जेरोलामो कॅवाझा यांनी अर्थसहाय्य केले आणि ग्युसेप सर्दी यांनी उभारले. पहिल्या मजल...[+4017 chars]"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/synthetic/mar_Deva/wiki_mar_Deva_0000_of_0063.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/synthetic/mar_Deva/wiki_mar_Deva_0000_of_0063.parquet",
     "schema": {
      "doc_id": "string",
      "text": "string"
@@ -888,7 +888,7 @@
       "text": "\nகிருஷ்ணா (மலையாள நடிகர்)\n\nகிருஷ்ணா ஒரு இந்திய நடிகர் ஆவார், அவர் முக்கியமாக மலையாள திரையுலகில் தோன்றுகிறார். அவர் 50க்கும் மேற்பட்ட படங்களில் நடித்துள்ளார். அவர் 23 மார்ச் 1980 அன்று கேரளாவில் பிறந்தார். அவர் பல திரைப்படங்களில் பணியாற்றிய மிகவும் திறமையான நடிகர். \nஅவர் தனது 14 வயதில் மலையாள திரைப்படமான நாபோலியன் (1994) இல் குழந்தை கலைஞராக அறிமுகமானார். 1997 ஆம் ஆண்டில் பானுப்ரியாவுடன் \"ரிஷியசிரிங்கன்\" படத்தில் முன்னணி கதாபாத்திரத்தில் அறிமுகமானார். பின்னர் கிருஷ்ணர் மஞ்சு வாரியருடன் தயா படத்தில் நடிக்கிறார். 1990களின் இறுதியில் \"அயல் கதா எழுதுகயானு\", \"ஹரிகிருஷ்ணர்கள்\", \"சுதந்திரம்\", \"வாழுநோர்...[+934 chars]"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/synthetic/tam_Taml/wiki_tam_Taml_0000_of_0063.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/synthetic/tam_Taml/wiki_tam_Taml_0000_of_0063.parquet",
     "schema": {
      "doc_id": "string",
      "text": "string"
@@ -921,7 +921,7 @@
       "text": "\nఒపాస్నా ఇగ్రా (పాట)\n\nఒపాస్నా ఇగ్రా (ఆంగ్లంః \"ప్రమాదకరమైన ఆట\") అనేది సెర్బియన్ గాయని నికోలిజా రూపొందించిన సింగిల్. 4 జూన్ 2015న ఇడ్జ్ట్యూన్స్ కింద విడుదలైంది, తరువాత ఇది నికోలిజా యొక్క 2016 తొలి ఆల్బమ్ \"నంబర్ 1\" లో చేర్చబడింది. పాటలను ఆమె భాగస్వామి రెల్జా పోపోవిక్ మరియు డోర్డే డోర్డెవిక్ రాశారు, అయితే సంగీతాన్ని ఇవాన్ ఒబ్రాడోవిక్ మరియు సెనాడ్ బిస్లిమి అటెల్జే ఇంపల్స్ నుండి రూపొందించారు. \"ఒపాస్నా ఇగ్రా\" ని నికోలియా యొక్క తరచుగా సహకారులైన మార్కో పెరునిసిక్ మరియు అటెల్జే ట్రాగ్ నుండి నెబోజ్సా అరేజినా నిర్మించారు. సంగీతపరంగా, ఇది సమకాలీన ఆర్ & బి ప్రభావాలతో పాప్-జానపదంగా వర్ణించబడింది.\nమ్యూజిక్ వీ...[+709 chars]"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/synthetic/tel_Telu/wiki_tel_Telu_0000_of_0063.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/synthetic/tel_Telu/wiki_tel_Telu_0000_of_0063.parquet",
     "schema": {
      "doc_id": "string",
      "text": "string"
@@ -945,7 +945,7 @@
     "num_rows_in_sampled_object": 174762,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/ben/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/unverified/ben/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string"
@@ -978,7 +978,7 @@
     "num_rows_in_sampled_object": 146744,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/guj/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/unverified/guj/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string"
@@ -1002,7 +1002,7 @@
     "num_rows_in_sampled_object": 149796,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/hin/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/unverified/hin/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string"
@@ -1026,7 +1026,7 @@
     "num_rows_in_sampled_object": 156394,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/kan/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/unverified/kan/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string"
@@ -1050,7 +1050,7 @@
     "num_rows_in_sampled_object": 149796,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/mar/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/unverified/mar/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string"
@@ -1074,7 +1074,7 @@
     "num_rows_in_sampled_object": 116508,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/tam/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/unverified/tam/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string"
@@ -1098,7 +1098,7 @@
     "num_rows_in_sampled_object": 149832,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/unverified/tel/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/unverified/tel/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string"
@@ -1122,7 +1122,7 @@
     "num_rows_in_sampled_object": 149797,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/ben/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/verified/ben/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string",
@@ -1147,7 +1147,7 @@
     "num_rows_in_sampled_object": 349525,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/eng/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/verified/eng/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string",
@@ -1172,7 +1172,7 @@
     "num_rows_in_sampled_object": 149797,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/guj/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/verified/guj/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string",
@@ -1197,7 +1197,7 @@
     "num_rows_in_sampled_object": 174763,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/hin/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/verified/hin/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string",
@@ -1222,7 +1222,7 @@
     "num_rows_in_sampled_object": 174762,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/kan/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/verified/kan/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string",
@@ -1247,7 +1247,7 @@
     "num_rows_in_sampled_object": 174763,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/mar/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/verified/mar/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string",
@@ -1272,7 +1272,7 @@
     "num_rows_in_sampled_object": 149796,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/tam/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/verified/tam/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string",
@@ -1297,7 +1297,7 @@
     "num_rows_in_sampled_object": 174762,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/sangraha/verified/tel/data-0.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/sangraha/verified/tel/data-0.parquet",
     "schema": {
      "doc_id": "large_string",
      "text": "large_string",
@@ -1328,7 +1328,7 @@
       "text": "Relatively new techniques have been developed to improve wool’s washability by making the fiber more resistant to felting and shrinkage. One process takes place before the yarn is spun. The loose fleece or combed top is chlorinated to remove the tips of the “scales” and then coated with an extremely fine resin. The resin masks the fiber’s scales and keeps them from interlocking, which is the cause of felting and shrinkage.\nTextile Links (http://www.textilelinks.com)"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/nemotron-climbmix/karpathy-400b-shuffle/shard_00000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/nemotron-climbmix/karpathy-400b-shuffle/shard_00000.parquet",
     "schema": {
      "text": "string"
     }
@@ -1351,7 +1351,7 @@
     "num_rows_in_sampled_object": 250000,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Code-Concepts/part_000000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/Nemotron-Pretraining-Specialized-v1.1/Nemotron-Pretraining-Code-Concepts/part_000000.parquet",
     "schema": {
      "license": "large_string",
      "metadata": "struct<category: large_string, models_used: large_string, function_name: large_string, tags: large_string, problem_prompt: large_string, generated_solution: large_string>",
@@ -1377,7 +1377,7 @@
     "num_rows_in_sampled_object": 1000000,
     "row_groups": 4,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Math-Textbooks/part_000000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Math-Textbooks/part_000000.parquet",
     "schema": {
      "license": "large_string",
      "metadata": "struct<category: large_string, models_used: large_string>",
@@ -1418,7 +1418,7 @@
       "text": "The blue bar does seem to annoy people, and I'll try your method using AdBlock, although I don't use Google as often as I used to do. One thing I did notice though. I use Opera most of the time and the blue bar doesn't show at all. Why that is, I'm not sure. I thought maybe Opera AdBlock could be blocking it but disabling the extension makes no difference, still no blue bar. Strange, but there you have it.\n\nBut I have to say it would be better if Google just stopped adding irritating things to their homepage. All it appears to succeed in doing is drive more people away from it."
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/nemotron-cc-hq/part_000000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/nemotron-cc-hq/part_000000.parquet",
     "schema": {
      "id": "large_string",
      "metadata": "struct<category: large_string, models_used: large_string>",
@@ -1470,7 +1470,7 @@
       "text": "## Visualizing Sampling Distributions\n\n**September 25, 2011**  \n*By Bayesian Biologist* (Originally published on bayesianbiologist » Rstats, contributed to R-bloggers)\n\n---\n\n**Teacher:** \"How variable is your estimate of the mean?\"  \n**Student:** \"Uhhh, it’s not. I took a sample and calculated the sample mean. I only have one number.\"  \n**Teacher:** \"Yes, but what is the standard deviation of sample means?\"  \n**Student:** \"What do you mean means, I only have the one friggin number.\"\n\nStatisticians often discuss single events as if they have happened (or could happen) repeatedly. This is the ba...[+2743 chars]"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/nemotron-cc-math-v1/3/part_000000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/nemotron-cc-math-v1/3/part_000000.parquet",
     "schema": {
      "id": "large_string",
      "metadata": "struct<warc_filename: large_string, warc_id: large_string, finemath_int_scores: int64, finemath_scores: double, nemocurator_int_scores: int64, nemocurator_scores: double, category: large_string, models_used: large_string>",
@@ -1522,7 +1522,7 @@
       "text": "# Lesson 16: Modeling Adding and Subtracting Mixed Numbers\n\n**Objective**\n\nStudents will use shapes to model adding and subtracting mixed numbers.\n\n**Big Idea**\n\nAdding and subtracting mixed numbers can be modeled using shapes.\n\n**Lesson Author:** Rose Monroe  \n**Location:** Memphis, TN  \n**Grade Level:** Fourth grade  \n**Subjects:** Math, Fractions, Number Sense and Operations  \n**Standards:** 4.NF.B.3c, MP2, MP3, MP5\n\n## Whole Class Discussion\n\n**Duration:** 15 minutes\n\nIn today's lesson, students will learn to model adding and subtracting mixed numbers with like denominators. This relates t...[+3011 chars]"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/nemotron-cc-math-v1/4plus/part_000000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/nemotron-cc-math-v1/4plus/part_000000.parquet",
     "schema": {
      "id": "large_string",
      "metadata": "struct<warc_filename: large_string, warc_id: large_string, finemath_int_scores: int64, finemath_scores: double, nemocurator_int_scores: int64, nemocurator_scores: double, category: large_string, models_used: large_string>",
@@ -1576,7 +1576,7 @@
       "text": "**Participant A:** Let's discuss the Combined Gas Law as presented in Tatyana Yuzefovich's worksheet. We know it combines Boyle's Law, Charles's Law, and Gay-Lussac's Law, relating pressure, volume, and temperature of a gas. The formula is given as \\(\\frac{P_1 V_1}{T_1} = \\frac{P_2 V_2}{T_2}\\).\n\n**Participant B:** Indeed, and it's important to note that the formula can be rearranged based on which variables are constant. For example, in the example problem where the temperature remains constant, we can simplify the formula to \\(\\frac{P_1 V_1}{P_2} = V_2\\).\n\n**Participant A:** Correct. In that ...[+1981 chars]"
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/nemotron-cc-math-v1/4plus_MIND/part_000000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/nemotron-cc-math-v1/4plus_MIND/part_000000.parquet",
     "schema": {
      "id": "large_string",
      "metadata": "struct<finemath_int_scores: int64, finemath_scores: double, nemocurator_int_scores: int64, nemocurator_scores: double, warc_filename: large_string, warc_id: large_string, warc_type: large_string, category: large_string, models_used: large_string>",
@@ -1599,7 +1599,7 @@
     "num_rows_in_sampled_object": 905966,
     "row_groups": 4,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Scientific-Coding/part_000000.parquet",
+    "sampled_object": "s3://your-source-bucket/datasets/Nemotron-Pretraining-Specialized-v1/Nemotron-Pretraining-Scientific-Coding/part_000000.parquet",
     "schema": {
      "license": "large_string",
      "metadata": "struct<category: large_string, models_used: large_string>",
@@ -1640,7 +1640,7 @@
       "token_length": 793
      }
     ],
-    "sampled_object": "s3://nemotron-training-data-us-east-1/source-snapshots/HuggingFaceTB/smollm-corpus/revision=3ba9d605774198c5868892d7a8deda78031a781f/config=cosmopedia-v2/cosmopedia-v2/train-00000-of-00104.parquet",
+    "sampled_object": "s3://your-source-bucket/source-snapshots/HuggingFaceTB/smollm-corpus/revision=3ba9d605774198c5868892d7a8deda78031a781f/config=cosmopedia-v2/cosmopedia-v2/train-00000-of-00104.parquet",
     "schema": {
      "audience": "string",
      "format": "string",
@@ -1690,7 +1690,7 @@
     "num_rows_in_sampled_object": 24667,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v4-20260905/language=ben_Beng/source=1704bc31ef3c6bc88f0e362eb1421820ce0196eaa33dbee1f1c5085ad2382204/chunk=0acd4e3a0e2960bf2f50972fd89f51e936287461abd50134c4882a6594f9d38f/translated_documents.parquet",
+    "sampled_object": "s3://your-source-bucket/translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v4-20260905/language=ben_Beng/source=1704bc31ef3c6bc88f0e362eb1421820ce0196eaa33dbee1f1c5085ad2382204/chunk=0acd4e3a0e2960bf2f50972fd89f51e936287461abd50134c4882a6594f9d38f/translated_documents.parquet",
     "schema": {
      "document_id": "int64",
      "immutable_span_counts": "string",
@@ -1735,7 +1735,7 @@
     "num_rows_in_sampled_object": 24730,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v5-20260906/language=kan_Knda/source=12edd356ada9c952b670f1358bef21dd0ce9c2924cf688915fb000c574194fc3/chunk=0156f2983dd701670b31aa6005d9a68c052675f7ab0a04f65aeec6dbca16da1d/translated_documents.parquet",
+    "sampled_object": "s3://your-source-bucket/translations/Cosmopedia-v2/Krutrim/krutrim-cosmopedia-v2-decoupled-v5-20260906/language=kan_Knda/source=12edd356ada9c952b670f1358bef21dd0ce9c2924cf688915fb000c574194fc3/chunk=0156f2983dd701670b31aa6005d9a68c052675f7ab0a04f65aeec6dbca16da1d/translated_documents.parquet",
     "schema": {
      "document_id": "int64",
      "immutable_span_counts": "string",
@@ -1805,7 +1805,7 @@
     "num_rows_in_sampled_object": 195373,
     "row_groups": 1,
     "sample_rows_skipped": "first row group exceeds 67108864 bytes",
-    "sampled_object": "s3://nemotron-training-data-us-east-1/translations/Nemotron-Pretraining-Specialized-v1.2/Fact-Seeking/indictrans2-en-indic-dist-200M-beam1-20260902/fact-seeking-70shard-10lang-r16-20260903/language=ben_Beng/source=24c0607adac25c9e3e90/chunk=02fe47bf5eb2a30701eaa79ea4b79c85625f12d308314d890e9c3cb8a4f36e01/files/ben_Beng/translated_documents.parquet",
+    "sampled_object": "s3://your-source-bucket/translations/Nemotron-Pretraining-Specialized-v1.2/Fact-Seeking/indictrans2-en-indic-dist-200M-beam1-20260902/fact-seeking-70shard-10lang-r16-20260903/language=ben_Beng/source=24c0607adac25c9e3e90/chunk=02fe47bf5eb2a30701eaa79ea4b79c85625f12d308314d890e9c3cb8a4f36e01/files/ben_Beng/translated_documents.parquet",
     "schema": {
      "document_id": "string",
      "immutable_value_repairs": "int64",

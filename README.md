@@ -1,34 +1,48 @@
 # Terminus ModelTunnelv2
 
-This is a **standalone implementation repository**, created from the maintained Terminus working tree on 29 September 2026. It currently contains the Terminus baseline, a frozen tokenizer artifact, research context, and a build brief. It does **not** yet contain the complete ModelTunnelv2-style pipeline or an optimized training recipe. No pretraining corpus, evaluation examples, S3 credentials, model checkpoint, or completed search result is bundled.
+Terminus ModelTunnelv2 is a research implementation for multilingual decoder pretraining with dense-weight FP8 arithmetic, conversion to ternary quantization-aware training (QAT), deterministic packed data, strict checkpoint resume, and task-aware evaluation. The completed experiments use a 146.4M-parameter model over English, seven Indic languages, math, and code.
 
-## Start here
+This repository contains the implementation, tests, configurations, analysis code, and compact result artifacts. **Raw corpora, evaluation records, training checkpoints, and full run logs are external and are not included.** The results are evidence from one model/seed/recipe, not an optimized training recipe or a claim of downstream competence.
 
-1. Give the coding agent [`AGENT_PROMPT.md`](AGENT_PROMPT.md) and this repository URL.
-2. Use [`DATA_SOURCE_MAP.md`](DATA_SOURCE_MAP.md) for the eight-language S3 scope and data inventory caveats.
-3. Use [`RESEARCH_LIBRARY.md`](RESEARCH_LIBRARY.md) for the papers and public task/software sources.
-4. Follow [`AGENTS.md`](AGENTS.md) for incremental, milestone-based Git commits.
+## Results at a glance
 
-## Contents
+- A dense-FP8 run completed **9,999,998,976 training tokens** and 25,432 updates on one H100, including interruption and exact resume. Final mixture-weighted held-out token loss was **2.4194**, with no recorded non-finite incidents.
+- A ternary QAT continuation completed **1,999,998,976 additional tokens** and 5,087 updates. Under the original dense validation weighting, loss was **2.6042**, versus **2.4194** for the dense parent; every tracked source loss was worse after QAT.
+- These runs do **not** isolate a ternary quality tax: there is no matched same-data/same-schedule dense continuation. The QAT mixture, learning-rate schedule, and source position also changed.
+- No downstream QAT evaluation suite has been completed. Held-out next-token loss is not task accuracy, code-execution ability, or evidence of scale transfer.
 
-| Path | Purpose |
-| --- | --- |
-| `terminus/` | Maintained Terminus Python package, copied into the root so the coding agent can develop it directly. `terminus_next/` is intentionally excluded. |
-| `configs/`, `tests/`, `scripts/` | Existing configurations, correctness tests, and launch/benchmark scripts. No ModelTunnel implementation is implied. |
-| `data/tokenizer/` | Legacy tokenizer assets needed to understand and test the existing code. They are **not** the tokenizer chosen for this campaign. |
-| `tokenizer/tokenizer-65k.json` | User-selected frozen 65,536-ID vocabulary and algorithm specification. SHA-256 `c53e0e95cd19e2954a8c7114c0a580eeb16698b153fdf84c5d80a7187d778d29`. |
-| `tokenizer/tokenizer-65k-freeze.md` | Provenance, usage notes, and prior checks for that artifact. It is not executable encoder code. |
-| `docs/terminus/` | Existing Terminus architecture, FP8, and ModelTunnel research notes. The protocol is a plan, not a completed pipeline. |
-| `docs/s3_inventory/` | Prior S3 inventory and curriculum documents, copied as **historical evidence**. Their 1.2B geometry, token totals, and suggested mixtures are not the selected Terminus recipe. Re-inventory before use. |
-| `papers/` | Nine verified research-paper PDFs. No training or evaluation datasets are inside. |
-| `evidence/muon_25l_readme.md` | Summary of the current 1.5B synthetic Muon/AdamW benchmark. |
+See [the results guide](docs/RESULTS.md), the [combined dense/QAT analysis](experiments/terminus_lean_150m_qat_2b/analysis/COMBINED_DENSE_QAT_SCALING_REVIEW.md), and the [dense final-run analysis](experiments/terminus_lean_150m_10b/analysis/FINAL_RUN_ANALYSIS.md) for methods, metrics, and limitations.
 
-## Scope and known mismatch
+## Implemented system
 
-The S3 and tokenizer work supplied for this handoff targets **eight languages total**: English (`en`) plus Hindi (`hi`), Marathi (`mr`), Kannada (`kn`), Telugu (`te`), Tamil (`ta`), Gujarati (`gu`), and Bengali (`bn`), along with math and code domains. The maintained repository still hardcodes an older eleven-language set. The coding agent must make the campaign language set explicit and configurable without silently rewriting the old experiment's assumptions.
+| Area | Implementation | Tests and entry points |
+| --- | --- | --- |
+| Model and dense/ternary arithmetic | `terminus/model.py`, `terminus/quantization.py`, `terminus/fp8_kernels.py`; FP32 latent weights, separate `weight_mode="dense"` and `"ternary"`, Torch reference and native DeepGEMM paths | `tests/test_model.py`, `tests/test_dense_fp8.py`, `tests/test_fp8.py` |
+| Trainer and schedules | `terminus/train.py`, `terminus/optim.py`, `terminus/logical_muon.py`; distributed-aware loading, cosine/WSD schedules, Muon and auxiliary AdamW, validation and stability events | `tests/test_training.py`, `tests/test_logical_muon.py` |
+| Checkpoints and phase conversion | `terminus/checkpoint.py`, `terminus/transition.py`; immutable SHA-256-receipted checkpoints, model/optimizer/data/RNG state, exact-resume contracts, explicit dense-to-QAT receipts | `tests/test_training.py`, `tests/test_transition.py`, `tests/test_lean_10b_resume.py`, `tests/test_lean_qat_2b.py` |
+| Corpus hygiene and packing | `terminus/corpus.py`, `terminus/prepare_campaign_data.py`, `terminus/data.py`; NFC normalization, stable-ID/exact/near deduplication, deterministic pre-tokenization splits, task-shingle contamination filtering, restartable cursors, finite source routing | `tests/test_corpus.py`, `tests/test_prepare_campaign.py`, `tests/test_data.py`, `tests/test_tokenset_shuffle.py` |
+| Tokenization | `terminus/tokenizer65k.py` and the frozen `tokenizer/tokenizer-65k.json`; legacy RWKV/SentencePiece support remains separate | `tests/test_tokenizer65k.py`, `tests/test_rwkv_tokenizer.py`, `tests/test_tokenizer.py` |
+| Task and code evaluation | `terminus/task_eval.py`: conditional reference NLL with correct first-answer-token masking, answer-only loss, choice margins, bits/byte, bootstrap intervals, deterministic sharding. `terminus/codeexec.py`: opt-in subprocess execution with time/resource limits; it is not a security boundary | `tests/test_task_eval.py` covers both modules; `scripts/evaluate_run.py` scores verified checkpoints |
+| Experiment tracking | `terminus/registry.py`, `terminus/search_plan.py`, `terminus/campaign.py` | `tests/test_registry.py`, `tests/test_campaign.py`; `scripts/campaign_dry_run.py` only renders a plan |
 
-The current DeepGEMM route does FP8 GEMMs **with ternary weights**. It is not the dense-weight FP8 first stage used in MiniCPM4. The selected JSON tokenizer is also not loadable by `terminus/tokenizer.py` as it stands. These and the phase transition, task scorer, data pipeline, and search ledger are implementation work for the agent.
+The frozen vocabulary has 65,536 IDs and SHA-256 `c53e0e95cd19e2954a8c7114c0a580eeb16698b153fdf84c5d80a7187d778d29`. Packed documents use `<eod>` (ID 4), not the legacy RWKV EOS convention. Its third-party license and provenance are described in [the freeze note](tokenizer/tokenizer-65k-freeze.md) and [NOTICE](NOTICE).
 
-## Development boundary
+## Reproduce and verify
 
-The agent implements and tests in this repository and pushes multiple meaningful commits as milestones finish. The prompt stops after a bounded end-to-end smoke test; the owner will later decide when to run the expensive research campaign. The older original Terminus repository is a provenance source, not the agent's working tree.
+For CPU correctness checks, use Python 3.10+ and install the project in a virtual environment:
+
+```bash
+python -m pip install -e '.[muon]'
+python -m compileall -q terminus tests
+OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 python -m unittest discover -s tests -t . -v
+python -m terminus.preflight --config configs/1.5b_candidate.json --count-only
+bash -n scripts/train.sh
+```
+
+These are the checks run by [CPU CI](.github/workflows/ci.yml); CUDA-only cases skip on CPU. Native FP8/FA3 validation requires an explicitly provisioned, pinned SM90 environment and must not be inferred from CPU skips.
+
+[Reproducibility and artifact boundaries](docs/REPRODUCIBILITY.md) explain how to rerun compact analyses with externally obtained checkpoints/logs, prepare a bounded corpus smoke sample, and evaluate a checkpoint. [DATA_SOURCE_MAP.md](DATA_SOURCE_MAP.md) records the source-scope caveats; [RESEARCH_LIBRARY.md](RESEARCH_LIBRARY.md) links to canonical research sources rather than bundling paper PDFs.
+
+## License and provenance
+
+Original Terminus source code, documentation, research reports, and modifications in this repository are available under [Apache-2.0](LICENSE). Third-party tokenizer assets, datasets, evaluation records, papers, checkpoints, and other external assets are **not relicensed** by this repository; see [NOTICE](NOTICE) and [SOURCE_PROVENANCE.md](SOURCE_PROVENANCE.md). In particular, the derived Sarvam tokenizer retains its [non-commercial research terms](tokenizer/SARVAM_AI_RESEARCH_LICENSE.md), including the requirement for explicit written permission for commercial use or commercial-entity distribution. Historical documents under `docs/` are labeled snapshots and may describe earlier configurations or plans rather than current behavior.

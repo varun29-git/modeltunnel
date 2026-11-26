@@ -81,7 +81,7 @@ def main():
     for prefix, check in sorted(inv["presence_checks"].items()):
         lines.append(f"- `{prefix}`: {'present' if check['present'] else 'ABSENT'}")
     lines += ["", "Excluded from training: `translation-staging/`, `translation-benchmark/`, "
-              "TinyLlama-tokenized packs in `quark-research-repository-storage` (incompatible token IDs).", ""]
+              "TinyLlama-tokenized packs in `your-research-bucket` (incompatible token IDs).", ""]
     Path(args.output).write_text("\n".join(lines))
     print(f"wrote {args.output}")
 

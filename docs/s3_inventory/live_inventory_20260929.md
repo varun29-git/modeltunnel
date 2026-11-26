@@ -1,6 +1,6 @@
 # Live S3 inventory — 2026-09-29T15:44:48.960834+00:00
 
-Bucket: `s3://nemotron-training-data-us-east-1` (read-only ListObjects + one Parquet footer/row sample per family).
+Bucket: `s3://your-source-bucket` (read-only ListObjects + one Parquet footer/row sample per family).
 Sizes are ListObjects byte sums; document/token counts are estimates labeled by basis.
 Token estimate basis: measured on the bounded S3 sample (13,717 docs) with the frozen 65k tokenizer.
 
@@ -77,4 +77,4 @@ Token estimate basis: measured on the bounded S3 sample (13,717 docs) with the f
 - `translation-benchmark/`: present
 - `translation-staging/`: present
 
-Excluded from training: `translation-staging/`, `translation-benchmark/`, TinyLlama-tokenized packs in `quark-research-repository-storage` (incompatible token IDs).
+Excluded from training: `translation-staging/`, `translation-benchmark/`, TinyLlama-tokenized packs in `your-research-bucket` (incompatible token IDs).
