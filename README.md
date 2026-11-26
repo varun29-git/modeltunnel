@@ -1,8 +1,17 @@
-# Terminus ModelTunnelv2
+# ModelTunnel
 
-Terminus ModelTunnelv2 is a research implementation for multilingual decoder pretraining with dense-weight FP8 arithmetic, conversion to ternary quantization-aware training (QAT), deterministic packed data, strict checkpoint resume, and task-aware evaluation. The completed experiments use a 146.4M-parameter model over English, seven Indic languages, math, and code.
+ModelTunnel is a general research framework for multilingual decoder pretraining with dense-weight FP8 arithmetic, conversion to ternary quantization-aware training (QAT), deterministic packed data, strict checkpoint resume, and task-aware evaluation. Its reference experiments use a 146.4M-parameter model over English, seven Indic languages, math, and code.
 
 This repository contains the implementation, tests, configurations, analysis code, and compact result artifacts. **Raw corpora, evaluation records, training checkpoints, and full run logs are external and are not included.** The results are evidence from one model/seed/recipe, not an optimized training recipe or a claim of downstream competence.
+
+## Development timeline
+
+| Date | Milestone |
+| --- | --- |
+| 29 September 2026 | Standalone training implementation and frozen research substrate established. |
+| 1 October 2026 | Ten-billion-token dense-FP8 reference run completed on one H100 with interruption and exact resume. |
+| October 2026 | Two-billion-token ternary-QAT continuation and combined scaling analysis completed. |
+| **27 November 2026** | **Implementation, evaluations, run analyses, and reproducibility notes published as the first open-source release under Apache-2.0.** |
 
 ## Results at a glance
 
